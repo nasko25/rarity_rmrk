@@ -12,3 +12,11 @@ type HistoricalBalance @entity {
   balance: BigInt!
   timestamp: BigInt!
 }
+
+type Nft @entity {
+    collection: String!
+    symbol: String!
+    transferrable: BigInt!
+    sn: String
+    metadata: String
+}

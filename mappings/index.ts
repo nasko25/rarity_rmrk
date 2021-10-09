@@ -1,6 +1,6 @@
 import BN from 'bn.js'
 import { DatabaseManager, EventContext, StoreContext } from '@subsquid/hydra-common'
-import { Account, HistoricalBalance } from '../generated/model'
+import { Account, HistoricalBalance, Nft } from '../generated/model'
 import { Balances } from '../chain'
 
 
@@ -62,4 +62,22 @@ async function getOrCreate<T extends {id: string}>(
 
 type EntityConstructor<T> = {
   new (...args: any[]): T
+}
+
+export async function systemRemark({
+  store,
+  event,
+  block,
+  extrinsic,
+}: EventContext & StoreContext): Promise<void> {
+
+    console.log("System remark encountered.")
+    let nft = new Nft();
+    nft.collection = "test";
+    nft.symbol = "T";
+    let bn = new BN(1000);
+    nft.transferrable = bn;
+    nft.sn = "10";
+    nft.metadata = "https://asdf.com";
+    await store.save(nft)
 }

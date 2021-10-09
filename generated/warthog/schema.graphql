@@ -265,6 +265,127 @@ input HistoricalBalanceWhereUniqueInput {
   id: ID!
 }
 
+type Nft implements BaseGraphQLObject {
+  id: ID!
+  createdAt: DateTime!
+  createdById: String!
+  updatedAt: DateTime
+  updatedById: String
+  deletedAt: DateTime
+  deletedById: String
+  version: Int!
+  collection: String!
+  symbol: String!
+  transferrable: BigInt!
+  sn: String
+  metadata: String
+}
+
+type NftConnection {
+  totalCount: Int!
+  edges: [NftEdge!]!
+  pageInfo: PageInfo!
+}
+
+input NftCreateInput {
+  collection: String!
+  symbol: String!
+  transferrable: String!
+  sn: String
+  metadata: String
+}
+
+type NftEdge {
+  node: Nft!
+  cursor: String!
+}
+
+enum NftOrderByInput {
+  createdAt_ASC
+  createdAt_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+  deletedAt_ASC
+  deletedAt_DESC
+  collection_ASC
+  collection_DESC
+  symbol_ASC
+  symbol_DESC
+  transferrable_ASC
+  transferrable_DESC
+  sn_ASC
+  sn_DESC
+  metadata_ASC
+  metadata_DESC
+}
+
+input NftUpdateInput {
+  collection: String
+  symbol: String
+  transferrable: String
+  sn: String
+  metadata: String
+}
+
+input NftWhereInput {
+  id_eq: ID
+  id_in: [ID!]
+  createdAt_eq: DateTime
+  createdAt_lt: DateTime
+  createdAt_lte: DateTime
+  createdAt_gt: DateTime
+  createdAt_gte: DateTime
+  createdById_eq: ID
+  createdById_in: [ID!]
+  updatedAt_eq: DateTime
+  updatedAt_lt: DateTime
+  updatedAt_lte: DateTime
+  updatedAt_gt: DateTime
+  updatedAt_gte: DateTime
+  updatedById_eq: ID
+  updatedById_in: [ID!]
+  deletedAt_all: Boolean
+  deletedAt_eq: DateTime
+  deletedAt_lt: DateTime
+  deletedAt_lte: DateTime
+  deletedAt_gt: DateTime
+  deletedAt_gte: DateTime
+  deletedById_eq: ID
+  deletedById_in: [ID!]
+  collection_eq: String
+  collection_contains: String
+  collection_startsWith: String
+  collection_endsWith: String
+  collection_in: [String!]
+  symbol_eq: String
+  symbol_contains: String
+  symbol_startsWith: String
+  symbol_endsWith: String
+  symbol_in: [String!]
+  transferrable_eq: BigInt
+  transferrable_gt: BigInt
+  transferrable_gte: BigInt
+  transferrable_lt: BigInt
+  transferrable_lte: BigInt
+  transferrable_in: [BigInt!]
+  sn_eq: String
+  sn_contains: String
+  sn_startsWith: String
+  sn_endsWith: String
+  sn_in: [String!]
+  metadata_eq: String
+  metadata_contains: String
+  metadata_startsWith: String
+  metadata_endsWith: String
+  metadata_in: [String!]
+  AND: [NftWhereInput!]
+  OR: [NftWhereInput!]
+}
+
+input NftWhereUniqueInput {
+  id: ID!
+}
+
 type PageInfo {
   hasNextPage: Boolean!
   hasPreviousPage: Boolean!
@@ -286,6 +407,9 @@ type Query {
   historicalBalances(offset: Int, limit: Int = 50, where: HistoricalBalanceWhereInput, orderBy: [HistoricalBalanceOrderByInput!]): [HistoricalBalance!]!
   historicalBalanceByUniqueInput(where: HistoricalBalanceWhereUniqueInput!): HistoricalBalance
   historicalBalancesConnection(first: Int, after: String, last: Int, before: String, where: HistoricalBalanceWhereInput, orderBy: [HistoricalBalanceOrderByInput!]): HistoricalBalanceConnection!
+  nfts(offset: Int, limit: Int = 50, where: NftWhereInput, orderBy: [NftOrderByInput!]): [Nft!]!
+  nftByUniqueInput(where: NftWhereUniqueInput!): Nft
+  nftsConnection(first: Int, after: String, last: Int, before: String, where: NftWhereInput, orderBy: [NftOrderByInput!]): NftConnection!
   hello: Hello!
 }
 
