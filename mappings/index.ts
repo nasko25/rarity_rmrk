@@ -72,6 +72,7 @@ export async function systemRemark({
   extrinsic,
 }: EventContext & StoreContext): Promise<void> {
 
+    // TODO error checks; don't assume all nfts follow the standard
     let ext_val = extrinsic?.args[0].value;
     // nft remarks should start with starts with rmrk or RMRK
     if (ext_val?.toString().startsWith("0x726d726b") || ext_val?.toString().startsWith("0x524d524c")) {
@@ -79,7 +80,7 @@ export async function systemRemark({
         // console.log(Buffer.from(ext_val).toString())
         console.log(Buffer.from(ext_val.toString().substring(2), "hex").toString() + "\n");
         console.log(decodeURI(Buffer.from(ext_val.toString().substring(2), "hex").toString()) + "\n");
-        console.log(decodeURIComponent(Buffer.from(ext_val.toString().substring(2), "hex").toString()) + "\n");
+        console.log(decodeURIComponent(Buffer.from(ext_val.toString().substring(2), "hex").toString().replace(/\+/g, ' ')) + "\n");
         console.log(decodeURI(hexToString(ext_val.toString())) + "\n");
         let nft = new Nft();
         nft.collection = "test";
