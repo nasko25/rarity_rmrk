@@ -2,6 +2,7 @@ import BN from 'bn.js'
 import { DatabaseManager, EventContext, StoreContext } from '@subsquid/hydra-common'
 import { Account, HistoricalBalance, Nft } from '../generated/model'
 import { Balances } from '../chain'
+import { hexToString, stringToHex } from "@polkadot/util";
 
 
 export async function balancesTransfer({
@@ -74,7 +75,12 @@ export async function systemRemark({
     let ext_val = extrinsic?.args[0].value;
     // nft remarks should start with starts with rmrk or RMRK
     if (ext_val?.toString().startsWith("0x726d726b") || ext_val?.toString().startsWith("0x524d524c")) {
-        console.log("rmrk encountered.", event.params[0].value, extrinsic?.args[0].value)
+        console.log("rmrk encountered.", event.params[0].value, extrinsic?.args[0].value);
+        // console.log(Buffer.from(ext_val).toString())
+        console.log(Buffer.from(ext_val.toString().substring(2), "hex").toString() + "\n");
+        console.log(decodeURI(Buffer.from(ext_val.toString().substring(2), "hex").toString()) + "\n");
+        console.log(decodeURIComponent(Buffer.from(ext_val.toString().substring(2), "hex").toString()) + "\n");
+        console.log(decodeURI(hexToString(ext_val.toString())) + "\n");
         let nft = new Nft();
         nft.collection = "test";
         nft.symbol = "T";
