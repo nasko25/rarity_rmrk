@@ -71,13 +71,22 @@ export async function systemRemark({
   extrinsic,
 }: EventContext & StoreContext): Promise<void> {
 
-    console.log("System remark encountered.")
-    let nft = new Nft();
-    nft.collection = "test";
-    nft.symbol = "T";
-    let bn = new BN(1000);
-    nft.transferrable = bn;
-    nft.sn = "10";
-    nft.metadata = "https://asdf.com";
-    await store.save(nft)
+    let ext_val = extrinsic?.args[0].value;
+    // nft remarks should start with starts with rmrk or RMRK
+    if (ext_val?.toString().startsWith("0x726d726b") || ext_val?.toString().startsWith("0x524d524c")) {
+        console.log("rmrk encountered.", event.params[0].value, extrinsic?.args[0].value)
+        let nft = new Nft();
+        nft.collection = "test";
+        nft.symbol = "T";
+        let bn = new BN(1000);
+        nft.transferrable = bn;
+        nft.sn = "10";
+        nft.metadata = "https://asdf.com";
+        await store.save(nft)
+        process.exit(1);
+    }
+}
+
+async function parse_rmrk(ext_val: Number) {
+    // TODO
 }

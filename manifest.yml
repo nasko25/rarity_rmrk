@@ -2,6 +2,7 @@ version: '3.0'
 description: Test manifest
 repository: https://github.com/
 hydraVersion: "4"
+# blockHeight: 6000000
 
 typegen:
   metadata:
@@ -13,6 +14,7 @@ typegen:
   outDir: chain
 
 mappings:
+  # blockHeight: 6000000
   mappingsModule: mappings
   eventHandlers:
     - event: balances.Transfer
