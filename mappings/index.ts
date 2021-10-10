@@ -65,6 +65,7 @@ type EntityConstructor<T> = {
   new (...args: any[]): T
 }
 
+// TODO unit tests
 export async function systemRemark({
   store,
   event,
@@ -91,6 +92,8 @@ export async function systemRemark({
         nft.sn = "10";
         nft.metadata = "https://asdf.com";
         await store.save(nft)
+
+        // TODO remove:
         process.exit(1);
     }
 }

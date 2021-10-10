@@ -16,11 +16,18 @@
     "db:reset": "hydra-cli db:drop && hydra-cli db:create && hydra-processor migrate && hydra-cli db:migrate",
     "processor:migrate": "hydra-processor migrate",
     "processor:start": "hydra-processor run",
-    "query-node:start": "ts-node --type-check ./generated/server/index.ts"
+    "query-node:start": "ts-node --type-check ./generated/server/index.ts",
+    "test": "node_modules/jest/bin/jest.js"
   },
   "dependencies": {
     "@subsquid/hydra-cli": "4.2.0-alpha.0",
     "@subsquid/hydra-processor": "4.2.0-alpha.0",
     "@subsquid/hydra-typegen": "4.2.0-alpha.0"
+  },
+  "devDependencies": {
+    "@babel/preset-typescript": "^7.15.0",
+    "@types/jest": "^27.0.2",
+    "jest": "^27.2.5",
+    "ts-jest": "^27.0.5"
   }
 }

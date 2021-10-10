@@ -17,3 +17,6 @@ run-build:
 	npm run processor:migrate
 	npm run db:migrate
 	npm run processor:start
+
+test:
+	npm t
