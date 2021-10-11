@@ -73,17 +73,21 @@ export async function systemRemark({
   extrinsic,
 }: EventContext & StoreContext): Promise<void> {
 
+    if (!extrinsic || !extrinsic.args || extrinsic.args.length !== 1) {
+        console.error("Unexpected extrinsic format.");
+        return;
+    }
     // TODO error checks; don't assume all nfts follow the standard
-    let ext_val = extrinsic?.args[0].value;
+    let ext_val = extrinsic?.args[0]?.value;
     // nft remarks should start with starts with rmrk or RMRK
     if (ext_val?.toString().startsWith("0x726d726b") || ext_val?.toString().startsWith("0x524d524c")) {
         console.log("rmrk encountered\n");
-        //try {
+        try {
             console.log(JSON.stringify(parse_rmrk(ext_val)) + "\n");
-        //} catch (err) {
-        //    console.error(err);
-        //    return;
-        //}
+        } catch (err) {
+            console.error(err);
+            return;
+        }
         let nft = new Nft();
         nft.collection = "test";
         nft.symbol = "T";
