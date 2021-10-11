@@ -79,23 +79,44 @@ export async function systemRemark({
     }
     // TODO error checks; don't assume all nfts follow the standard
     let ext_val = extrinsic?.args[0]?.value;
-    // nft remarks should start with starts with rmrk or RMRK
+    // nft remarks should start with rmrk or RMRK
     if (ext_val?.toString().startsWith("0x726d726b") || ext_val?.toString().startsWith("0x524d524c")) {
         console.log("rmrk encountered\n");
+        let parsed_rmrk;
         try {
-            console.log(JSON.stringify(parse_rmrk(ext_val)) + "\n");
+            parsed_rmrk = parse_rmrk(ext_val);
+            console.log(JSON.stringify(parsed_rmrk) + "\n");
         } catch (err) {
             console.error(err);
             return;
         }
-        let nft = new Nft();
-        nft.collection = "test";
-        nft.symbol = "T";
-        let bn = new BN(1000);
-        nft.transferrable = bn;
-        nft.sn = "10";
-        nft.metadata = "https://asdf.com";
-        await store.save(nft)
+
+        // TODO check metadata format; it should be a valid HTTP or ipfs url
+        // TODO do checks for all versions and interactions
+        if (parsed_rmrk.version === "RMRK0.1" || parsed_rmrk.version === "1.0.0" && (parsed_rmrk.interaction === "MINT" || parsed_rmrk.interaction === "mint")) {
+            // mint a v1.0.0 collection
+            let collection = new Collection();
+            collection.id = parsed_rmrk.rmrk.id;
+            collection.name = parsed_rmrk.rmrk.name;
+            collection.max = new BN(parsed_rmrk.rmrk.max);
+            console.log(parsed_rmrk.rmrk.max);
+            collection.issuer = parsed_rmrk.rmrk.issuer;
+            collection.symbol = parsed_rmrk.rmrk.symbol;
+            collection.metadata = parsed_rmrk.rmrk.metadata;
+
+            await store.save(collection);
+        }
+        // TODO spec version 0.1 had a bug in that it did not specify a standard version in the MINT and MINTNFT interactions. When the version is missing from the MINT, it should be assumed to mean 0.1
+        else if ((parsed_rmrk.version === "RMRK0.1" || parsed_rmrk.version === "1.0.0") && (parsed_rmrk.interaction === "MINTNFT" || parsed_rmrk.interaction === "mintnft")) {
+            let nft = new Nft();
+            nft.collection = parsed_rmrk.rmrk.collection;
+            nft.symbol = parsed_rmrk.rmrk.symbol;
+            nft.transferrable = new BN(parsed_rmrk.rmrk.transferrable);
+            nft.sn = parsed_rmrk.rmrk.sn;
+            nft.metadata = parsed_rmrk.rmrk.metadata;
+
+            await store.save(nft)
+        }
 
         // TODO remove:
         process.exit(1);
@@ -202,6 +223,7 @@ function parse_rmrk(ext_val: AnyJsonField) {
     else {
         try {
             rmrk = JSON.parse(rmrk_str);
+            version = rmrk.version;
         } catch (err) {
             throw new InvalidRMRKFormat(`Encountered a rmrk (${rmrk_str}) with invalid format.`);
         }
@@ -210,5 +232,5 @@ function parse_rmrk(ext_val: AnyJsonField) {
     }
 
     // let rmrk = JSON.parse(rmrk_str);
-    return rmrk;
+    return { rmrk: rmrk, interaction: interaction, version: version };
 }
