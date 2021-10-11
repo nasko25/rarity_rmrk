@@ -91,10 +91,14 @@ export async function systemRemark({
             return;
         }
 
-        // TODO check metadata format; it should be a valid HTTP or ipfs url
         // TODO do checks for all versions and interactions
-        if (parsed_rmrk.version === "RMRK0.1" || parsed_rmrk.version === "1.0.0" && (parsed_rmrk.interaction === "MINT" || parsed_rmrk.interaction === "mint")) {
-            // mint a v1.0.0 collection
+        if (parsed_rmrk.version === undefined || parsed_rmrk.version === "RMRK0.1" || parsed_rmrk.version === "1.0.0" && (parsed_rmrk.interaction === "MINT" || parsed_rmrk.interaction === "mint")) {
+            // check if the rmrk collection is valid
+            if (!checkRmrkCollectionValid(parsed_rmrk.rmrk)) {
+                console.error(`Collection ${parsed_rmrk.rmrk.name} is not following rmrk guidelines, so it cannot be parsed.`);
+                return;
+            }
+            // mint a v0.1 or v1.0.0 collection
             let collection = new Collection();
             collection.id = parsed_rmrk.rmrk.id;
             collection.name = parsed_rmrk.rmrk.name;
@@ -105,8 +109,10 @@ export async function systemRemark({
 
             await store.save(collection);
         }
-        // TODO spec version 0.1 had a bug in that it did not specify a standard version in the MINT and MINTNFT interactions. When the version is missing from the MINT, it should be assumed to mean 0.1
-        else if ((parsed_rmrk.version === "RMRK0.1" || parsed_rmrk.version === "1.0.0") && (parsed_rmrk.interaction === "MINTNFT" || parsed_rmrk.interaction === "mintnft")) {
+        // spec version 0.1 had a bug in that it did not specify a standard version in the MINT and MINTNFT interactions. When the version is missing from the MINT, it should be assumed to mean 0.1
+        //  (taken from the documentation)
+        else if ((parsed_rmrk.version === undefined || parsed_rmrk.version === "RMRK0.1" || parsed_rmrk.version === "1.0.0") && (parsed_rmrk.interaction === "MINTNFT" || parsed_rmrk.interaction === "mintnft")) {
+            // mint a v0.1 or v1.0.0 nft
             let nft = new Nft();
             nft.collection = parsed_rmrk.rmrk.collection;
             nft.symbol = parsed_rmrk.rmrk.symbol;
@@ -226,10 +232,20 @@ function parse_rmrk(ext_val: AnyJsonField) {
         } catch (err) {
             throw new InvalidRMRKFormat(`Encountered a rmrk (${rmrk_str}) with invalid format.`);
         }
-        if (rmrk.version !== "RMRK0.1" && rmrk.version !== "rmrk0.1")
+        if (rmrk.version !== "RMRK0.1" && rmrk.version !== "rmrk0.1" && rmrk.version !== undefined)
             throw new InvalidRMRKFormat("Invalid rmrk version.");
     }
 
     // let rmrk = JSON.parse(rmrk_str);
     return { rmrk: rmrk, interaction: interaction, version: version };
+}
+
+// TODO check metadata formats; they should be a valid HTTP or ipfs url
+// helper function that check whether the parsed rmrk follows the guidelines
+function checkRmrkCollectionValid(rmrk: any) {
+    return rmrk.id && rmrk.name && rmrk.max && rmrk.issuer && rmrk.symbol && rmrk.metadata;
+}
+
+function checkRmrkNftValid(rmrk: any) {
+    return rmrk.collection && rmrk.symbol && rmrk.transferrable && rmrk.sn && rmrk.metadata;
 }

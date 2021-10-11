@@ -12,6 +12,8 @@ jest.mock("@polkadot/util");
 // this fixes a "Jest encountered an unexpected token" error
 jest.mock("../../chain", () => jest.fn());
 
+// TODO mock console.error
+
 afterEach(() => {
     jest.clearAllMocks();
 });
