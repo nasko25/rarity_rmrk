@@ -28,6 +28,8 @@ import { HistoricalBalance } from "../modules/historical-balance/historical-bala
 // @ts-ignore
 import { Account } from "../modules/account/account.model";
 // @ts-ignore
+import { Collection } from "../modules/collection/collection.model";
+// @ts-ignore
 import { Nft } from "../modules/nft/nft.model";
 
 export enum HistoricalBalanceOrderByEnum {
@@ -412,6 +414,258 @@ export class AccountCreateManyArgs {
 export class AccountUpdateArgs {
   @TypeGraphQLField() data!: AccountUpdateInput;
   @TypeGraphQLField() where!: AccountWhereUniqueInput;
+}
+
+export enum CollectionOrderByEnum {
+  createdAt_ASC = "createdAt_ASC",
+  createdAt_DESC = "createdAt_DESC",
+
+  updatedAt_ASC = "updatedAt_ASC",
+  updatedAt_DESC = "updatedAt_DESC",
+
+  deletedAt_ASC = "deletedAt_ASC",
+  deletedAt_DESC = "deletedAt_DESC",
+
+  name_ASC = "name_ASC",
+  name_DESC = "name_DESC",
+
+  max_ASC = "max_ASC",
+  max_DESC = "max_DESC",
+
+  issuer_ASC = "issuer_ASC",
+  issuer_DESC = "issuer_DESC",
+
+  symbol_ASC = "symbol_ASC",
+  symbol_DESC = "symbol_DESC",
+
+  metadata_ASC = "metadata_ASC",
+  metadata_DESC = "metadata_DESC",
+}
+
+registerEnumType(CollectionOrderByEnum, {
+  name: "CollectionOrderByInput",
+});
+
+@TypeGraphQLInputType()
+export class CollectionWhereInput {
+  @TypeGraphQLField(() => ID, { nullable: true })
+  id_eq?: string;
+
+  @TypeGraphQLField(() => [ID], { nullable: true })
+  id_in?: string[];
+
+  @TypeGraphQLField(() => DateTime, { nullable: true })
+  createdAt_eq?: Date;
+
+  @TypeGraphQLField(() => DateTime, { nullable: true })
+  createdAt_lt?: Date;
+
+  @TypeGraphQLField(() => DateTime, { nullable: true })
+  createdAt_lte?: Date;
+
+  @TypeGraphQLField(() => DateTime, { nullable: true })
+  createdAt_gt?: Date;
+
+  @TypeGraphQLField(() => DateTime, { nullable: true })
+  createdAt_gte?: Date;
+
+  @TypeGraphQLField(() => ID, { nullable: true })
+  createdById_eq?: string;
+
+  @TypeGraphQLField(() => [ID], { nullable: true })
+  createdById_in?: string[];
+
+  @TypeGraphQLField(() => DateTime, { nullable: true })
+  updatedAt_eq?: Date;
+
+  @TypeGraphQLField(() => DateTime, { nullable: true })
+  updatedAt_lt?: Date;
+
+  @TypeGraphQLField(() => DateTime, { nullable: true })
+  updatedAt_lte?: Date;
+
+  @TypeGraphQLField(() => DateTime, { nullable: true })
+  updatedAt_gt?: Date;
+
+  @TypeGraphQLField(() => DateTime, { nullable: true })
+  updatedAt_gte?: Date;
+
+  @TypeGraphQLField(() => ID, { nullable: true })
+  updatedById_eq?: string;
+
+  @TypeGraphQLField(() => [ID], { nullable: true })
+  updatedById_in?: string[];
+
+  @TypeGraphQLField({ nullable: true })
+  deletedAt_all?: Boolean;
+
+  @TypeGraphQLField(() => DateTime, { nullable: true })
+  deletedAt_eq?: Date;
+
+  @TypeGraphQLField(() => DateTime, { nullable: true })
+  deletedAt_lt?: Date;
+
+  @TypeGraphQLField(() => DateTime, { nullable: true })
+  deletedAt_lte?: Date;
+
+  @TypeGraphQLField(() => DateTime, { nullable: true })
+  deletedAt_gt?: Date;
+
+  @TypeGraphQLField(() => DateTime, { nullable: true })
+  deletedAt_gte?: Date;
+
+  @TypeGraphQLField(() => ID, { nullable: true })
+  deletedById_eq?: string;
+
+  @TypeGraphQLField(() => [ID], { nullable: true })
+  deletedById_in?: string[];
+
+  @TypeGraphQLField({ nullable: true })
+  name_eq?: string;
+
+  @TypeGraphQLField({ nullable: true })
+  name_contains?: string;
+
+  @TypeGraphQLField({ nullable: true })
+  name_startsWith?: string;
+
+  @TypeGraphQLField({ nullable: true })
+  name_endsWith?: string;
+
+  @TypeGraphQLField(() => [String], { nullable: true })
+  name_in?: string[];
+
+  @TypeGraphQLField(() => BigInt, { nullable: true })
+  max_eq?: string;
+
+  @TypeGraphQLField(() => BigInt, { nullable: true })
+  max_gt?: string;
+
+  @TypeGraphQLField(() => BigInt, { nullable: true })
+  max_gte?: string;
+
+  @TypeGraphQLField(() => BigInt, { nullable: true })
+  max_lt?: string;
+
+  @TypeGraphQLField(() => BigInt, { nullable: true })
+  max_lte?: string;
+
+  @TypeGraphQLField(() => [BigInt], { nullable: true })
+  max_in?: string[];
+
+  @TypeGraphQLField({ nullable: true })
+  issuer_eq?: string;
+
+  @TypeGraphQLField({ nullable: true })
+  issuer_contains?: string;
+
+  @TypeGraphQLField({ nullable: true })
+  issuer_startsWith?: string;
+
+  @TypeGraphQLField({ nullable: true })
+  issuer_endsWith?: string;
+
+  @TypeGraphQLField(() => [String], { nullable: true })
+  issuer_in?: string[];
+
+  @TypeGraphQLField({ nullable: true })
+  symbol_eq?: string;
+
+  @TypeGraphQLField({ nullable: true })
+  symbol_contains?: string;
+
+  @TypeGraphQLField({ nullable: true })
+  symbol_startsWith?: string;
+
+  @TypeGraphQLField({ nullable: true })
+  symbol_endsWith?: string;
+
+  @TypeGraphQLField(() => [String], { nullable: true })
+  symbol_in?: string[];
+
+  @TypeGraphQLField({ nullable: true })
+  metadata_eq?: string;
+
+  @TypeGraphQLField({ nullable: true })
+  metadata_contains?: string;
+
+  @TypeGraphQLField({ nullable: true })
+  metadata_startsWith?: string;
+
+  @TypeGraphQLField({ nullable: true })
+  metadata_endsWith?: string;
+
+  @TypeGraphQLField(() => [String], { nullable: true })
+  metadata_in?: string[];
+
+  @TypeGraphQLField(() => CollectionWhereInput, { nullable: true })
+  AND?: [CollectionWhereInput];
+
+  @TypeGraphQLField(() => CollectionWhereInput, { nullable: true })
+  OR?: [CollectionWhereInput];
+}
+
+@TypeGraphQLInputType()
+export class CollectionWhereUniqueInput {
+  @TypeGraphQLField(() => ID)
+  id?: string;
+}
+
+@TypeGraphQLInputType()
+export class CollectionCreateInput {
+  @TypeGraphQLField()
+  name!: string;
+
+  @TypeGraphQLField()
+  max!: string;
+
+  @TypeGraphQLField()
+  issuer!: string;
+
+  @TypeGraphQLField()
+  symbol!: string;
+
+  @TypeGraphQLField({ nullable: true })
+  metadata?: string;
+}
+
+@TypeGraphQLInputType()
+export class CollectionUpdateInput {
+  @TypeGraphQLField({ nullable: true })
+  name?: string;
+
+  @TypeGraphQLField({ nullable: true })
+  max?: string;
+
+  @TypeGraphQLField({ nullable: true })
+  issuer?: string;
+
+  @TypeGraphQLField({ nullable: true })
+  symbol?: string;
+
+  @TypeGraphQLField({ nullable: true })
+  metadata?: string;
+}
+
+@ArgsType()
+export class CollectionWhereArgs extends PaginationArgs {
+  @TypeGraphQLField(() => CollectionWhereInput, { nullable: true })
+  where?: CollectionWhereInput;
+
+  @TypeGraphQLField(() => CollectionOrderByEnum, { nullable: true })
+  orderBy?: CollectionOrderByEnum[];
+}
+
+@ArgsType()
+export class CollectionCreateManyArgs {
+  @TypeGraphQLField(() => [CollectionCreateInput])
+  data!: CollectionCreateInput[];
+}
+
+@ArgsType()
+export class CollectionUpdateArgs {
+  @TypeGraphQLField() data!: CollectionUpdateInput;
+  @TypeGraphQLField() where!: CollectionWhereUniqueInput;
 }
 
 export enum NftOrderByEnum {

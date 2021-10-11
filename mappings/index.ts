@@ -1,6 +1,6 @@
 import BN from 'bn.js'
 import { DatabaseManager, EventContext, StoreContext, AnyJsonField } from '@subsquid/hydra-common'
-import { Account, HistoricalBalance, Nft } from '../generated/model'
+import { Account, HistoricalBalance, Nft, Collection } from '../generated/model'
 import { Balances } from '../chain'
 import { hexToString, stringToHex } from "@polkadot/util";
 

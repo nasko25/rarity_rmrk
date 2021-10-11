@@ -153,6 +153,127 @@ input BaseWhereInput {
 """GraphQL representation of BigInt"""
 scalar BigInt
 
+type Collection implements BaseGraphQLObject {
+  id: ID!
+  createdAt: DateTime!
+  createdById: String!
+  updatedAt: DateTime
+  updatedById: String
+  deletedAt: DateTime
+  deletedById: String
+  version: Int!
+  name: String!
+  max: BigInt!
+  issuer: String!
+  symbol: String!
+  metadata: String
+}
+
+type CollectionConnection {
+  totalCount: Int!
+  edges: [CollectionEdge!]!
+  pageInfo: PageInfo!
+}
+
+input CollectionCreateInput {
+  name: String!
+  max: String!
+  issuer: String!
+  symbol: String!
+  metadata: String
+}
+
+type CollectionEdge {
+  node: Collection!
+  cursor: String!
+}
+
+enum CollectionOrderByInput {
+  createdAt_ASC
+  createdAt_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+  deletedAt_ASC
+  deletedAt_DESC
+  name_ASC
+  name_DESC
+  max_ASC
+  max_DESC
+  issuer_ASC
+  issuer_DESC
+  symbol_ASC
+  symbol_DESC
+  metadata_ASC
+  metadata_DESC
+}
+
+input CollectionUpdateInput {
+  name: String
+  max: String
+  issuer: String
+  symbol: String
+  metadata: String
+}
+
+input CollectionWhereInput {
+  id_eq: ID
+  id_in: [ID!]
+  createdAt_eq: DateTime
+  createdAt_lt: DateTime
+  createdAt_lte: DateTime
+  createdAt_gt: DateTime
+  createdAt_gte: DateTime
+  createdById_eq: ID
+  createdById_in: [ID!]
+  updatedAt_eq: DateTime
+  updatedAt_lt: DateTime
+  updatedAt_lte: DateTime
+  updatedAt_gt: DateTime
+  updatedAt_gte: DateTime
+  updatedById_eq: ID
+  updatedById_in: [ID!]
+  deletedAt_all: Boolean
+  deletedAt_eq: DateTime
+  deletedAt_lt: DateTime
+  deletedAt_lte: DateTime
+  deletedAt_gt: DateTime
+  deletedAt_gte: DateTime
+  deletedById_eq: ID
+  deletedById_in: [ID!]
+  name_eq: String
+  name_contains: String
+  name_startsWith: String
+  name_endsWith: String
+  name_in: [String!]
+  max_eq: BigInt
+  max_gt: BigInt
+  max_gte: BigInt
+  max_lt: BigInt
+  max_lte: BigInt
+  max_in: [BigInt!]
+  issuer_eq: String
+  issuer_contains: String
+  issuer_startsWith: String
+  issuer_endsWith: String
+  issuer_in: [String!]
+  symbol_eq: String
+  symbol_contains: String
+  symbol_startsWith: String
+  symbol_endsWith: String
+  symbol_in: [String!]
+  metadata_eq: String
+  metadata_contains: String
+  metadata_startsWith: String
+  metadata_endsWith: String
+  metadata_in: [String!]
+  AND: [CollectionWhereInput!]
+  OR: [CollectionWhereInput!]
+}
+
+input CollectionWhereUniqueInput {
+  id: ID!
+}
+
 """
 The javascript `Date` as string. Type represents date and time as the ISO Date string.
 """
@@ -404,6 +525,9 @@ type Query {
   accounts(offset: Int, limit: Int = 50, where: AccountWhereInput, orderBy: [AccountOrderByInput!]): [Account!]!
   accountByUniqueInput(where: AccountWhereUniqueInput!): Account
   accountsConnection(first: Int, after: String, last: Int, before: String, where: AccountWhereInput, orderBy: [AccountOrderByInput!]): AccountConnection!
+  collections(offset: Int, limit: Int = 50, where: CollectionWhereInput, orderBy: [CollectionOrderByInput!]): [Collection!]!
+  collectionByUniqueInput(where: CollectionWhereUniqueInput!): Collection
+  collectionsConnection(first: Int, after: String, last: Int, before: String, where: CollectionWhereInput, orderBy: [CollectionOrderByInput!]): CollectionConnection!
   historicalBalances(offset: Int, limit: Int = 50, where: HistoricalBalanceWhereInput, orderBy: [HistoricalBalanceOrderByInput!]): [HistoricalBalance!]!
   historicalBalanceByUniqueInput(where: HistoricalBalanceWhereUniqueInput!): HistoricalBalance
   historicalBalancesConnection(first: Int, after: String, last: Int, before: String, where: HistoricalBalanceWhereInput, orderBy: [HistoricalBalanceOrderByInput!]): HistoricalBalanceConnection!

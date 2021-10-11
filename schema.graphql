@@ -13,6 +13,46 @@ type HistoricalBalance @entity {
   timestamp: BigInt!
 }
 
+
+# v1 only for now
+
+type Collection @entity {
+    id: String!
+    name: String!
+    max: BigInt!
+    issuer: String!
+    symbol: String!
+    metadata: String
+#     data???
+#     properties: IProperties
+}
+
+# type IProperties @entity {
+#     key: String!
+#     value: IAttribute!
+# }
+# 
+# type IAttribute @entity {
+#     _mutation: Mutation
+#     type: String!
+#     value: Any!
+# }
+# 
+# type Mutation @entity {
+#     allowed: Boolean!
+#     with: With
+# }
+# 
+# enum OP_TYPES {
+#     TYPE1
+#     TYPE2
+# }
+# 
+# type With @entity {
+#     op_type: OP_TYPES!
+#     condition: String
+# }
+# 
 type Nft @entity {
     collection: String!
     symbol: String!

@@ -9,6 +9,9 @@ export interface Query {
     accounts: <T = Array<Account>>(args: { offset?: Int | null, limit?: Int | null, where?: AccountWhereInput | null, orderBy?: Array<AccountOrderByInput> | null }, info?: GraphQLResolveInfo | string, options?: Options) => Promise<T> ,
     accountByUniqueInput: <T = Account | null>(args: { where: AccountWhereUniqueInput }, info?: GraphQLResolveInfo | string, options?: Options) => Promise<T | null> ,
     accountsConnection: <T = AccountConnection>(args: { first?: Int | null, after?: String | null, last?: Int | null, before?: String | null, where?: AccountWhereInput | null, orderBy?: Array<AccountOrderByInput> | null }, info?: GraphQLResolveInfo | string, options?: Options) => Promise<T> ,
+    collections: <T = Array<Collection>>(args: { offset?: Int | null, limit?: Int | null, where?: CollectionWhereInput | null, orderBy?: Array<CollectionOrderByInput> | null }, info?: GraphQLResolveInfo | string, options?: Options) => Promise<T> ,
+    collectionByUniqueInput: <T = Collection | null>(args: { where: CollectionWhereUniqueInput }, info?: GraphQLResolveInfo | string, options?: Options) => Promise<T | null> ,
+    collectionsConnection: <T = CollectionConnection>(args: { first?: Int | null, after?: String | null, last?: Int | null, before?: String | null, where?: CollectionWhereInput | null, orderBy?: Array<CollectionOrderByInput> | null }, info?: GraphQLResolveInfo | string, options?: Options) => Promise<T> ,
     historicalBalances: <T = Array<HistoricalBalance>>(args: { offset?: Int | null, limit?: Int | null, where?: HistoricalBalanceWhereInput | null, orderBy?: Array<HistoricalBalanceOrderByInput> | null }, info?: GraphQLResolveInfo | string, options?: Options) => Promise<T> ,
     historicalBalanceByUniqueInput: <T = HistoricalBalance | null>(args: { where: HistoricalBalanceWhereUniqueInput }, info?: GraphQLResolveInfo | string, options?: Options) => Promise<T | null> ,
     historicalBalancesConnection: <T = HistoricalBalanceConnection>(args: { first?: Int | null, after?: String | null, last?: Int | null, before?: String | null, where?: HistoricalBalanceWhereInput | null, orderBy?: Array<HistoricalBalanceOrderByInput> | null }, info?: GraphQLResolveInfo | string, options?: Options) => Promise<T> ,
@@ -58,6 +61,23 @@ export type AccountOrderByInput =   'createdAt_ASC' |
   'wallet_DESC' |
   'balance_ASC' |
   'balance_DESC'
+
+export type CollectionOrderByInput =   'createdAt_ASC' |
+  'createdAt_DESC' |
+  'updatedAt_ASC' |
+  'updatedAt_DESC' |
+  'deletedAt_ASC' |
+  'deletedAt_DESC' |
+  'name_ASC' |
+  'name_DESC' |
+  'max_ASC' |
+  'max_DESC' |
+  'issuer_ASC' |
+  'issuer_DESC' |
+  'symbol_ASC' |
+  'symbol_DESC' |
+  'metadata_ASC' |
+  'metadata_DESC'
 
 export type HistoricalBalanceOrderByInput =   'createdAt_ASC' |
   'createdAt_DESC' |
@@ -168,6 +188,81 @@ export interface BaseWhereInput {
   deletedAt_gt?: String | null
   deletedAt_gte?: String | null
   deletedById_eq?: String | null
+}
+
+export interface CollectionCreateInput {
+  name: String
+  max: String
+  issuer: String
+  symbol: String
+  metadata?: String | null
+}
+
+export interface CollectionUpdateInput {
+  name?: String | null
+  max?: String | null
+  issuer?: String | null
+  symbol?: String | null
+  metadata?: String | null
+}
+
+export interface CollectionWhereInput {
+  id_eq?: ID_Input | null
+  id_in?: ID_Output[] | ID_Output | null
+  createdAt_eq?: DateTime | null
+  createdAt_lt?: DateTime | null
+  createdAt_lte?: DateTime | null
+  createdAt_gt?: DateTime | null
+  createdAt_gte?: DateTime | null
+  createdById_eq?: ID_Input | null
+  createdById_in?: ID_Output[] | ID_Output | null
+  updatedAt_eq?: DateTime | null
+  updatedAt_lt?: DateTime | null
+  updatedAt_lte?: DateTime | null
+  updatedAt_gt?: DateTime | null
+  updatedAt_gte?: DateTime | null
+  updatedById_eq?: ID_Input | null
+  updatedById_in?: ID_Output[] | ID_Output | null
+  deletedAt_all?: Boolean | null
+  deletedAt_eq?: DateTime | null
+  deletedAt_lt?: DateTime | null
+  deletedAt_lte?: DateTime | null
+  deletedAt_gt?: DateTime | null
+  deletedAt_gte?: DateTime | null
+  deletedById_eq?: ID_Input | null
+  deletedById_in?: ID_Output[] | ID_Output | null
+  name_eq?: String | null
+  name_contains?: String | null
+  name_startsWith?: String | null
+  name_endsWith?: String | null
+  name_in?: String[] | String | null
+  max_eq?: BigInt | null
+  max_gt?: BigInt | null
+  max_gte?: BigInt | null
+  max_lt?: BigInt | null
+  max_lte?: BigInt | null
+  max_in?: BigInt[] | BigInt | null
+  issuer_eq?: String | null
+  issuer_contains?: String | null
+  issuer_startsWith?: String | null
+  issuer_endsWith?: String | null
+  issuer_in?: String[] | String | null
+  symbol_eq?: String | null
+  symbol_contains?: String | null
+  symbol_startsWith?: String | null
+  symbol_endsWith?: String | null
+  symbol_in?: String[] | String | null
+  metadata_eq?: String | null
+  metadata_contains?: String | null
+  metadata_startsWith?: String | null
+  metadata_endsWith?: String | null
+  metadata_in?: String[] | String | null
+  AND?: CollectionWhereInput[] | CollectionWhereInput | null
+  OR?: CollectionWhereInput[] | CollectionWhereInput | null
+}
+
+export interface CollectionWhereUniqueInput {
+  id: ID_Output
 }
 
 export interface HistoricalBalanceCreateInput {
@@ -363,6 +458,33 @@ export interface BaseModelUUID extends BaseGraphQLObject {
   deletedAt?: DateTime | null
   deletedById?: String | null
   version: Int
+}
+
+export interface Collection extends BaseGraphQLObject {
+  id: ID_Output
+  createdAt: DateTime
+  createdById: String
+  updatedAt?: DateTime | null
+  updatedById?: String | null
+  deletedAt?: DateTime | null
+  deletedById?: String | null
+  version: Int
+  name: String
+  max: BigInt
+  issuer: String
+  symbol: String
+  metadata?: String | null
+}
+
+export interface CollectionConnection {
+  totalCount: Int
+  edges: Array<CollectionEdge>
+  pageInfo: PageInfo
+}
+
+export interface CollectionEdge {
+  node: Collection
+  cursor: String
 }
 
 export interface Hello {
