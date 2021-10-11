@@ -2,4 +2,8 @@
 
 db/migrations/
 
+# vim swp files
 *.swp
+
+# jest code coverage
+coverage/
