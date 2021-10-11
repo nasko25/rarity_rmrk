@@ -99,7 +99,6 @@ export async function systemRemark({
             collection.id = parsed_rmrk.rmrk.id;
             collection.name = parsed_rmrk.rmrk.name;
             collection.max = new BN(parsed_rmrk.rmrk.max);
-            console.log(parsed_rmrk.rmrk.max);
             collection.issuer = parsed_rmrk.rmrk.issuer;
             collection.symbol = parsed_rmrk.rmrk.symbol;
             collection.metadata = parsed_rmrk.rmrk.metadata;
@@ -119,7 +118,7 @@ export async function systemRemark({
         }
 
         // TODO remove:
-        process.exit(1);
+        // process.exit(1);
     }
 }
 
