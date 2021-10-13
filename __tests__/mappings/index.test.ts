@@ -108,7 +108,7 @@ describe("rmrkv0.1", () => {
         await systemRemark({store, event, block, extrinsic: extrinsic_valueWithoutName });
         // nothing should be saved on invalid input
         expect(store.save).toHaveBeenCalledTimes(0);
-        expect(console.error).toHaveBeenNthCalledWith(5, "Collection undefined is not following rmrk guidelines, so it cannot be parsed.");
+        expect(console.error).toHaveBeenNthCalledWith(5, "Collection \"undefined\" is not following rmrk guidelines, so it cannot be parsed.");
 
         // const valueWithoutVersionAndWithoutName = TODO;  should be invalid
 
@@ -117,7 +117,7 @@ describe("rmrkv0.1", () => {
         await systemRemark({store, event, block, extrinsic: extrinsic_valueWithoutId });
         // nothing should be saved on invalid input
         expect(store.save).toHaveBeenCalledTimes(0);
-        expect(console.error).toHaveBeenNthCalledWith(6, "Collection Dot Leap Early Promoters is not following rmrk guidelines, so it cannot be parsed.");
+        expect(console.error).toHaveBeenNthCalledWith(6, "Collection \"Dot Leap Early Promoters\" is not following rmrk guidelines, so it cannot be parsed.");
 
         expect(console.error).toHaveBeenCalledTimes(6);
 

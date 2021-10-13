@@ -98,7 +98,7 @@ export async function systemRemark({
         if (parsed_rmrk.version === undefined || parsed_rmrk.version === "RMRK0.1" || parsed_rmrk.version === "1.0.0" && (parsed_rmrk.interaction === "MINT" || parsed_rmrk.interaction === "mint")) {
             // check if the rmrk collection is valid
             if (!checkRmrkCollectionValid(parsed_rmrk.rmrk)) {
-                console.error(`Collection ${parsed_rmrk.rmrk.name} is not following rmrk guidelines, so it cannot be parsed.`);
+                console.error(`Collection "${parsed_rmrk.rmrk.name}" is not following rmrk guidelines, so it cannot be parsed.`);
                 return;
             }
             // mint a v0.1 or v1.0.0 collection
