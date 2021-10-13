@@ -1,4 +1,4 @@
-import { systemRemark } from "../../mappings/index";
+import { systemRemark, InvalidInteraction } from "../../mappings/index";
 import { DatabaseManager, SubstrateEvent, SubstrateBlock, SubstrateExtrinsic } from '@subsquid/hydra-common'
 import { Collection } from "../../generated/model";
 import BN from 'bn.js'
@@ -56,20 +56,26 @@ describe("rmrkv0.1", () => {
     });
 
     test("test systemRemark() for an invalid rmrk0.1 input", async () => {
+        const console_error = console.error;
+        console.error = jest.fn();
+
         const extrinsicNoValue = { args: [ { } ] } as unknown as SubstrateExtrinsic;
         await systemRemark({store, event, block, extrinsic: extrinsicNoValue});
         // nothing should be saved on invalid input
         expect(store.save).toHaveBeenCalledTimes(0);
+        expect(console.error).toHaveBeenCalledTimes(0);
 
         const extrinsicEmptyArgs = { args: [ ] } as unknown as SubstrateExtrinsic;
         await systemRemark({store, event, block, extrinsic: extrinsicEmptyArgs});
         // nothing should be saved on invalid input
         expect(store.save).toHaveBeenCalledTimes(0);
+        expect(console.error).toHaveBeenNthCalledWith(1, "Unexpected extrinsic format.");
 
         const extrinsicNoArgs = { } as unknown as SubstrateExtrinsic;
         await systemRemark({store, event, block, extrinsic: extrinsicNoArgs});
         // nothing should be saved on invalid input
         expect(store.save).toHaveBeenCalledTimes(0);
+        expect(console.error).toHaveBeenNthCalledWith(2, "Unexpected extrinsic format.");
 
                                                                                               // , missing here
         const valueInvalidJson = "0x" + Buffer.from("rmrk::MINT::%7B%22version%22%3A%22RMRK0.1%22%22name%22%3A%22Dot+Leap+Early+Promoters%22%2C%22max%22%3A100%2C%22issuer%22%3A%22CpjsLDC1JFyrhm3ftC9Gs4QoyrkHKhZKtK7YqGTRFtTafgp%22%2C%22symbol%22%3A%22DLEP%22%2C%22id%22%3A%220aff6865bed3a66b-DLEP%22%2C%22metadata%22%3A%22ipfs%3A%2F%2Fipfs%2FQmVgs8P4awhZpFXhkkgnCwBp4AdKRj3F9K58mCZ6fxvn3j%22%7D").toString("hex");
@@ -77,6 +83,7 @@ describe("rmrkv0.1", () => {
         await systemRemark({store, event, block, extrinsic: extrinsic_valueInvalidJson });
         // nothing should be saved on invalid input
         expect(store.save).toHaveBeenCalledTimes(0);
+        expect(console.error).toHaveBeenNthCalledWith(3, new InvalidInteraction(`Encountered a rmrk ({"version":"RMRK0.1""name":"Dot Leap Early Promoters","max":100,"issuer":"CpjsLDC1JFyrhm3ftC9Gs4QoyrkHKhZKtK7YqGTRFtTafgp","symbol":"DLEP","id":"0aff6865bed3a66b-DLEP","metadata":"ipfs://ipfs/QmVgs8P4awhZpFXhkkgnCwBp4AdKRj3F9K58mCZ6fxvn3j"}) with invalid format.`));
 
                                                                                                       // ,  ,
         const valueInvalidJson2commas = "0x" + Buffer.from("rmrk::MINT::%7B%22version%22%3A%22RMRK0.1%22%2C%2C%22name%22%3A%22Dot+Leap+Early+Promoters%22%2C%22max%22%3A100%2C%22issuer%22%3A%22CpjsLDC1JFyrhm3ftC9Gs4QoyrkHKhZKtK7YqGTRFtTafgp%22%2C%22symbol%22%3A%22DLEP%22%2C%22id%22%3A%220aff6865bed3a66b-DLEP%22%2C%22metadata%22%3A%22ipfs%3A%2F%2Fipfs%2FQmVgs8P4awhZpFXhkkgnCwBp4AdKRj3F9K58mCZ6fxvn3j%22%7D").toString("hex");
@@ -84,12 +91,15 @@ describe("rmrkv0.1", () => {
         await systemRemark({store, event, block, extrinsic: extrinsic_valueInvalidJson2commas });
         // nothing should be saved on invalid input
         expect(store.save).toHaveBeenCalledTimes(0);
+        expect(console.error).toHaveBeenNthCalledWith(4, new InvalidInteraction(`Encountered a rmrk ({"version":"RMRK0.1",,"name":"Dot Leap Early Promoters","max":100,"issuer":"CpjsLDC1JFyrhm3ftC9Gs4QoyrkHKhZKtK7YqGTRFtTafgp","symbol":"DLEP","id":"0aff6865bed3a66b-DLEP","metadata":"ipfs://ipfs/QmVgs8P4awhZpFXhkkgnCwBp4AdKRj3F9K58mCZ6fxvn3j"}) with invalid format.`));
 
         const valueNotStartingWith0x = Buffer.from("rmrk::MINT::%7B%22version%22%3A%22RMRK0.1%22%2C%22name%22%3A%22Dot+Leap+Early+Promoters%22%2C%22max%22%3A100%2C%22issuer%22%3A%22CpjsLDC1JFyrhm3ftC9Gs4QoyrkHKhZKtK7YqGTRFtTafgp%22%2C%22symbol%22%3A%22DLEP%22%2C%22id%22%3A%220aff6865bed3a66b-DLEP%22%2C%22metadata%22%3A%22ipfs%3A%2F%2Fipfs%2FQmVgs8P4awhZpFXhkkgnCwBp4AdKRj3F9K58mCZ6fxvn3j%22%7D").toString("hex");
         const extrinsic_valueNotStartingWith0x = { args: [ { value: valueNotStartingWith0x } ] } as unknown as SubstrateExtrinsic;
         await systemRemark({store, event, block, extrinsic: extrinsic_valueNotStartingWith0x });
         // nothing should be saved on invalid input
         expect(store.save).toHaveBeenCalledTimes(0);
+        // the parsing of this this should not call an error, so the amount of console.error calls should be the same
+        expect(console.error).toHaveBeenCalledTimes(4);
 
         // TODO try that for everything missing?
         // TODO can a collection have a missing name, id, etc. ?
@@ -98,6 +108,7 @@ describe("rmrkv0.1", () => {
         await systemRemark({store, event, block, extrinsic: extrinsic_valueWithoutName });
         // nothing should be saved on invalid input
         expect(store.save).toHaveBeenCalledTimes(0);
+        expect(console.error).toHaveBeenNthCalledWith(5, "Collection undefined is not following rmrk guidelines, so it cannot be parsed.");
 
         // const valueWithoutVersionAndWithoutName = TODO;  should be invalid
 
@@ -106,7 +117,12 @@ describe("rmrkv0.1", () => {
         await systemRemark({store, event, block, extrinsic: extrinsic_valueWithoutId });
         // nothing should be saved on invalid input
         expect(store.save).toHaveBeenCalledTimes(0);
+        expect(console.error).toHaveBeenNthCalledWith(6, "Collection Dot Leap Early Promoters is not following rmrk guidelines, so it cannot be parsed.");
 
+        expect(console.error).toHaveBeenCalledTimes(6);
+
+        // restore console.error to the saved value
+        console.error = console_error;
     });
 
     // this is a known bug
@@ -122,6 +138,25 @@ describe("rmrkv0.1", () => {
         const collection = new Collection();
         collection.id = "0aff6865bed3a66b-DLEP";
         collection.name = "Dot Leap Early Promoters";
+        collection.max = new BN(100);
+        collection.issuer = "CpjsLDC1JFyrhm3ftC9Gs4QoyrkHKhZKtK7YqGTRFtTafgp";
+        collection.symbol = "DLEP";
+        collection.metadata = "ipfs://ipfs/QmVgs8P4awhZpFXhkkgnCwBp4AdKRj3F9K58mCZ6fxvn3j";
+
+        expect(store.save).toHaveBeenNthCalledWith(1, collection);
+    });
+});
+
+describe("rmrk v2.0.0", () => {
+    test("test minting a collection", async () => {
+        const value = "0x" + Buffer.from("rmrk::CREATE::2.0.0::%7B%22max%22%3A100%2C%22issuer%22%3A%22CpjsLDC1JFyrhm3ftC9Gs4QoyrkHKhZKtK7YqGTRFtTafgp%22%2C%22symbol%22%3A%22DLEP%22%2C%22id%22%3A%220aff6865bed3a66b-DLEP%22%2C%22metadata%22%3A%22ipfs%3A%2F%2Fipfs%2FQmVgs8P4awhZpFXhkkgnCwBp4AdKRj3F9K58mCZ6fxvn3j%22%7D").toString("hex");
+
+        const extrinsic = { args: [ { value: value } ] } as unknown as SubstrateExtrinsic;
+        await systemRemark({store, event, block, extrinsic});
+        expect(store.save).toHaveBeenCalledTimes(1);
+
+        const collection = new Collection();
+        collection.id = "0aff6865bed3a66b-DLEP";
         collection.max = new BN(100);
         collection.issuer = "CpjsLDC1JFyrhm3ftC9Gs4QoyrkHKhZKtK7YqGTRFtTafgp";
         collection.symbol = "DLEP";

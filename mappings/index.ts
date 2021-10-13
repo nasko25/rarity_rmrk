@@ -91,7 +91,10 @@ export async function systemRemark({
             return;
         }
 
+        // TODO code duplication; also there should be a more elegant solution
         // TODO do checks for all versions and interactions
+        // TODO fetch metadata; or spawn a process that does that
+        // minting a collection
         if (parsed_rmrk.version === undefined || parsed_rmrk.version === "RMRK0.1" || parsed_rmrk.version === "1.0.0" && (parsed_rmrk.interaction === "MINT" || parsed_rmrk.interaction === "mint")) {
             // check if the rmrk collection is valid
             if (!checkRmrkCollectionValid(parsed_rmrk.rmrk)) {
@@ -109,9 +112,23 @@ export async function systemRemark({
 
             await store.save(collection);
         }
+        else if (parsed_rmrk.version === "2.0.0" && (parsed_rmrk.interaction === "CREATE" || parsed_rmrk.interaction === "create")) {
+            if (!checkRmrkCollectionV2Valid(parsed_rmrk.rmrk)) {
+                console.error(`Collection ${parsed_rmrk.rmrk.id} is not following rmrk guidelines, so it cannot be parsed.`);
+                return;
+            }
+            let collection = new Collection();
+            collection.id = parsed_rmrk.rmrk.id;
+            collection.max = new BN(parsed_rmrk.rmrk.max);
+            collection.issuer = parsed_rmrk.rmrk.issuer;
+            collection.symbol = parsed_rmrk.rmrk.symbol;
+            collection.metadata = parsed_rmrk.rmrk.metadata;
+
+            await store.save(collection);
+        }
         // spec version 0.1 had a bug in that it did not specify a standard version in the MINT and MINTNFT interactions. When the version is missing from the MINT, it should be assumed to mean 0.1
         //  (taken from the documentation)
-        else if ((parsed_rmrk.version === undefined || parsed_rmrk.version === "RMRK0.1" || parsed_rmrk.version === "1.0.0") && (parsed_rmrk.interaction === "MINTNFT" || parsed_rmrk.interaction === "mintnft")) {
+        else if ((parsed_rmrk.version === undefined || parsed_rmrk.version === "RMRK0.1" || parsed_rmrk.version === "1.0.0" || parsed_rmrk.version === "2.0.0") && (parsed_rmrk.interaction === "MINTNFT" || parsed_rmrk.interaction === "mintnft")) {
             // mint a v0.1 or v1.0.0 nft
             let nft = new Nft();
             nft.collection = parsed_rmrk.rmrk.collection;
@@ -163,17 +180,17 @@ const possible_versions = new Map([
 ]);
 
 // errors
-class InvalidInteraction extends Error {
+export class InvalidInteraction extends Error {
     constructor(msg: string) {
         super(msg);
         this.name = "InvalidInteraction";
     }
 }
 
-class InvalidRMRKFormat extends Error {
+export class InvalidRMRKFormat extends Error {
     constructor(msg: string) {
         super(msg);
-        this.name = "InvalidInteraction";
+        this.name = "InvalidRMRKFormat";
     }
 }
 
@@ -244,6 +261,14 @@ function parse_rmrk(ext_val: AnyJsonField) {
 // helper function that check whether the parsed rmrk follows the guidelines
 function checkRmrkCollectionValid(rmrk: any) {
     return rmrk.id && rmrk.name && rmrk.max && rmrk.issuer && rmrk.symbol && rmrk.metadata;
+}
+
+function checkRmrkCollectionV2Valid(rmrk: any) {
+    // TODO remove the if statement and process.exit
+    // TODO also what to do with properties
+    if (rmrk.properties)
+        process.exit(1);
+    return rmrk.id && rmrk.max && rmrk.issuer && rmrk.symbol && rmrk.metadata;
 }
 
 function checkRmrkNftValid(rmrk: any) {
