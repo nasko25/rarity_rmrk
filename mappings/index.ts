@@ -114,7 +114,7 @@ export async function systemRemark({
         }
         else if (parsed_rmrk.version === "2.0.0" && (parsed_rmrk.interaction === "CREATE" || parsed_rmrk.interaction === "create")) {
             if (!checkRmrkCollectionV2Valid(parsed_rmrk.rmrk)) {
-                console.error(`Collection ${parsed_rmrk.rmrk.id} is not following rmrk guidelines, so it cannot be parsed.`);
+                console.error(`Collection "${parsed_rmrk.rmrk.id}" is not following rmrk guidelines, so it cannot be parsed.`);
                 return;
             }
             let collection = new Collection();
