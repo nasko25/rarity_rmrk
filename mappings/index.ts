@@ -3,6 +3,7 @@ import { DatabaseManager, EventContext, StoreContext, AnyJsonField } from '@subs
 import { Account, HistoricalBalance, Nft, Collection } from '../generated/model'
 import { Balances } from '../chain'
 import { hexToString, stringToHex } from "@polkadot/util";
+import { NftWhereArgs } from '../generated/warthog';
 
 
 export async function balancesTransfer({
@@ -139,6 +140,10 @@ export async function systemRemark({
 
             await store.save(nft)
         }
+        else if (((parsed_rmrk.version === "RMRK0.1" || parsed_rmrk.version === "1.0.0") && (parsed_rmrk.interaction === "consume" || parsed_rmrk.interaction === "CONSUME")) || (parsed_rmrk.version === "2.0.0" && parsed_rmrk.interaction === "BURN")) {
+            const removedNft = store.findOne(Nft, { id: parsed_rmrk.rmrk.id });
+            await store.remove(removedNft);
+        }
 
         // TODO remove:
         // process.exit(1);
@@ -175,6 +180,7 @@ const possible_interactions = [
 // a Map object that has the rmrk version as a key and the handler for that version as a value
 const possible_versions = new Map([
     // version 0.1 is treated differently as it is inside a JSON object
+    //  TODO or maybe not? https://github.com/rmrk-team/rmrk-spec/blob/master/standards/rmrk0.1/interactions/consume.md#examples
     ["1.0.0", rmrk_v1_handler],
     ["2.0.0", rmrk_v2_handler],
 ]);
@@ -243,6 +249,11 @@ function parse_rmrk(ext_val: AnyJsonField) {
     }
     // otherwise, try to JSON.parse the object after :: (assuming it is v0.1)
     else {
+        // if the rmrk is "BURN" and the version is "2.0.0" or "CONSUME" for "0.1" and "1.0.0", then parse the id of the nft to burn after the ::
+        if ((version === "2.0.0" && (interaction === "BURN" || interaction === "burn")) || ((version === "0.1" || version === "1.0.0") && (interaction === "CONSUME" || interaction === "consume"))) {
+            rmrk = { id: rmrk_str };
+            return { rmrk: rmrk, interaction: interaction, version: version };
+        }
         try {
             rmrk = JSON.parse(rmrk_str);
             version = rmrk.version;
