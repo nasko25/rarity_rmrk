@@ -246,7 +246,7 @@ function parse_rmrk(ext_val: AnyJsonField) {
     let version = rmrk_str.substring(0, rmrk_str.indexOf("::"));
 
     let rmrk;
-    if (possible_versions.has(version)) {
+    if (possible_versions.has(version) && interaction !== "BURN" && interaction !== "burn") {
         let handler = possible_versions.get(version);
         // this is just to make typescript happy, handler is always defined (this is what the if statement checks)
         rmrk = handler === undefined ? undefined : handler(rmrk_str.substring(rmrk_str.indexOf("::") + 2));
@@ -256,7 +256,7 @@ function parse_rmrk(ext_val: AnyJsonField) {
         // if the rmrk is "BURN" and the version is "2.0.0" or "CONSUME" for "0.1" and "1.0.0", then parse the id of the nft to burn after the ::
         if ((version === "2.0.0" && (interaction === "BURN" || interaction === "burn")) || ((version === "0.1" || version === "1.0.0") && (interaction === "CONSUME" || interaction === "consume"))) {
             if (version === "2.0.0") {
-                rmrk = JSON.parse(rmrk_str);
+                rmrk = parseBURN(rmrk_str);
             } else {
                 rmrk = { id: rmrk_str };
             }
@@ -274,6 +274,20 @@ function parse_rmrk(ext_val: AnyJsonField) {
 
     // let rmrk = JSON.parse(rmrk_str);
     return { rmrk: rmrk, interaction: interaction, version: version };
+}
+
+// helper function that parses the NFT to burn's parameters from a BURN v2.0.0 interaction
+function parseBURN(rmrk_str: string) {
+    // 5105000-0aff6865bed3a66b-VALHELLO-POTION_HEAL-00000001
+    const rmrk_split = rmrk_str.split("-");
+    if (rmrk_split.length !== 5)
+        throw new InvalidRMRKFormat("Invalid rmrk BURN interaction format.");
+    const blockNumber = rmrk_split[0];
+    const collectionName = rmrk_split[1] + "-" + rmrk_split[2];
+    const nftName = rmrk_split[3];
+    const sn = rmrk_split[4];
+
+    return { collection: collectionName, name: nftName, sn };
 }
 
 // TODO check metadata formats; they should be a valid HTTP or ipfs url

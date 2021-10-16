@@ -3,7 +3,7 @@ import { DatabaseManager, SubstrateEvent, SubstrateBlock, SubstrateExtrinsic } f
 import { Collection, Nft } from "../../generated/model";
 import BN from 'bn.js'
 
-const store = { save: jest.fn() } as unknown as DatabaseManager;
+const store = { save: jest.fn(), remove: jest.fn() } as unknown as DatabaseManager;
 const event = {} as unknown as SubstrateEvent;
 const block = {} as unknown as SubstrateBlock;
 
