@@ -194,6 +194,30 @@ describe("rmrk v2.0.0", () => {
 
         expect(store.save).toHaveBeenNthCalledWith(1, nft);
     });
-    // TODO test BURN for v2.0.0
-    //  (first create a collection, then mint an nft and then burn it.)
+    test("test burning an nft", async () => {
+        const collection = "0aff6865bed3a66b-VALHELLO";
+        const sn = "00000001";
+        const name = "POTION_HEAL";
+        const burn = "0x" + Buffer.from(`rmrk::BURN::2.0.0::5105000-${collection}-${name}-${sn}`).toString("hex");
+
+        const extrinsicBurn = { args: [ { value: burn } ] } as unknown as SubstrateExtrinsic;
+
+        // the nft that needs to be burned
+        const nft = new Nft();
+        nft.collection = "0aff6865bed3a66b-VALHELLO";
+        nft.symbol = "VH15";
+        nft.transferable = new BN(1);
+        nft.sn = "00000001";
+        nft.metadata = "ipfs://ipfs/QmavoTVbVHnGEUztnBT2p3rif3qBPeCfyyUE5v4Z7oFvs4";
+
+        store.findOne = jest.fn().mockImplementationOnce(rmrk => {
+            expect(rmrk.collection === collection && rmrk.sn === sn);
+            return nft;
+        });
+
+        await systemRemark({store, event, block, extrinsic: extrinsicBurn});
+        expect(store.save).toHaveBeenCalledTimes(0);
+        expect(store.remove).toHaveBeenCalledTimes(1);
+        expect(store.remove).toHaveBeenNthCalledWith(1, nft);
+    });
 });
