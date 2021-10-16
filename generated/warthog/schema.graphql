@@ -397,7 +397,7 @@ type Nft implements BaseGraphQLObject {
   version: Int!
   collection: String!
   symbol: String!
-  transferrable: BigInt!
+  transferable: BigInt!
   sn: String
   metadata: String
 }
@@ -411,7 +411,7 @@ type NftConnection {
 input NftCreateInput {
   collection: String!
   symbol: String!
-  transferrable: String!
+  transferable: String!
   sn: String
   metadata: String
 }
@@ -432,8 +432,8 @@ enum NftOrderByInput {
   collection_DESC
   symbol_ASC
   symbol_DESC
-  transferrable_ASC
-  transferrable_DESC
+  transferable_ASC
+  transferable_DESC
   sn_ASC
   sn_DESC
   metadata_ASC
@@ -443,7 +443,7 @@ enum NftOrderByInput {
 input NftUpdateInput {
   collection: String
   symbol: String
-  transferrable: String
+  transferable: String
   sn: String
   metadata: String
 }
@@ -483,12 +483,12 @@ input NftWhereInput {
   symbol_startsWith: String
   symbol_endsWith: String
   symbol_in: [String!]
-  transferrable_eq: BigInt
-  transferrable_gt: BigInt
-  transferrable_gte: BigInt
-  transferrable_lt: BigInt
-  transferrable_lte: BigInt
-  transferrable_in: [BigInt!]
+  transferable_eq: BigInt
+  transferable_gt: BigInt
+  transferable_gte: BigInt
+  transferable_lt: BigInt
+  transferable_lte: BigInt
+  transferable_in: [BigInt!]
   sn_eq: String
   sn_contains: String
   sn_startsWith: String

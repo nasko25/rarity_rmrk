@@ -56,7 +56,7 @@ type Collection @entity {
 type Nft @entity {
     collection: String!
     symbol: String!
-    transferrable: BigInt!
+    transferable: BigInt!
     sn: String
     metadata: String
 }

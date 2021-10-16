@@ -102,8 +102,8 @@ export type NftOrderByInput =   'createdAt_ASC' |
   'collection_DESC' |
   'symbol_ASC' |
   'symbol_DESC' |
-  'transferrable_ASC' |
-  'transferrable_DESC' |
+  'transferable_ASC' |
+  'transferable_DESC' |
   'sn_ASC' |
   'sn_DESC' |
   'metadata_ASC' |
@@ -326,7 +326,7 @@ export interface HistoricalBalanceWhereUniqueInput {
 export interface NftCreateInput {
   collection: String
   symbol: String
-  transferrable: String
+  transferable: String
   sn?: String | null
   metadata?: String | null
 }
@@ -334,7 +334,7 @@ export interface NftCreateInput {
 export interface NftUpdateInput {
   collection?: String | null
   symbol?: String | null
-  transferrable?: String | null
+  transferable?: String | null
   sn?: String | null
   metadata?: String | null
 }
@@ -374,12 +374,12 @@ export interface NftWhereInput {
   symbol_startsWith?: String | null
   symbol_endsWith?: String | null
   symbol_in?: String[] | String | null
-  transferrable_eq?: BigInt | null
-  transferrable_gt?: BigInt | null
-  transferrable_gte?: BigInt | null
-  transferrable_lt?: BigInt | null
-  transferrable_lte?: BigInt | null
-  transferrable_in?: BigInt[] | BigInt | null
+  transferable_eq?: BigInt | null
+  transferable_gt?: BigInt | null
+  transferable_gte?: BigInt | null
+  transferable_lt?: BigInt | null
+  transferable_lte?: BigInt | null
+  transferable_in?: BigInt[] | BigInt | null
   sn_eq?: String | null
   sn_contains?: String | null
   sn_startsWith?: String | null
@@ -528,7 +528,7 @@ export interface Nft extends BaseGraphQLObject {
   version: Int
   collection: String
   symbol: String
-  transferrable: BigInt
+  transferable: BigInt
   sn?: String | null
   metadata?: String | null
 }

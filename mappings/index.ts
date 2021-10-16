@@ -3,7 +3,6 @@ import { DatabaseManager, EventContext, StoreContext, AnyJsonField } from '@subs
 import { Account, HistoricalBalance, Nft, Collection } from '../generated/model'
 import { Balances } from '../chain'
 import { hexToString, stringToHex } from "@polkadot/util";
-import { NftWhereArgs } from '../generated/warthog';
 
 
 export async function balancesTransfer({
@@ -129,19 +128,25 @@ export async function systemRemark({
         }
         // spec version 0.1 had a bug in that it did not specify a standard version in the MINT and MINTNFT interactions. When the version is missing from the MINT, it should be assumed to mean 0.1
         //  (taken from the documentation)
-        else if ((parsed_rmrk.version === undefined || parsed_rmrk.version === "RMRK0.1" || parsed_rmrk.version === "1.0.0" || parsed_rmrk.version === "2.0.0") && (parsed_rmrk.interaction === "MINTNFT" || parsed_rmrk.interaction === "mintnft")) {
+        else if (((parsed_rmrk.version === undefined || parsed_rmrk.version === "RMRK0.1" || parsed_rmrk.version === "1.0.0") && (parsed_rmrk.interaction === "MINTNFT" || parsed_rmrk.interaction === "mintnft")) || (parsed_rmrk.version === "2.0.0" && (parsed_rmrk.interaction === "MINT" || parsed_rmrk.interaction === "mint"))){
             // mint a v0.1 or v1.0.0 nft
             let nft = new Nft();
             nft.collection = parsed_rmrk.rmrk.collection;
             nft.symbol = parsed_rmrk.rmrk.symbol;
-            nft.transferrable = new BN(parsed_rmrk.rmrk.transferrable);
+            nft.transferable = new BN(parsed_rmrk.rmrk.transferable);
             nft.sn = parsed_rmrk.rmrk.sn;
             nft.metadata = parsed_rmrk.rmrk.metadata;
 
             await store.save(nft)
         }
         else if (((parsed_rmrk.version === "RMRK0.1" || parsed_rmrk.version === "1.0.0") && (parsed_rmrk.interaction === "consume" || parsed_rmrk.interaction === "CONSUME")) || (parsed_rmrk.version === "2.0.0" && parsed_rmrk.interaction === "BURN")) {
-            const removedNft = store.findOne(Nft, { id: parsed_rmrk.rmrk.id });
+            let removedNft;
+            if (parsed_rmrk.version === "2.0.0") {
+                removedNft = store.findOne(Nft, { collection: parsed_rmrk.rmrk.collection, sn: parsed_rmrk.rmrk.sn });
+            }
+            else {
+                removedNft = store.findOne(Nft, { id: parsed_rmrk.rmrk.id });
+            }
             await store.remove(removedNft);
         }
 
@@ -180,7 +185,6 @@ const possible_interactions = [
 // a Map object that has the rmrk version as a key and the handler for that version as a value
 const possible_versions = new Map([
     // version 0.1 is treated differently as it is inside a JSON object
-    //  TODO or maybe not? https://github.com/rmrk-team/rmrk-spec/blob/master/standards/rmrk0.1/interactions/consume.md#examples
     ["1.0.0", rmrk_v1_handler],
     ["2.0.0", rmrk_v2_handler],
 ]);
@@ -251,7 +255,11 @@ function parse_rmrk(ext_val: AnyJsonField) {
     else {
         // if the rmrk is "BURN" and the version is "2.0.0" or "CONSUME" for "0.1" and "1.0.0", then parse the id of the nft to burn after the ::
         if ((version === "2.0.0" && (interaction === "BURN" || interaction === "burn")) || ((version === "0.1" || version === "1.0.0") && (interaction === "CONSUME" || interaction === "consume"))) {
-            rmrk = { id: rmrk_str };
+            if (version === "2.0.0") {
+                rmrk = JSON.parse(rmrk_str);
+            } else {
+                rmrk = { id: rmrk_str };
+            }
             return { rmrk: rmrk, interaction: interaction, version: version };
         }
         try {
@@ -283,5 +291,5 @@ function checkRmrkCollectionV2Valid(rmrk: any) {
 }
 
 function checkRmrkNftValid(rmrk: any) {
-    return rmrk.collection && rmrk.symbol && rmrk.transferrable && rmrk.sn && rmrk.metadata;
+    return rmrk.collection && rmrk.symbol && rmrk.transferable && rmrk.sn && rmrk.metadata;
 }

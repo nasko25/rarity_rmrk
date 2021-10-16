@@ -684,8 +684,8 @@ export enum NftOrderByEnum {
   symbol_ASC = "symbol_ASC",
   symbol_DESC = "symbol_DESC",
 
-  transferrable_ASC = "transferrable_ASC",
-  transferrable_DESC = "transferrable_DESC",
+  transferable_ASC = "transferable_ASC",
+  transferable_DESC = "transferable_DESC",
 
   sn_ASC = "sn_ASC",
   sn_DESC = "sn_DESC",
@@ -803,22 +803,22 @@ export class NftWhereInput {
   symbol_in?: string[];
 
   @TypeGraphQLField(() => BigInt, { nullable: true })
-  transferrable_eq?: string;
+  transferable_eq?: string;
 
   @TypeGraphQLField(() => BigInt, { nullable: true })
-  transferrable_gt?: string;
+  transferable_gt?: string;
 
   @TypeGraphQLField(() => BigInt, { nullable: true })
-  transferrable_gte?: string;
+  transferable_gte?: string;
 
   @TypeGraphQLField(() => BigInt, { nullable: true })
-  transferrable_lt?: string;
+  transferable_lt?: string;
 
   @TypeGraphQLField(() => BigInt, { nullable: true })
-  transferrable_lte?: string;
+  transferable_lte?: string;
 
   @TypeGraphQLField(() => [BigInt], { nullable: true })
-  transferrable_in?: string[];
+  transferable_in?: string[];
 
   @TypeGraphQLField({ nullable: true })
   sn_eq?: string;
@@ -872,7 +872,7 @@ export class NftCreateInput {
   symbol!: string;
 
   @TypeGraphQLField()
-  transferrable!: string;
+  transferable!: string;
 
   @TypeGraphQLField({ nullable: true })
   sn?: string;
@@ -890,7 +890,7 @@ export class NftUpdateInput {
   symbol?: string;
 
   @TypeGraphQLField({ nullable: true })
-  transferrable?: string;
+  transferable?: string;
 
   @TypeGraphQLField({ nullable: true })
   sn?: string;
