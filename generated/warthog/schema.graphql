@@ -166,6 +166,7 @@ type Collection implements BaseGraphQLObject {
   max: BigInt!
   issuer: String!
   symbol: String!
+  rmrkVersion: String!
   metadata: String
 }
 
@@ -180,6 +181,7 @@ input CollectionCreateInput {
   max: String!
   issuer: String!
   symbol: String!
+  rmrkVersion: String!
   metadata: String
 }
 
@@ -203,6 +205,8 @@ enum CollectionOrderByInput {
   issuer_DESC
   symbol_ASC
   symbol_DESC
+  rmrkVersion_ASC
+  rmrkVersion_DESC
   metadata_ASC
   metadata_DESC
 }
@@ -212,6 +216,7 @@ input CollectionUpdateInput {
   max: String
   issuer: String
   symbol: String
+  rmrkVersion: String
   metadata: String
 }
 
@@ -261,6 +266,11 @@ input CollectionWhereInput {
   symbol_startsWith: String
   symbol_endsWith: String
   symbol_in: [String!]
+  rmrkVersion_eq: String
+  rmrkVersion_contains: String
+  rmrkVersion_startsWith: String
+  rmrkVersion_endsWith: String
+  rmrkVersion_in: [String!]
   metadata_eq: String
   metadata_contains: String
   metadata_startsWith: String
@@ -398,6 +408,7 @@ type Nft implements BaseGraphQLObject {
   collection: String!
   symbol: String!
   transferable: BigInt!
+  rmrkVersion: String!
   sn: String
   metadata: String
 }
@@ -412,6 +423,7 @@ input NftCreateInput {
   collection: String!
   symbol: String!
   transferable: String!
+  rmrkVersion: String!
   sn: String
   metadata: String
 }
@@ -434,6 +446,8 @@ enum NftOrderByInput {
   symbol_DESC
   transferable_ASC
   transferable_DESC
+  rmrkVersion_ASC
+  rmrkVersion_DESC
   sn_ASC
   sn_DESC
   metadata_ASC
@@ -444,6 +458,7 @@ input NftUpdateInput {
   collection: String
   symbol: String
   transferable: String
+  rmrkVersion: String
   sn: String
   metadata: String
 }
@@ -489,6 +504,11 @@ input NftWhereInput {
   transferable_lt: BigInt
   transferable_lte: BigInt
   transferable_in: [BigInt!]
+  rmrkVersion_eq: String
+  rmrkVersion_contains: String
+  rmrkVersion_startsWith: String
+  rmrkVersion_endsWith: String
+  rmrkVersion_in: [String!]
   sn_eq: String
   sn_contains: String
   sn_startsWith: String

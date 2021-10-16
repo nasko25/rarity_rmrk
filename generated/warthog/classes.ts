@@ -438,6 +438,9 @@ export enum CollectionOrderByEnum {
   symbol_ASC = "symbol_ASC",
   symbol_DESC = "symbol_DESC",
 
+  rmrkVersion_ASC = "rmrkVersion_ASC",
+  rmrkVersion_DESC = "rmrkVersion_DESC",
+
   metadata_ASC = "metadata_ASC",
   metadata_DESC = "metadata_DESC",
 }
@@ -584,6 +587,21 @@ export class CollectionWhereInput {
   symbol_in?: string[];
 
   @TypeGraphQLField({ nullable: true })
+  rmrkVersion_eq?: string;
+
+  @TypeGraphQLField({ nullable: true })
+  rmrkVersion_contains?: string;
+
+  @TypeGraphQLField({ nullable: true })
+  rmrkVersion_startsWith?: string;
+
+  @TypeGraphQLField({ nullable: true })
+  rmrkVersion_endsWith?: string;
+
+  @TypeGraphQLField(() => [String], { nullable: true })
+  rmrkVersion_in?: string[];
+
+  @TypeGraphQLField({ nullable: true })
   metadata_eq?: string;
 
   @TypeGraphQLField({ nullable: true })
@@ -625,6 +643,9 @@ export class CollectionCreateInput {
   @TypeGraphQLField()
   symbol!: string;
 
+  @TypeGraphQLField()
+  rmrkVersion!: string;
+
   @TypeGraphQLField({ nullable: true })
   metadata?: string;
 }
@@ -642,6 +663,9 @@ export class CollectionUpdateInput {
 
   @TypeGraphQLField({ nullable: true })
   symbol?: string;
+
+  @TypeGraphQLField({ nullable: true })
+  rmrkVersion?: string;
 
   @TypeGraphQLField({ nullable: true })
   metadata?: string;
@@ -686,6 +710,9 @@ export enum NftOrderByEnum {
 
   transferable_ASC = "transferable_ASC",
   transferable_DESC = "transferable_DESC",
+
+  rmrkVersion_ASC = "rmrkVersion_ASC",
+  rmrkVersion_DESC = "rmrkVersion_DESC",
 
   sn_ASC = "sn_ASC",
   sn_DESC = "sn_DESC",
@@ -821,6 +848,21 @@ export class NftWhereInput {
   transferable_in?: string[];
 
   @TypeGraphQLField({ nullable: true })
+  rmrkVersion_eq?: string;
+
+  @TypeGraphQLField({ nullable: true })
+  rmrkVersion_contains?: string;
+
+  @TypeGraphQLField({ nullable: true })
+  rmrkVersion_startsWith?: string;
+
+  @TypeGraphQLField({ nullable: true })
+  rmrkVersion_endsWith?: string;
+
+  @TypeGraphQLField(() => [String], { nullable: true })
+  rmrkVersion_in?: string[];
+
+  @TypeGraphQLField({ nullable: true })
   sn_eq?: string;
 
   @TypeGraphQLField({ nullable: true })
@@ -874,6 +916,9 @@ export class NftCreateInput {
   @TypeGraphQLField()
   transferable!: string;
 
+  @TypeGraphQLField()
+  rmrkVersion!: string;
+
   @TypeGraphQLField({ nullable: true })
   sn?: string;
 
@@ -891,6 +936,9 @@ export class NftUpdateInput {
 
   @TypeGraphQLField({ nullable: true })
   transferable?: string;
+
+  @TypeGraphQLField({ nullable: true })
+  rmrkVersion?: string;
 
   @TypeGraphQLField({ nullable: true })
   sn?: string;

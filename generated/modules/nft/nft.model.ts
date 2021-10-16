@@ -21,6 +21,9 @@ export class Nft extends BaseModel {
   })
   transferable!: BN;
 
+  @StringField({})
+  rmrkVersion!: string;
+
   @StringField({
     nullable: true,
   })

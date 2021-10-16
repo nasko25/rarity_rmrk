@@ -22,6 +22,7 @@ type Collection @entity {
     max: BigInt!
     issuer: String!
     symbol: String!
+    rmrk_version: String!
     metadata: String
 #     data???
 #     properties: IProperties
@@ -57,6 +58,7 @@ type Nft @entity {
     collection: String!
     symbol: String!
     transferable: BigInt!
+    rmrk_version: String!
     sn: String
     metadata: String
 }

@@ -76,6 +76,8 @@ export type CollectionOrderByInput =   'createdAt_ASC' |
   'issuer_DESC' |
   'symbol_ASC' |
   'symbol_DESC' |
+  'rmrkVersion_ASC' |
+  'rmrkVersion_DESC' |
   'metadata_ASC' |
   'metadata_DESC'
 
@@ -104,6 +106,8 @@ export type NftOrderByInput =   'createdAt_ASC' |
   'symbol_DESC' |
   'transferable_ASC' |
   'transferable_DESC' |
+  'rmrkVersion_ASC' |
+  'rmrkVersion_DESC' |
   'sn_ASC' |
   'sn_DESC' |
   'metadata_ASC' |
@@ -195,6 +199,7 @@ export interface CollectionCreateInput {
   max: String
   issuer: String
   symbol: String
+  rmrkVersion: String
   metadata?: String | null
 }
 
@@ -203,6 +208,7 @@ export interface CollectionUpdateInput {
   max?: String | null
   issuer?: String | null
   symbol?: String | null
+  rmrkVersion?: String | null
   metadata?: String | null
 }
 
@@ -252,6 +258,11 @@ export interface CollectionWhereInput {
   symbol_startsWith?: String | null
   symbol_endsWith?: String | null
   symbol_in?: String[] | String | null
+  rmrkVersion_eq?: String | null
+  rmrkVersion_contains?: String | null
+  rmrkVersion_startsWith?: String | null
+  rmrkVersion_endsWith?: String | null
+  rmrkVersion_in?: String[] | String | null
   metadata_eq?: String | null
   metadata_contains?: String | null
   metadata_startsWith?: String | null
@@ -327,6 +338,7 @@ export interface NftCreateInput {
   collection: String
   symbol: String
   transferable: String
+  rmrkVersion: String
   sn?: String | null
   metadata?: String | null
 }
@@ -335,6 +347,7 @@ export interface NftUpdateInput {
   collection?: String | null
   symbol?: String | null
   transferable?: String | null
+  rmrkVersion?: String | null
   sn?: String | null
   metadata?: String | null
 }
@@ -380,6 +393,11 @@ export interface NftWhereInput {
   transferable_lt?: BigInt | null
   transferable_lte?: BigInt | null
   transferable_in?: BigInt[] | BigInt | null
+  rmrkVersion_eq?: String | null
+  rmrkVersion_contains?: String | null
+  rmrkVersion_startsWith?: String | null
+  rmrkVersion_endsWith?: String | null
+  rmrkVersion_in?: String[] | String | null
   sn_eq?: String | null
   sn_contains?: String | null
   sn_startsWith?: String | null
@@ -473,6 +491,7 @@ export interface Collection extends BaseGraphQLObject {
   max: BigInt
   issuer: String
   symbol: String
+  rmrkVersion: String
   metadata?: String | null
 }
 
@@ -529,6 +548,7 @@ export interface Nft extends BaseGraphQLObject {
   collection: String
   symbol: String
   transferable: BigInt
+  rmrkVersion: String
   sn?: String | null
   metadata?: String | null
 }

@@ -109,6 +109,7 @@ export async function systemRemark({
             collection.issuer = parsed_rmrk.rmrk.issuer;
             collection.symbol = parsed_rmrk.rmrk.symbol;
             collection.metadata = parsed_rmrk.rmrk.metadata;
+            collection.rmrkVersion = parsed_rmrk.version;
 
             await store.save(collection);
         }
@@ -123,6 +124,7 @@ export async function systemRemark({
             collection.issuer = parsed_rmrk.rmrk.issuer;
             collection.symbol = parsed_rmrk.rmrk.symbol;
             collection.metadata = parsed_rmrk.rmrk.metadata;
+            collection.rmrkVersion = parsed_rmrk.version;
 
             await store.save(collection);
         }
@@ -136,6 +138,7 @@ export async function systemRemark({
             nft.transferable = new BN(parsed_rmrk.rmrk.transferable);
             nft.sn = parsed_rmrk.rmrk.sn;
             nft.metadata = parsed_rmrk.rmrk.metadata;
+            nft.rmrkVersion = parsed_rmrk.version;
 
             await store.save(nft)
         }
@@ -151,7 +154,7 @@ export async function systemRemark({
         }
 
         // TODO remove:
-        // process.exit(1);
+        process.exit(1);
     }
 }
 
