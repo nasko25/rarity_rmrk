@@ -10,18 +10,19 @@ typegen:
   events:
     - balances.Transfer
   calls:
-    - timestamp.set
+    # - timestamp.set
+    - system.remark
   outDir: chain
 
 mappings:
   # blockHeight: 6000000
-  # range: '[4892956, )'
+  range: '[4892956, )'
   # range: '[7479437, )'
-  range: '[7697575, )'
+  # range: '[7697575, )'
   mappingsModule: mappings
-  eventHandlers:
-    - event: balances.Transfer
-      handler: balancesTransfer
+  # eventHandlers:
+  #   - event: balances.Transfer
+  #     handler: balancesTransfer
   extrinsicHandlers:
     - extrinsic: system.remark
       handler: systemRemark
