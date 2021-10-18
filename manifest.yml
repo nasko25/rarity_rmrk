@@ -22,7 +22,7 @@ mappings:
   # range: '[7841520, 8441520)'
   # range: '[8441520, 8741520)'
   # range: '[8741520, 8941520)'
-  range: '[8941520, )'
+  # range: '[8941520, )'
   mappingsModule: mappings
   # eventHandlers:
   #   - event: balances.Transfer

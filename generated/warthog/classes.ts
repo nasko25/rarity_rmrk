@@ -910,8 +910,8 @@ export class NftCreateInput {
   @TypeGraphQLField()
   collection!: string;
 
-  @TypeGraphQLField()
-  symbol!: string;
+  @TypeGraphQLField({ nullable: true })
+  symbol?: string;
 
   @TypeGraphQLField()
   transferable!: string;

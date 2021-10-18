@@ -80,11 +80,14 @@ export async function systemRemark({
     // TODO error checks; don't assume all nfts follow the standard
     let ext_val = extrinsic?.args[0]?.value;
     // nft remarks should start with rmrk or RMRK
-    if (ext_val?.toString().startsWith("0x726d726b") || ext_val?.toString().startsWith("0x524d524c")) {
-        console.log("rmrk encountered\n");
+    if (ext_val?.toString().startsWith("0x726d726b") || ext_val?.toString().startsWith("0x524d524b")) {
         let parsed_rmrk;
         try {
             parsed_rmrk = parse_rmrk(ext_val);
+            // if parsed_rmrk is not defined or is empty, just return
+            // parse_rmrk would have thrown an error if something is wrong
+            if(parsed_rmrk === undefined)
+                return;
             console.log(JSON.stringify(parsed_rmrk) + "\n");
         } catch (err) {
             console.error(err);
@@ -154,7 +157,7 @@ export async function systemRemark({
         }
 
         // TODO remove:
-        process.exit(1);
+        // process.exit(1);
     }
 }
 
@@ -183,6 +186,13 @@ const possible_interactions = [
     "SETPROPERTY",
     "SETPRIORITY",
     "THEMEADD",
+];
+
+const implemented_interactions = [
+    "BURN",
+    "CONSUME",
+    "MINT",
+    "MINTNFT"
 ];
 
 // a Map object that has the rmrk version as a key and the handler for that version as a value
@@ -237,7 +247,8 @@ function parse_rmrk(ext_val: AnyJsonField) {
 
     // read until the next "::" to get the type of interaction
     let interaction = rmrk_str.substring(0, rmrk_str.indexOf("::"));
-    console.log(interaction)
+    if (!implemented_interactions.includes(interaction))
+        return;
 
     if (!possible_interactions.includes(interaction))
         throw new InvalidInteraction(`The interaction provided (${interaction}) is not a valid interaction.`);

@@ -9,8 +9,10 @@ export class Nft extends BaseModel {
   @StringField({})
   collection!: string;
 
-  @StringField({})
-  symbol!: string;
+  @StringField({
+    nullable: true,
+  })
+  symbol?: string;
 
   @NumericField({
     transformer: {

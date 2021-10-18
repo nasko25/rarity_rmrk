@@ -336,7 +336,7 @@ export interface HistoricalBalanceWhereUniqueInput {
 
 export interface NftCreateInput {
   collection: String
-  symbol: String
+  symbol?: String | null
   transferable: String
   rmrkVersion: String
   sn?: String | null
@@ -546,7 +546,7 @@ export interface Nft extends BaseGraphQLObject {
   deletedById?: String | null
   version: Int
   collection: String
-  symbol: String
+  symbol?: String | null
   transferable: BigInt
   rmrkVersion: String
   sn?: String | null

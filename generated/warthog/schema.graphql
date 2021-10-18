@@ -406,7 +406,7 @@ type Nft implements BaseGraphQLObject {
   deletedById: String
   version: Int!
   collection: String!
-  symbol: String!
+  symbol: String
   transferable: BigInt!
   rmrkVersion: String!
   sn: String
@@ -421,7 +421,7 @@ type NftConnection {
 
 input NftCreateInput {
   collection: String!
-  symbol: String!
+  symbol: String
   transferable: String!
   rmrkVersion: String!
   sn: String
