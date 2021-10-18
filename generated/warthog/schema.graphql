@@ -162,7 +162,7 @@ type Collection implements BaseGraphQLObject {
   deletedAt: DateTime
   deletedById: String
   version: Int!
-  name: String!
+  name: String
   max: BigInt!
   issuer: String!
   symbol: String!
@@ -177,7 +177,7 @@ type CollectionConnection {
 }
 
 input CollectionCreateInput {
-  name: String!
+  name: String
   max: String!
   issuer: String!
   symbol: String!

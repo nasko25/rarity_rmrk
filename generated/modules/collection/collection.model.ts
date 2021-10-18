@@ -6,8 +6,10 @@ import * as jsonTypes from '../jsonfields/jsonfields.model';
 
 @Model({ api: {} })
 export class Collection extends BaseModel {
-  @StringField({})
-  name!: string;
+  @StringField({
+    nullable: true,
+  })
+  name?: string;
 
   @NumericField({
     transformer: {

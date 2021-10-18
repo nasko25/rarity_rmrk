@@ -195,7 +195,7 @@ export interface BaseWhereInput {
 }
 
 export interface CollectionCreateInput {
-  name: String
+  name?: String | null
   max: String
   issuer: String
   symbol: String
@@ -487,7 +487,7 @@ export interface Collection extends BaseGraphQLObject {
   deletedAt?: DateTime | null
   deletedById?: String | null
   version: Int
-  name: String
+  name?: String | null
   max: BigInt
   issuer: String
   symbol: String

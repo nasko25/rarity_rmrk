@@ -16,9 +16,13 @@ typegen:
 
 mappings:
   # blockHeight: 6000000
-  range: '[4892956, )'
-  # range: '[7479437, )'
-  # range: '[7697575, )'
+  # range: '[4892956, 7079437)'
+  # range: '[7079437, 7579437)'
+  # range: '[7579437, 7841520)'
+  # range: '[7841520, 8441520)'
+  # range: '[8441520, 8741520)'
+  # range: '[8741520, 8941520)'
+  range: '[8941520, )'
   mappingsModule: mappings
   # eventHandlers:
   #   - event: balances.Transfer

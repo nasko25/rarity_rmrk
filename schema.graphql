@@ -18,7 +18,7 @@ type HistoricalBalance @entity {
 
 type Collection @entity {
     id: String!
-    name: String!
+    name: String
     max: BigInt!
     issuer: String!
     symbol: String!

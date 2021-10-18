@@ -631,8 +631,8 @@ export class CollectionWhereUniqueInput {
 
 @TypeGraphQLInputType()
 export class CollectionCreateInput {
-  @TypeGraphQLField()
-  name!: string;
+  @TypeGraphQLField({ nullable: true })
+  name?: string;
 
   @TypeGraphQLField()
   max!: string;
