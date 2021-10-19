@@ -6,7 +6,7 @@ run-rebuild:
 	npm run codegen
 	# rm db/migrations/LastUnappliedMigration.ts
 	npm run db:reset
-	npm run db:create-migration -n migration
+	# npm run db:create-migration -n migration
 	npm run db:migrate
 	npm run processor:start
 

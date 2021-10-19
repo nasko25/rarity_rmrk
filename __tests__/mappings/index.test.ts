@@ -1,4 +1,4 @@
-import { systemRemark, InvalidInteraction } from "../../mappings/index";
+import { systemRemark, InvalidRMRKFormat } from "../../mappings/index";
 import { DatabaseManager, SubstrateEvent, SubstrateBlock, SubstrateExtrinsic } from '@subsquid/hydra-common'
 import { Collection, Nft } from "../../generated/model";
 import BN from 'bn.js'
@@ -84,7 +84,7 @@ describe("rmrkv0.1", () => {
         await systemRemark({store, event, block, extrinsic: extrinsic_valueInvalidJson });
         // nothing should be saved on invalid input
         expect(store.save).toHaveBeenCalledTimes(0);
-        expect(console.error).toHaveBeenNthCalledWith(3, new InvalidInteraction(`Encountered a rmrk ({"version":"RMRK0.1""name":"Dot Leap Early Promoters","max":100,"issuer":"CpjsLDC1JFyrhm3ftC9Gs4QoyrkHKhZKtK7YqGTRFtTafgp","symbol":"DLEP","id":"0aff6865bed3a66b-DLEP","metadata":"ipfs://ipfs/QmVgs8P4awhZpFXhkkgnCwBp4AdKRj3F9K58mCZ6fxvn3j"}) with invalid format.`));
+        expect(console.error).toHaveBeenNthCalledWith(3, new InvalidRMRKFormat(`Encountered a rmrk ({"version":"RMRK0.1""name":"Dot Leap Early Promoters","max":100,"issuer":"CpjsLDC1JFyrhm3ftC9Gs4QoyrkHKhZKtK7YqGTRFtTafgp","symbol":"DLEP","id":"0aff6865bed3a66b-DLEP","metadata":"ipfs://ipfs/QmVgs8P4awhZpFXhkkgnCwBp4AdKRj3F9K58mCZ6fxvn3j"}) with invalid format.`));
 
                                                                                                       // ,  ,
         const valueInvalidJson2commas = "0x" + Buffer.from("rmrk::MINT::%7B%22version%22%3A%22RMRK0.1%22%2C%2C%22name%22%3A%22Dot+Leap+Early+Promoters%22%2C%22max%22%3A100%2C%22issuer%22%3A%22CpjsLDC1JFyrhm3ftC9Gs4QoyrkHKhZKtK7YqGTRFtTafgp%22%2C%22symbol%22%3A%22DLEP%22%2C%22id%22%3A%220aff6865bed3a66b-DLEP%22%2C%22metadata%22%3A%22ipfs%3A%2F%2Fipfs%2FQmVgs8P4awhZpFXhkkgnCwBp4AdKRj3F9K58mCZ6fxvn3j%22%7D").toString("hex");
@@ -92,7 +92,7 @@ describe("rmrkv0.1", () => {
         await systemRemark({store, event, block, extrinsic: extrinsic_valueInvalidJson2commas });
         // nothing should be saved on invalid input
         expect(store.save).toHaveBeenCalledTimes(0);
-        expect(console.error).toHaveBeenNthCalledWith(4, new InvalidInteraction(`Encountered a rmrk ({"version":"RMRK0.1",,"name":"Dot Leap Early Promoters","max":100,"issuer":"CpjsLDC1JFyrhm3ftC9Gs4QoyrkHKhZKtK7YqGTRFtTafgp","symbol":"DLEP","id":"0aff6865bed3a66b-DLEP","metadata":"ipfs://ipfs/QmVgs8P4awhZpFXhkkgnCwBp4AdKRj3F9K58mCZ6fxvn3j"}) with invalid format.`));
+        expect(console.error).toHaveBeenNthCalledWith(4, new InvalidRMRKFormat(`Encountered a rmrk ({"version":"RMRK0.1",,"name":"Dot Leap Early Promoters","max":100,"issuer":"CpjsLDC1JFyrhm3ftC9Gs4QoyrkHKhZKtK7YqGTRFtTafgp","symbol":"DLEP","id":"0aff6865bed3a66b-DLEP","metadata":"ipfs://ipfs/QmVgs8P4awhZpFXhkkgnCwBp4AdKRj3F9K58mCZ6fxvn3j"}) with invalid format.`));
 
         const valueNotStartingWith0x = Buffer.from("rmrk::MINT::%7B%22version%22%3A%22RMRK0.1%22%2C%22name%22%3A%22Dot+Leap+Early+Promoters%22%2C%22max%22%3A100%2C%22issuer%22%3A%22CpjsLDC1JFyrhm3ftC9Gs4QoyrkHKhZKtK7YqGTRFtTafgp%22%2C%22symbol%22%3A%22DLEP%22%2C%22id%22%3A%220aff6865bed3a66b-DLEP%22%2C%22metadata%22%3A%22ipfs%3A%2F%2Fipfs%2FQmVgs8P4awhZpFXhkkgnCwBp4AdKRj3F9K58mCZ6fxvn3j%22%7D").toString("hex");
         const extrinsic_valueNotStartingWith0x = { args: [ { value: valueNotStartingWith0x } ] } as unknown as SubstrateExtrinsic;

@@ -98,7 +98,7 @@ export async function systemRemark({
         // TODO do checks for all versions and interactions
         // TODO fetch metadata; or spawn a process that does that
         // minting a collection
-        if (parsed_rmrk.version === undefined || parsed_rmrk.version === "RMRK0.1" || parsed_rmrk.version === "1.0.0" && (parsed_rmrk.interaction === "MINT" || parsed_rmrk.interaction === "mint")) {
+        if (parsed_rmrk.version === undefined || parsed_rmrk.version === "RMRK0.1" || parsed_rmrk.version === "1.0.0" || parsed_rmrk.version === "RMRK1.0.0" && (parsed_rmrk.interaction === "MINT" || parsed_rmrk.interaction === "mint")) {
             // check if the rmrk collection is valid
             if (!checkRmrkCollectionValid(parsed_rmrk.rmrk)) {
                 console.error(`Collection "${parsed_rmrk.rmrk.name}" is not following rmrk guidelines, so it cannot be parsed.`);
@@ -133,7 +133,7 @@ export async function systemRemark({
         }
         // spec version 0.1 had a bug in that it did not specify a standard version in the MINT and MINTNFT interactions. When the version is missing from the MINT, it should be assumed to mean 0.1
         //  (taken from the documentation)
-        else if (((parsed_rmrk.version === undefined || parsed_rmrk.version === "RMRK0.1" || parsed_rmrk.version === "1.0.0") && (parsed_rmrk.interaction === "MINTNFT" || parsed_rmrk.interaction === "mintnft")) || (parsed_rmrk.version === "2.0.0" && (parsed_rmrk.interaction === "MINT" || parsed_rmrk.interaction === "mint"))){
+        else if (((parsed_rmrk.version === undefined || parsed_rmrk.version === "RMRK0.1" || parsed_rmrk.version === "1.0.0" || parsed_rmrk.version === "RMRK1.0.0") && (parsed_rmrk.interaction === "MINTNFT" || parsed_rmrk.interaction === "mintnft")) || (parsed_rmrk.version === "2.0.0" && (parsed_rmrk.interaction === "MINT" || parsed_rmrk.interaction === "mint"))){
             // mint a v0.1 or v1.0.0 nft
             let nft = new Nft();
             nft.collection = parsed_rmrk.rmrk.collection;
@@ -145,7 +145,7 @@ export async function systemRemark({
 
             await store.save(nft)
         }
-        else if (((parsed_rmrk.version === "RMRK0.1" || parsed_rmrk.version === "1.0.0") && (parsed_rmrk.interaction === "consume" || parsed_rmrk.interaction === "CONSUME")) || (parsed_rmrk.version === "2.0.0" && parsed_rmrk.interaction === "BURN")) {
+        else if (((parsed_rmrk.version === "RMRK0.1" || parsed_rmrk.version === "1.0.0" || parsed_rmrk.version === "RMRK1.0.0") && (parsed_rmrk.interaction === "consume" || parsed_rmrk.interaction === "CONSUME")) || (parsed_rmrk.version === "2.0.0" && parsed_rmrk.interaction === "BURN")) {
             let removedNft;
             if (parsed_rmrk.version === "2.0.0") {
                 removedNft = store.get(Nft, { where: { collection: parsed_rmrk.rmrk.collection, sn: parsed_rmrk.rmrk.sn } });
@@ -209,6 +209,7 @@ const implemented_interactions = [
 const possible_versions = new Map([
     // version 0.1 is treated differently as it is inside a JSON object
     ["1.0.0", rmrk_v1_handler],
+    ["RMRK1.0.0", rmrk_v1_handler],
     ["2.0.0", rmrk_v2_handler],
 ]);
 
@@ -271,9 +272,10 @@ function parse_rmrk(ext_val: AnyJsonField) {
 
     let rmrk;
     // if the rmrk is "BURN" and the version is "2.0.0" or "CONSUME" for "0.1" and "1.0.0", then parse the id of the nft to burn after the ::
-    if ((version === "2.0.0" && (interaction === "BURN" || interaction === "burn")) || ((version === "0.1" || version === "1.0.0" || version === undefined) && (interaction === "CONSUME" || interaction === "consume"))) {
+    if ((version === "2.0.0" && (interaction === "BURN" || interaction === "burn")) || ((version === "0.1" || version === "1.0.0" || version === "RMRK1.0.0" || version === undefined) && (interaction === "CONSUME" || interaction === "consume"))) {
         // remove the version from the rmrk string
         rmrk_str = rmrk_str.substring(rmrk_str.indexOf("::") + 2);
+
         if (version === "2.0.0") {
             rmrk = parseBURN(rmrk_str);
         } else {
