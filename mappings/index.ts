@@ -201,7 +201,8 @@ const implemented_interactions = [
     "BURN",
     "CONSUME",
     "MINT",
-    "MINTNFT"
+    "MINTNFT",
+    "CREATE"
 ];
 
 // a Map object that has the rmrk version as a key and the handler for that version as a value
@@ -269,25 +270,26 @@ function parse_rmrk(ext_val: AnyJsonField) {
     let version = rmrk_str.substring(0, rmrk_str.indexOf("::"));
 
     let rmrk;
-    if (possible_versions.has(version) && interaction !== "BURN" && interaction !== "burn") {
+    // if the rmrk is "BURN" and the version is "2.0.0" or "CONSUME" for "0.1" and "1.0.0", then parse the id of the nft to burn after the ::
+    if ((version === "2.0.0" && (interaction === "BURN" || interaction === "burn")) || ((version === "0.1" || version === "1.0.0" || version === undefined) && (interaction === "CONSUME" || interaction === "consume"))) {
+        // remove the version from the rmrk string
+        rmrk_str = rmrk_str.substring(rmrk_str.indexOf("::") + 2);
+        if (version === "2.0.0") {
+            rmrk = parseBURN(rmrk_str);
+        } else {
+            rmrk = { id: rmrk_str };
+        }
+    }
+    else if (possible_versions.has(version) && interaction !== "BURN" && interaction !== "burn") {
         let handler = possible_versions.get(version);
         // this is just to make typescript happy, handler is always defined (this is what the if statement checks)
         rmrk = handler === undefined ? undefined : handler(rmrk_str.substring(rmrk_str.indexOf("::") + 2));
     }
     // otherwise, try to JSON.parse the object after :: (assuming it is v0.1)
     else {
-        // if the rmrk is "BURN" and the version is "2.0.0" or "CONSUME" for "0.1" and "1.0.0", then parse the id of the nft to burn after the ::
-        if ((version === "2.0.0" && (interaction === "BURN" || interaction === "burn")) || ((version === "0.1" || version === "1.0.0") && (interaction === "CONSUME" || interaction === "consume"))) {
-            if (version === "2.0.0") {
-                rmrk = parseBURN(rmrk_str);
-            } else {
-                rmrk = { id: rmrk_str };
-            }
-            return { rmrk: rmrk, interaction: interaction, version: version };
-        }
         try {
             rmrk = JSON.parse(rmrk_str);
-            version = rmrk.version;
+            version = rmrk.version ? rmrk.version : "RMRK0.1";
         } catch (err) {
             throw new InvalidRMRKFormat(`Encountered a rmrk (${rmrk_str}) with invalid format.`);
         }
