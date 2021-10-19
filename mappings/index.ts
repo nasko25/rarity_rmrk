@@ -148,12 +148,21 @@ export async function systemRemark({
         else if (((parsed_rmrk.version === "RMRK0.1" || parsed_rmrk.version === "1.0.0") && (parsed_rmrk.interaction === "consume" || parsed_rmrk.interaction === "CONSUME")) || (parsed_rmrk.version === "2.0.0" && parsed_rmrk.interaction === "BURN")) {
             let removedNft;
             if (parsed_rmrk.version === "2.0.0") {
-                removedNft = store.findOne(Nft, { collection: parsed_rmrk.rmrk.collection, sn: parsed_rmrk.rmrk.sn });
+                removedNft = store.get(Nft, { where: { collection: parsed_rmrk.rmrk.collection, sn: parsed_rmrk.rmrk.sn } });
             }
             else {
-                removedNft = store.findOne(Nft, { id: parsed_rmrk.rmrk.id });
+                removedNft = store.get(Nft, { where: { collection: parsed_rmrk.rmrk.collection, sn: parsed_rmrk.rmrk.sn } });
             }
-            await store.remove(removedNft);
+            let nftToRemove = await removedNft;
+            // if the nft is in the storage, remove it
+            // otherwise don't do anything
+            if (nftToRemove)
+                await store.remove(nftToRemove);
+            // TODO remove else case
+            else {
+                console.error("Nft to burn is not in the database");
+                process.exit(-1);
+            }
         }
 
         // TODO remove:
@@ -308,7 +317,7 @@ function parseBURN(rmrk_str: string) {
 // helper function that check whether the parsed rmrk follows the guidelines
 function checkRmrkCollectionValid(rmrk: any) {
     // since max is a number, it is allowed for it to be 0
-    return rmrk.id && rmrk.name && rmrk.max !== undefined && rmrk.issuer && rmrk.symbol && rmrk.metadata;
+    return rmrk.id && rmrk.name && rmrk.max !== undefined && rmrk.issuer && rmrk.symbol && rmrk.metadata && checkMetadataUrl(rmrk.metadata);
 }
 
 function checkRmrkCollectionV2Valid(rmrk: any) {
@@ -317,9 +326,14 @@ function checkRmrkCollectionV2Valid(rmrk: any) {
     if (rmrk.properties)
         process.exit(1);
     // since max is a number, it is allowed for it to be 0
-    return rmrk.id && rmrk.max !== undefined && rmrk.issuer && rmrk.symbol && rmrk.metadata;
+    return rmrk.id && rmrk.max !== undefined && rmrk.issuer && rmrk.symbol && rmrk.metadata && checkMetadataUrl(rmrk.metadata);
 }
 
 function checkRmrkNftValid(rmrk: any) {
-    return rmrk.collection && rmrk.symbol && rmrk.transferable && rmrk.sn && rmrk.metadata;
+    return rmrk.collection && rmrk.symbol && rmrk.transferable && rmrk.sn && rmrk.metadata && checkMetadataUrl(rmrk.metadata);
+}
+
+function checkMetadataUrl(metadata: string) {
+    const url: URL = new URL(metadata);
+    return url.protocol === "http:" || url.protocol === "https:" || url.protocol === "ipfs:";
 }

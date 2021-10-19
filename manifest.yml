@@ -16,6 +16,7 @@ typegen:
 
 mappings:
   # blockHeight: 6000000
+  # if hydra blocks and returns an error, I've found it helps to select a range starting from a block a little before where the indexer hangs
   # range: '[4892956, 7079437)'
   # range: '[7079437, 7579437)'
   # range: '[7579437, 7841520)'
@@ -23,6 +24,7 @@ mappings:
   # range: '[8441520, 8741520)'
   # range: '[8741520, 8941520)'
   # range: '[8941520, )'
+  range: '[9468348, )'
   mappingsModule: mappings
   # eventHandlers:
   #   - event: balances.Transfer
