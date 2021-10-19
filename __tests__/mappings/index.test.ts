@@ -29,7 +29,7 @@ test("test systemRemark() for system.remarks that are not rmrks", async () => {
     expect(spyToString).toHaveBeenCalledTimes(2);
     expect(spyStartsWith).toHaveBeenCalledTimes(2);
     expect(spyStartsWith).toHaveBeenNthCalledWith(1, "0x726d726b");
-    expect(spyStartsWith).toHaveBeenNthCalledWith(2, "0x524d524c");
+    expect(spyStartsWith).toHaveBeenNthCalledWith(2, "0x524d524b");
     expect(spyToString.mock.instances[0]).toBe(value);      // or toEqual() ?
     expect(spyToString.mock.instances[1]).toBe(value);      // or toEqual() ?
 
@@ -52,6 +52,7 @@ describe("rmrkv0.1", () => {
         collection.issuer = "CpjsLDC1JFyrhm3ftC9Gs4QoyrkHKhZKtK7YqGTRFtTafgp";
         collection.symbol = "DLEP";
         collection.metadata = "ipfs://ipfs/QmVgs8P4awhZpFXhkkgnCwBp4AdKRj3F9K58mCZ6fxvn3j";
+        collection.rmrkVersion = "RMRK0.1";
         expect(store.save).toHaveBeenNthCalledWith(1, collection);
     });
 
@@ -142,13 +143,14 @@ describe("rmrkv0.1", () => {
         collection.issuer = "CpjsLDC1JFyrhm3ftC9Gs4QoyrkHKhZKtK7YqGTRFtTafgp";
         collection.symbol = "DLEP";
         collection.metadata = "ipfs://ipfs/QmVgs8P4awhZpFXhkkgnCwBp4AdKRj3F9K58mCZ6fxvn3j";
+        collection.rmrkVersion = "RMRK0.1";
 
         expect(store.save).toHaveBeenNthCalledWith(1, collection);
     });
 });
 
 describe("rmrk v2.0.0", () => {
-    test("test minting an collection with a missing id", async () => {
+    test("test minting a collection with a missing id", async () => {
         const value = "0x" + Buffer.from("rmrk::CREATE::2.0.0::%7B%22max%22%3A100%2C%22issuer%22%3A%22CpjsLDC1JFyrhm3ftC9Gs4QoyrkHKhZKtK7YqGTRFtTafgp%22%2C%22symbol%22%3A%22DLEP%22%2C%22metadata%22%3A%22ipfs%3A%2F%2Fipfs%2FQmVgs8P4awhZpFXhkkgnCwBp4AdKRj3F9K58mCZ6fxvn3j%22%7D").toString("hex");
 
         const console_error = console.error;
@@ -175,6 +177,7 @@ describe("rmrk v2.0.0", () => {
         collection.issuer = "CpjsLDC1JFyrhm3ftC9Gs4QoyrkHKhZKtK7YqGTRFtTafgp";
         collection.symbol = "DLEP";
         collection.metadata = "ipfs://ipfs/QmVgs8P4awhZpFXhkkgnCwBp4AdKRj3F9K58mCZ6fxvn3j";
+        collection.rmrkVersion = "2.0.0";
 
         expect(store.save).toHaveBeenNthCalledWith(1, collection);
     });
@@ -191,6 +194,7 @@ describe("rmrk v2.0.0", () => {
         nft.transferable = new BN(1);
         nft.sn = "00000001";
         nft.metadata = "ipfs://ipfs/QmavoTVbVHnGEUztnBT2p3rif3qBPeCfyyUE5v4Z7oFvs4";
+        nft.rmrkVersion = "2.0.0";
 
         expect(store.save).toHaveBeenNthCalledWith(1, nft);
     });
@@ -209,8 +213,9 @@ describe("rmrk v2.0.0", () => {
         nft.transferable = new BN(1);
         nft.sn = "00000001";
         nft.metadata = "ipfs://ipfs/QmavoTVbVHnGEUztnBT2p3rif3qBPeCfyyUE5v4Z7oFvs4";
+        nft.rmrkVersion = "2.0.0";
 
-        store.findOne = jest.fn().mockImplementationOnce(rmrk => {
+        store.get = jest.fn().mockImplementationOnce(rmrk => {
             expect(rmrk.collection === collection && rmrk.sn === sn);
             return nft;
         });
