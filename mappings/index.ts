@@ -307,7 +307,8 @@ function parseBURN(rmrk_str: string) {
 // TODO check metadata formats; they should be a valid HTTP or ipfs url
 // helper function that check whether the parsed rmrk follows the guidelines
 function checkRmrkCollectionValid(rmrk: any) {
-    return rmrk.id && rmrk.name && rmrk.max && rmrk.issuer && rmrk.symbol && rmrk.metadata;
+    // since max is a number, it is allowed for it to be 0
+    return rmrk.id && rmrk.name && rmrk.max !== undefined && rmrk.issuer && rmrk.symbol && rmrk.metadata;
 }
 
 function checkRmrkCollectionV2Valid(rmrk: any) {
@@ -315,7 +316,8 @@ function checkRmrkCollectionV2Valid(rmrk: any) {
     // TODO also what to do with properties
     if (rmrk.properties)
         process.exit(1);
-    return rmrk.id && rmrk.max && rmrk.issuer && rmrk.symbol && rmrk.metadata;
+    // since max is a number, it is allowed for it to be 0
+    return rmrk.id && rmrk.max !== undefined && rmrk.issuer && rmrk.symbol && rmrk.metadata;
 }
 
 function checkRmrkNftValid(rmrk: any) {
