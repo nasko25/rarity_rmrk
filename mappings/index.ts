@@ -98,7 +98,7 @@ export async function systemRemark({
         // TODO do checks for all versions and interactions
         // TODO fetch metadata; or spawn a process that does that
         // minting a collection
-        if (parsed_rmrk.version === undefined || parsed_rmrk.version === "RMRK0.1" || parsed_rmrk.version === "1.0.0" || parsed_rmrk.version === "RMRK1.0.0" && (parsed_rmrk.interaction === "MINT" || parsed_rmrk.interaction === "mint")) {
+        if ((parsed_rmrk.version === undefined || parsed_rmrk.version === "RMRK0.1" || parsed_rmrk.version === "1.0.0" || parsed_rmrk.version === "RMRK1.0.0") && (parsed_rmrk.interaction === "MINT" || parsed_rmrk.interaction === "mint")) {
             // check if the rmrk collection is valid
             if (!checkRmrkCollectionValid(parsed_rmrk.rmrk)) {
                 console.error(`Collection "${parsed_rmrk.rmrk.name}" is not following rmrk guidelines, so it cannot be parsed.`);
@@ -161,7 +161,7 @@ export async function systemRemark({
             // TODO remove else case
             else {
                 console.error("Nft to burn is not in the database");
-                process.exit(-1);
+                //process.exit(-1);
             }
         }
 
@@ -272,15 +272,10 @@ function parse_rmrk(ext_val: AnyJsonField) {
 
     let rmrk;
     // if the rmrk is "BURN" and the version is "2.0.0" or "CONSUME" for "0.1" and "1.0.0", then parse the id of the nft to burn after the ::
-    if ((version === "2.0.0" && (interaction === "BURN" || interaction === "burn")) || ((version === "0.1" || version === "1.0.0" || version === "RMRK1.0.0" || version === undefined) && (interaction === "CONSUME" || interaction === "consume"))) {
+    if ((version === "2.0.0" && (interaction === "BURN" || interaction === "burn")) || ((version === "0.1" || version === "1.0.0" || version === "RMRK1.0.0" || version === "undefined") && (interaction === "CONSUME" || interaction === "consume"))) {
         // remove the version from the rmrk string
         rmrk_str = rmrk_str.substring(rmrk_str.indexOf("::") + 2);
-
-        if (version === "2.0.0") {
-            rmrk = parseBURN(rmrk_str);
-        } else {
-            rmrk = { id: rmrk_str };
-        }
+        rmrk = parseBURN(rmrk_str);
     }
     else if (possible_versions.has(version) && interaction !== "BURN" && interaction !== "burn") {
         let handler = possible_versions.get(version);
@@ -290,6 +285,9 @@ function parse_rmrk(ext_val: AnyJsonField) {
     // otherwise, try to JSON.parse the object after :: (assuming it is v0.1)
     else {
         try {
+            // if the version is actually "undefined", trim the rmrk string
+            if (version === "undefined")
+                rmrk_str = rmrk_str.substring(rmrk_str.indexOf("::") + 2);
             rmrk = JSON.parse(rmrk_str);
             version = rmrk.version ? rmrk.version : "RMRK0.1";
         } catch (err) {
