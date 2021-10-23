@@ -66,7 +66,12 @@ type EntityConstructor<T> = {
   new (...args: any[]): T
 }
 
-type Call = { call: string, value: string, caller: string };
+type Call = {
+    call: string,
+    value: string,
+    caller: string
+};
+
 class RemarkBlock {
     block: number;
     calls: Call[];
@@ -96,6 +101,19 @@ export async function systemRemark({
     console.log(calls)
     const remarks = getRemarksFromBlocks([new RemarkBlock(block.height, calls)], ["0x726d726b", "0x524d524b"]);
     if (remarks.length !== 0) {
+        /*
+        remarks:
+        [
+            {
+                block: 9468357,
+                caller: 'D6HSL6nGXHLYWSN8jiL9MSNixH2F2o382KkHsZAtfZvBnxM',
+                interaction_type: 'BURN',
+                version: '2.0.0',
+                remark: 'RMRK::BURN::2.0.0::9467206-9cba890074545f2e7c-KANPRTN-khala_sunglasses_Colorful-00000NaN',
+                extra_ex: undefined || Call[]
+            }
+        ]
+        */
         console.log(remarks);
         process.exit(-1);
     }
