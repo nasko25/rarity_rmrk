@@ -2,6 +2,7 @@ import BN from 'bn.js'
 import { DatabaseManager, EventContext, StoreContext, AnyJsonField } from '@subsquid/hydra-common'
 import { Account, HistoricalBalance, Nft, Collection } from '../generated/model'
 import { Balances } from '../chain'
+import { getRemarksFromBlocks } from 'rmrk-tools';
 import { hexToString, stringToHex } from "@polkadot/util";
 
 
@@ -65,6 +66,17 @@ type EntityConstructor<T> = {
   new (...args: any[]): T
 }
 
+type Call = { call: string, value: string, caller: string };
+class RemarkBlock {
+    block: number;
+    calls: Call[];
+
+    constructor(block: number, calls: Call[]) {
+        this.block = block;
+        this.calls = calls;
+    }
+}
+
 // TODO unit tests
 export async function systemRemark({
   store,
@@ -72,12 +84,25 @@ export async function systemRemark({
   block,
   extrinsic,
 }: EventContext & StoreContext): Promise<void> {
-
     if (!extrinsic || !extrinsic.args || extrinsic.args.length !== 1) {
         console.error("Unexpected extrinsic format.");
         return;
     }
+
+    let calls = [];
+    for (const arg of extrinsic.args) {
+        calls.push(<Call> { call: /* extrinsic.section + "." + extrinsic.method */ "system.remark", value: arg.value, caller: extrinsic.signer });
+    }
+    console.log(calls)
+    const remarks = getRemarksFromBlocks([new RemarkBlock(block.height, calls)], ["0x726d726b", "0x524d524b"]);
+    if (remarks.length !== 0) {
+        console.log(remarks);
+        process.exit(-1);
+    }
+    // store.save<SubstrateBlock>(block)
+
     // TODO error checks; don't assume all nfts follow the standard
+    /*
     let ext_val = extrinsic?.args[0]?.value;
     // nft remarks should start with rmrk or RMRK
     if (ext_val?.toString().startsWith("0x726d726b") || ext_val?.toString().startsWith("0x524d524b")) {
@@ -91,6 +116,7 @@ export async function systemRemark({
             console.log(JSON.stringify(parsed_rmrk) + "\n");
         } catch (err) {
             console.error(err);
+            process.exit(-1);
             return;
         }
 
@@ -102,6 +128,7 @@ export async function systemRemark({
             // check if the rmrk collection is valid
             if (!checkRmrkCollectionValid(parsed_rmrk.rmrk)) {
                 console.error(`Collection "${parsed_rmrk.rmrk.name}" is not following rmrk guidelines, so it cannot be parsed.`);
+                process.exit(-1);
                 return;
             }
             // mint a v0.1 or v1.0.0 collection
@@ -119,6 +146,7 @@ export async function systemRemark({
         else if (parsed_rmrk.version === "2.0.0" && (parsed_rmrk.interaction === "CREATE" || parsed_rmrk.interaction === "create")) {
             if (!checkRmrkCollectionV2Valid(parsed_rmrk.rmrk)) {
                 console.error(`Collection "${parsed_rmrk.rmrk.id}" is not following rmrk guidelines, so it cannot be parsed.`);
+                process.exit(-1);
                 return;
             }
             let collection = new Collection();
@@ -134,6 +162,11 @@ export async function systemRemark({
         // spec version 0.1 had a bug in that it did not specify a standard version in the MINT and MINTNFT interactions. When the version is missing from the MINT, it should be assumed to mean 0.1
         //  (taken from the documentation)
         else if (((parsed_rmrk.version === undefined || parsed_rmrk.version === "RMRK0.1" || parsed_rmrk.version === "1.0.0" || parsed_rmrk.version === "RMRK1.0.0") && (parsed_rmrk.interaction === "MINTNFT" || parsed_rmrk.interaction === "mintnft")) || (parsed_rmrk.version === "2.0.0" && (parsed_rmrk.interaction === "MINT" || parsed_rmrk.interaction === "mint"))){
+            if (!checkRmrkNftValid(parsed_rmrk.rmrk)) {
+                console.error(`Nft "${parsed_rmrk.rmrk.id}" is not following rmrk guidelines, so it cannot be parsed.`);
+                process.exit(-1);
+                return;
+            }
             // mint a v0.1 or v1.0.0 nft
             let nft = new Nft();
             nft.collection = parsed_rmrk.rmrk.collection;
@@ -161,13 +194,14 @@ export async function systemRemark({
             // TODO remove else case
             else {
                 console.error("Nft to burn is not in the database");
-                //process.exit(-1);
+                process.exit(-1);
             }
         }
 
         // TODO remove:
         // process.exit(1);
     }
+   */
 }
 
 const possible_interactions = [
@@ -234,8 +268,20 @@ function rmrk_v1_handler(rmrk_str: string) {
     return JSON.parse(rmrk_str);
 }
 
-function rmrk_v2_handler(rmrk_str: string) {
+function rmrk_v2_handler(rmrk_str: string, interaction: string) {
     // TODO check if the object format is as expected
+
+    // MINT interactions have an optional recepient
+    if (interaction === "MINT" || interaction === "mint") {
+        let rmrk_split = rmrk_str.split("::");
+        if (rmrk_split.length === 1)
+            return JSON.parse(rmrk_str);
+        else if (rmrk_split.length === 2) {
+            let parsed_rmrk = JSON.parse(rmrk_split[0]);
+            parsed_rmrk.recepient = rmrk_split[1];
+            return parsed_rmrk;
+        }
+    }
     return JSON.parse(rmrk_str);
 }
 
@@ -280,7 +326,7 @@ function parse_rmrk(ext_val: AnyJsonField) {
     else if (possible_versions.has(version) && interaction !== "BURN" && interaction !== "burn") {
         let handler = possible_versions.get(version);
         // this is just to make typescript happy, handler is always defined (this is what the if statement checks)
-        rmrk = handler === undefined ? undefined : handler(rmrk_str.substring(rmrk_str.indexOf("::") + 2));
+        rmrk = handler === undefined ? undefined : handler(rmrk_str.substring(rmrk_str.indexOf("::") + 2), interaction);
     }
     // otherwise, try to JSON.parse the object after :: (assuming it is v0.1)
     else {
