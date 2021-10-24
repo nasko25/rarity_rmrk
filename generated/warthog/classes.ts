@@ -32,9 +32,11 @@ import { Collection } from "../modules/collection/collection.model";
 // @ts-ignore
 import { Call } from "../modules/jsonfields/jsonfields.model";
 // @ts-ignore
+import { Rmrk } from "../modules/jsonfields/jsonfields.model";
+// @ts-ignore
 import { Nft } from "../modules/nft/nft.model";
 // @ts-ignore
-import { Rmrk } from "../modules/rmrk/rmrk.model";
+import { RmrkEntity } from "../modules/rmrk-entity/rmrk-entity.model";
 
 export enum HistoricalBalanceOrderByEnum {
   createdAt_ASC = "createdAt_ASC",
@@ -897,6 +899,258 @@ export class CallUpdateArgs {
   @TypeGraphQLField() where!: CallWhereUniqueInput;
 }
 
+export enum RmrkOrderByEnum {
+  createdAt_ASC = "createdAt_ASC",
+  createdAt_DESC = "createdAt_DESC",
+
+  updatedAt_ASC = "updatedAt_ASC",
+  updatedAt_DESC = "updatedAt_DESC",
+
+  deletedAt_ASC = "deletedAt_ASC",
+  deletedAt_DESC = "deletedAt_DESC",
+
+  block_ASC = "block_ASC",
+  block_DESC = "block_DESC",
+
+  caller_ASC = "caller_ASC",
+  caller_DESC = "caller_DESC",
+
+  interactionType_ASC = "interactionType_ASC",
+  interactionType_DESC = "interactionType_DESC",
+
+  rmrkVersion_ASC = "rmrkVersion_ASC",
+  rmrkVersion_DESC = "rmrkVersion_DESC",
+
+  remark_ASC = "remark_ASC",
+  remark_DESC = "remark_DESC",
+}
+
+registerEnumType(RmrkOrderByEnum, {
+  name: "RmrkOrderByInput",
+});
+
+@TypeGraphQLInputType()
+export class RmrkWhereInput {
+  @TypeGraphQLField(() => ID, { nullable: true })
+  id_eq?: string;
+
+  @TypeGraphQLField(() => [ID], { nullable: true })
+  id_in?: string[];
+
+  @TypeGraphQLField(() => DateTime, { nullable: true })
+  createdAt_eq?: Date;
+
+  @TypeGraphQLField(() => DateTime, { nullable: true })
+  createdAt_lt?: Date;
+
+  @TypeGraphQLField(() => DateTime, { nullable: true })
+  createdAt_lte?: Date;
+
+  @TypeGraphQLField(() => DateTime, { nullable: true })
+  createdAt_gt?: Date;
+
+  @TypeGraphQLField(() => DateTime, { nullable: true })
+  createdAt_gte?: Date;
+
+  @TypeGraphQLField(() => ID, { nullable: true })
+  createdById_eq?: string;
+
+  @TypeGraphQLField(() => [ID], { nullable: true })
+  createdById_in?: string[];
+
+  @TypeGraphQLField(() => DateTime, { nullable: true })
+  updatedAt_eq?: Date;
+
+  @TypeGraphQLField(() => DateTime, { nullable: true })
+  updatedAt_lt?: Date;
+
+  @TypeGraphQLField(() => DateTime, { nullable: true })
+  updatedAt_lte?: Date;
+
+  @TypeGraphQLField(() => DateTime, { nullable: true })
+  updatedAt_gt?: Date;
+
+  @TypeGraphQLField(() => DateTime, { nullable: true })
+  updatedAt_gte?: Date;
+
+  @TypeGraphQLField(() => ID, { nullable: true })
+  updatedById_eq?: string;
+
+  @TypeGraphQLField(() => [ID], { nullable: true })
+  updatedById_in?: string[];
+
+  @TypeGraphQLField({ nullable: true })
+  deletedAt_all?: Boolean;
+
+  @TypeGraphQLField(() => DateTime, { nullable: true })
+  deletedAt_eq?: Date;
+
+  @TypeGraphQLField(() => DateTime, { nullable: true })
+  deletedAt_lt?: Date;
+
+  @TypeGraphQLField(() => DateTime, { nullable: true })
+  deletedAt_lte?: Date;
+
+  @TypeGraphQLField(() => DateTime, { nullable: true })
+  deletedAt_gt?: Date;
+
+  @TypeGraphQLField(() => DateTime, { nullable: true })
+  deletedAt_gte?: Date;
+
+  @TypeGraphQLField(() => ID, { nullable: true })
+  deletedById_eq?: string;
+
+  @TypeGraphQLField(() => [ID], { nullable: true })
+  deletedById_in?: string[];
+
+  @TypeGraphQLField(() => BigInt, { nullable: true })
+  block_eq?: string;
+
+  @TypeGraphQLField(() => BigInt, { nullable: true })
+  block_gt?: string;
+
+  @TypeGraphQLField(() => BigInt, { nullable: true })
+  block_gte?: string;
+
+  @TypeGraphQLField(() => BigInt, { nullable: true })
+  block_lt?: string;
+
+  @TypeGraphQLField(() => BigInt, { nullable: true })
+  block_lte?: string;
+
+  @TypeGraphQLField(() => [BigInt], { nullable: true })
+  block_in?: string[];
+
+  @TypeGraphQLField({ nullable: true })
+  caller_eq?: string;
+
+  @TypeGraphQLField({ nullable: true })
+  caller_contains?: string;
+
+  @TypeGraphQLField({ nullable: true })
+  caller_startsWith?: string;
+
+  @TypeGraphQLField({ nullable: true })
+  caller_endsWith?: string;
+
+  @TypeGraphQLField(() => [String], { nullable: true })
+  caller_in?: string[];
+
+  @TypeGraphQLField({ nullable: true })
+  interactionType_eq?: string;
+
+  @TypeGraphQLField({ nullable: true })
+  interactionType_contains?: string;
+
+  @TypeGraphQLField({ nullable: true })
+  interactionType_startsWith?: string;
+
+  @TypeGraphQLField({ nullable: true })
+  interactionType_endsWith?: string;
+
+  @TypeGraphQLField(() => [String], { nullable: true })
+  interactionType_in?: string[];
+
+  @TypeGraphQLField({ nullable: true })
+  rmrkVersion_eq?: string;
+
+  @TypeGraphQLField({ nullable: true })
+  rmrkVersion_contains?: string;
+
+  @TypeGraphQLField({ nullable: true })
+  rmrkVersion_startsWith?: string;
+
+  @TypeGraphQLField({ nullable: true })
+  rmrkVersion_endsWith?: string;
+
+  @TypeGraphQLField(() => [String], { nullable: true })
+  rmrkVersion_in?: string[];
+
+  @TypeGraphQLField({ nullable: true })
+  remark_eq?: string;
+
+  @TypeGraphQLField({ nullable: true })
+  remark_contains?: string;
+
+  @TypeGraphQLField({ nullable: true })
+  remark_startsWith?: string;
+
+  @TypeGraphQLField({ nullable: true })
+  remark_endsWith?: string;
+
+  @TypeGraphQLField(() => [String], { nullable: true })
+  remark_in?: string[];
+
+  @TypeGraphQLField(() => RmrkWhereInput, { nullable: true })
+  AND?: [RmrkWhereInput];
+
+  @TypeGraphQLField(() => RmrkWhereInput, { nullable: true })
+  OR?: [RmrkWhereInput];
+}
+
+@TypeGraphQLInputType()
+export class RmrkWhereUniqueInput {
+  @TypeGraphQLField(() => ID)
+  id?: string;
+}
+
+@TypeGraphQLInputType()
+export class RmrkCreateInput {
+  @TypeGraphQLField()
+  block!: string;
+
+  @TypeGraphQLField()
+  caller!: string;
+
+  @TypeGraphQLField()
+  interactionType!: string;
+
+  @TypeGraphQLField()
+  rmrkVersion!: string;
+
+  @TypeGraphQLField()
+  remark!: string;
+}
+
+@TypeGraphQLInputType()
+export class RmrkUpdateInput {
+  @TypeGraphQLField({ nullable: true })
+  block?: string;
+
+  @TypeGraphQLField({ nullable: true })
+  caller?: string;
+
+  @TypeGraphQLField({ nullable: true })
+  interactionType?: string;
+
+  @TypeGraphQLField({ nullable: true })
+  rmrkVersion?: string;
+
+  @TypeGraphQLField({ nullable: true })
+  remark?: string;
+}
+
+@ArgsType()
+export class RmrkWhereArgs extends PaginationArgs {
+  @TypeGraphQLField(() => RmrkWhereInput, { nullable: true })
+  where?: RmrkWhereInput;
+
+  @TypeGraphQLField(() => RmrkOrderByEnum, { nullable: true })
+  orderBy?: RmrkOrderByEnum[];
+}
+
+@ArgsType()
+export class RmrkCreateManyArgs {
+  @TypeGraphQLField(() => [RmrkCreateInput])
+  data!: RmrkCreateInput[];
+}
+
+@ArgsType()
+export class RmrkUpdateArgs {
+  @TypeGraphQLField() data!: RmrkUpdateInput;
+  @TypeGraphQLField() where!: RmrkWhereUniqueInput;
+}
+
 export enum NftOrderByEnum {
   createdAt_ASC = "createdAt_ASC",
   createdAt_DESC = "createdAt_DESC",
@@ -1173,7 +1427,7 @@ export class NftUpdateArgs {
   @TypeGraphQLField() where!: NftWhereUniqueInput;
 }
 
-export enum RmrkOrderByEnum {
+export enum RmrkEntityOrderByEnum {
   createdAt_ASC = "createdAt_ASC",
   createdAt_DESC = "createdAt_DESC",
 
@@ -1182,29 +1436,14 @@ export enum RmrkOrderByEnum {
 
   deletedAt_ASC = "deletedAt_ASC",
   deletedAt_DESC = "deletedAt_DESC",
-
-  block_ASC = "block_ASC",
-  block_DESC = "block_DESC",
-
-  caller_ASC = "caller_ASC",
-  caller_DESC = "caller_DESC",
-
-  interactionType_ASC = "interactionType_ASC",
-  interactionType_DESC = "interactionType_DESC",
-
-  rmrkVersion_ASC = "rmrkVersion_ASC",
-  rmrkVersion_DESC = "rmrkVersion_DESC",
-
-  remark_ASC = "remark_ASC",
-  remark_DESC = "remark_DESC",
 }
 
-registerEnumType(RmrkOrderByEnum, {
-  name: "RmrkOrderByInput",
+registerEnumType(RmrkEntityOrderByEnum, {
+  name: "RmrkEntityOrderByInput",
 });
 
 @TypeGraphQLInputType()
-export class RmrkWhereInput {
+export class RmrkEntityWhereInput {
   @TypeGraphQLField(() => ID, { nullable: true })
   id_eq?: string;
 
@@ -1277,159 +1516,51 @@ export class RmrkWhereInput {
   @TypeGraphQLField(() => [ID], { nullable: true })
   deletedById_in?: string[];
 
-  @TypeGraphQLField(() => BigInt, { nullable: true })
-  block_eq?: string;
-
-  @TypeGraphQLField(() => BigInt, { nullable: true })
-  block_gt?: string;
-
-  @TypeGraphQLField(() => BigInt, { nullable: true })
-  block_gte?: string;
-
-  @TypeGraphQLField(() => BigInt, { nullable: true })
-  block_lt?: string;
-
-  @TypeGraphQLField(() => BigInt, { nullable: true })
-  block_lte?: string;
-
-  @TypeGraphQLField(() => [BigInt], { nullable: true })
-  block_in?: string[];
-
-  @TypeGraphQLField({ nullable: true })
-  caller_eq?: string;
-
-  @TypeGraphQLField({ nullable: true })
-  caller_contains?: string;
-
-  @TypeGraphQLField({ nullable: true })
-  caller_startsWith?: string;
-
-  @TypeGraphQLField({ nullable: true })
-  caller_endsWith?: string;
-
-  @TypeGraphQLField(() => [String], { nullable: true })
-  caller_in?: string[];
-
-  @TypeGraphQLField({ nullable: true })
-  interactionType_eq?: string;
-
-  @TypeGraphQLField({ nullable: true })
-  interactionType_contains?: string;
-
-  @TypeGraphQLField({ nullable: true })
-  interactionType_startsWith?: string;
-
-  @TypeGraphQLField({ nullable: true })
-  interactionType_endsWith?: string;
-
-  @TypeGraphQLField(() => [String], { nullable: true })
-  interactionType_in?: string[];
-
-  @TypeGraphQLField({ nullable: true })
-  rmrkVersion_eq?: string;
-
-  @TypeGraphQLField({ nullable: true })
-  rmrkVersion_contains?: string;
-
-  @TypeGraphQLField({ nullable: true })
-  rmrkVersion_startsWith?: string;
-
-  @TypeGraphQLField({ nullable: true })
-  rmrkVersion_endsWith?: string;
-
-  @TypeGraphQLField(() => [String], { nullable: true })
-  rmrkVersion_in?: string[];
-
-  @TypeGraphQLField({ nullable: true })
-  remark_eq?: string;
-
-  @TypeGraphQLField({ nullable: true })
-  remark_contains?: string;
-
-  @TypeGraphQLField({ nullable: true })
-  remark_startsWith?: string;
-
-  @TypeGraphQLField({ nullable: true })
-  remark_endsWith?: string;
-
-  @TypeGraphQLField(() => [String], { nullable: true })
-  remark_in?: string[];
-
   @TypeGraphQLField(() => GraphQLJSONObject, { nullable: true })
-  extraEx_json?: JsonObject;
+  rmrk_json?: JsonObject;
 
-  @TypeGraphQLField(() => RmrkWhereInput, { nullable: true })
-  AND?: [RmrkWhereInput];
+  @TypeGraphQLField(() => RmrkEntityWhereInput, { nullable: true })
+  AND?: [RmrkEntityWhereInput];
 
-  @TypeGraphQLField(() => RmrkWhereInput, { nullable: true })
-  OR?: [RmrkWhereInput];
+  @TypeGraphQLField(() => RmrkEntityWhereInput, { nullable: true })
+  OR?: [RmrkEntityWhereInput];
 }
 
 @TypeGraphQLInputType()
-export class RmrkWhereUniqueInput {
+export class RmrkEntityWhereUniqueInput {
   @TypeGraphQLField(() => ID)
   id?: string;
 }
 
 @TypeGraphQLInputType()
-export class RmrkCreateInput {
-  @TypeGraphQLField()
-  block!: string;
-
-  @TypeGraphQLField()
-  caller!: string;
-
-  @TypeGraphQLField()
-  interactionType!: string;
-
-  @TypeGraphQLField()
-  rmrkVersion!: string;
-
-  @TypeGraphQLField()
-  remark!: string;
-
-  @TypeGraphQLField(() => Call, { nullable: true })
-  extraEx?: Call;
+export class RmrkEntityCreateInput {
+  @TypeGraphQLField(() => Rmrk)
+  rmrk!: Rmrk;
 }
 
 @TypeGraphQLInputType()
-export class RmrkUpdateInput {
-  @TypeGraphQLField({ nullable: true })
-  block?: string;
-
-  @TypeGraphQLField({ nullable: true })
-  caller?: string;
-
-  @TypeGraphQLField({ nullable: true })
-  interactionType?: string;
-
-  @TypeGraphQLField({ nullable: true })
-  rmrkVersion?: string;
-
-  @TypeGraphQLField({ nullable: true })
-  remark?: string;
-
-  @TypeGraphQLField(() => Call, { nullable: true })
-  extraEx?: Call;
+export class RmrkEntityUpdateInput {
+  @TypeGraphQLField(() => Rmrk, { nullable: true })
+  rmrk?: Rmrk;
 }
 
 @ArgsType()
-export class RmrkWhereArgs extends PaginationArgs {
-  @TypeGraphQLField(() => RmrkWhereInput, { nullable: true })
-  where?: RmrkWhereInput;
+export class RmrkEntityWhereArgs extends PaginationArgs {
+  @TypeGraphQLField(() => RmrkEntityWhereInput, { nullable: true })
+  where?: RmrkEntityWhereInput;
 
-  @TypeGraphQLField(() => RmrkOrderByEnum, { nullable: true })
-  orderBy?: RmrkOrderByEnum[];
+  @TypeGraphQLField(() => RmrkEntityOrderByEnum, { nullable: true })
+  orderBy?: RmrkEntityOrderByEnum[];
 }
 
 @ArgsType()
-export class RmrkCreateManyArgs {
-  @TypeGraphQLField(() => [RmrkCreateInput])
-  data!: RmrkCreateInput[];
+export class RmrkEntityCreateManyArgs {
+  @TypeGraphQLField(() => [RmrkEntityCreateInput])
+  data!: RmrkEntityCreateInput[];
 }
 
 @ArgsType()
-export class RmrkUpdateArgs {
-  @TypeGraphQLField() data!: RmrkUpdateInput;
-  @TypeGraphQLField() where!: RmrkWhereUniqueInput;
+export class RmrkEntityUpdateArgs {
+  @TypeGraphQLField() data!: RmrkEntityUpdateInput;
+  @TypeGraphQLField() where!: RmrkEntityWhereUniqueInput;
 }

@@ -18,9 +18,9 @@ export interface Query {
     nfts: <T = Array<Nft>>(args: { offset?: Int | null, limit?: Int | null, where?: NftWhereInput | null, orderBy?: Array<NftOrderByInput> | null }, info?: GraphQLResolveInfo | string, options?: Options) => Promise<T> ,
     nftByUniqueInput: <T = Nft | null>(args: { where: NftWhereUniqueInput }, info?: GraphQLResolveInfo | string, options?: Options) => Promise<T | null> ,
     nftsConnection: <T = NftConnection>(args: { first?: Int | null, after?: String | null, last?: Int | null, before?: String | null, where?: NftWhereInput | null, orderBy?: Array<NftOrderByInput> | null }, info?: GraphQLResolveInfo | string, options?: Options) => Promise<T> ,
-    rmrks: <T = Array<Rmrk>>(args: { offset?: Int | null, limit?: Int | null, where?: RmrkWhereInput | null, orderBy?: Array<RmrkOrderByInput> | null }, info?: GraphQLResolveInfo | string, options?: Options) => Promise<T> ,
-    rmrkByUniqueInput: <T = Rmrk | null>(args: { where: RmrkWhereUniqueInput }, info?: GraphQLResolveInfo | string, options?: Options) => Promise<T | null> ,
-    rmrksConnection: <T = RmrkConnection>(args: { first?: Int | null, after?: String | null, last?: Int | null, before?: String | null, where?: RmrkWhereInput | null, orderBy?: Array<RmrkOrderByInput> | null }, info?: GraphQLResolveInfo | string, options?: Options) => Promise<T> ,
+    rmrkEntities: <T = Array<RmrkEntity>>(args: { offset?: Int | null, limit?: Int | null, where?: RmrkEntityWhereInput | null, orderBy?: Array<RmrkEntityOrderByInput> | null }, info?: GraphQLResolveInfo | string, options?: Options) => Promise<T> ,
+    rmrkEntityByUniqueInput: <T = RmrkEntity | null>(args: { where: RmrkEntityWhereUniqueInput }, info?: GraphQLResolveInfo | string, options?: Options) => Promise<T | null> ,
+    rmrkEntitiesConnection: <T = RmrkEntityConnection>(args: { first?: Int | null, after?: String | null, last?: Int | null, before?: String | null, where?: RmrkEntityWhereInput | null, orderBy?: Array<RmrkEntityOrderByInput> | null }, info?: GraphQLResolveInfo | string, options?: Options) => Promise<T> ,
     hello: <T = Hello>(args?: {}, info?: GraphQLResolveInfo | string, options?: Options) => Promise<T> 
   }
 
@@ -116,22 +116,12 @@ export type NftOrderByInput =   'createdAt_ASC' |
   'metadata_ASC' |
   'metadata_DESC'
 
-export type RmrkOrderByInput =   'createdAt_ASC' |
+export type RmrkEntityOrderByInput =   'createdAt_ASC' |
   'createdAt_DESC' |
   'updatedAt_ASC' |
   'updatedAt_DESC' |
   'deletedAt_ASC' |
-  'deletedAt_DESC' |
-  'block_ASC' |
-  'block_DESC' |
-  'caller_ASC' |
-  'caller_DESC' |
-  'interactionType_ASC' |
-  'interactionType_DESC' |
-  'rmrkVersion_ASC' |
-  'rmrkVersion_DESC' |
-  'remark_ASC' |
-  'remark_DESC'
+  'deletedAt_DESC'
 
 export interface AccountCreateInput {
   wallet: String
@@ -508,7 +498,57 @@ export interface RmrkCreateInput {
   interactionType: String
   rmrkVersion: String
   remark: String
-  extraEx?: CallInput | null
+}
+
+export interface RmrkEntityCreateInput {
+  rmrk: RmrkInput
+}
+
+export interface RmrkEntityUpdateInput {
+  rmrk?: RmrkInput | null
+}
+
+export interface RmrkEntityWhereInput {
+  id_eq?: ID_Input | null
+  id_in?: ID_Output[] | ID_Output | null
+  createdAt_eq?: DateTime | null
+  createdAt_lt?: DateTime | null
+  createdAt_lte?: DateTime | null
+  createdAt_gt?: DateTime | null
+  createdAt_gte?: DateTime | null
+  createdById_eq?: ID_Input | null
+  createdById_in?: ID_Output[] | ID_Output | null
+  updatedAt_eq?: DateTime | null
+  updatedAt_lt?: DateTime | null
+  updatedAt_lte?: DateTime | null
+  updatedAt_gt?: DateTime | null
+  updatedAt_gte?: DateTime | null
+  updatedById_eq?: ID_Input | null
+  updatedById_in?: ID_Output[] | ID_Output | null
+  deletedAt_all?: Boolean | null
+  deletedAt_eq?: DateTime | null
+  deletedAt_lt?: DateTime | null
+  deletedAt_lte?: DateTime | null
+  deletedAt_gt?: DateTime | null
+  deletedAt_gte?: DateTime | null
+  deletedById_eq?: ID_Input | null
+  deletedById_in?: ID_Output[] | ID_Output | null
+  rmrk_json?: JSONObject | null
+  AND?: RmrkEntityWhereInput[] | RmrkEntityWhereInput | null
+  OR?: RmrkEntityWhereInput[] | RmrkEntityWhereInput | null
+}
+
+export interface RmrkEntityWhereUniqueInput {
+  id: ID_Output
+}
+
+export interface RmrkInput {
+  block: BigInt
+  caller: String
+  interactionType: String
+  rmrkVersion: String
+  remark: String
+  extraEx: Array<CallInput>
 }
 
 export interface RmrkUpdateInput {
@@ -517,7 +557,6 @@ export interface RmrkUpdateInput {
   interactionType?: String | null
   rmrkVersion?: String | null
   remark?: String | null
-  extraEx?: CallInput | null
 }
 
 export interface RmrkWhereInput {
@@ -571,7 +610,6 @@ export interface RmrkWhereInput {
   remark_startsWith?: String | null
   remark_endsWith?: String | null
   remark_in?: String[] | String | null
-  extraEx_json?: JSONObject | null
   AND?: RmrkWhereInput[] | RmrkWhereInput | null
   OR?: RmrkWhereInput[] | RmrkWhereInput | null
 }
@@ -748,7 +786,16 @@ export interface ProcessorState {
   chainHead: Float
 }
 
-export interface Rmrk extends BaseGraphQLObject {
+export interface Rmrk {
+  block: BigInt
+  caller: String
+  interactionType: String
+  rmrkVersion: String
+  remark: String
+  extraEx: Array<Call>
+}
+
+export interface RmrkEntity extends BaseGraphQLObject {
   id: ID_Output
   createdAt: DateTime
   createdById: String
@@ -757,22 +804,17 @@ export interface Rmrk extends BaseGraphQLObject {
   deletedAt?: DateTime | null
   deletedById?: String | null
   version: Int
-  block: BigInt
-  caller: String
-  interactionType: String
-  rmrkVersion: String
-  remark: String
-  extraEx?: Call | null
+  rmrk: Rmrk
 }
 
-export interface RmrkConnection {
+export interface RmrkEntityConnection {
   totalCount: Int
-  edges: Array<RmrkEdge>
+  edges: Array<RmrkEntityEdge>
   pageInfo: PageInfo
 }
 
-export interface RmrkEdge {
-  node: Rmrk
+export interface RmrkEntityEdge {
+  node: RmrkEntity
   cursor: String
 }
 

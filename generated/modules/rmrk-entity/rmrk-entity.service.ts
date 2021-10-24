@@ -3,14 +3,14 @@ import { Repository, SelectQueryBuilder } from 'typeorm';
 import { InjectRepository } from 'typeorm-typedi-extensions';
 import { WhereInput, HydraBaseService } from '@subsquid/warthog';
 
-import { Rmrk } from './rmrk.model';
+import { RmrkEntity } from './rmrk-entity.model';
 
-import { RmrkWhereArgs, RmrkWhereInput } from '../../warthog';
+import { RmrkEntityWhereArgs, RmrkEntityWhereInput } from '../../warthog';
 
-@Service('RmrkService')
-export class RmrkService extends HydraBaseService<Rmrk> {
-  constructor(@InjectRepository(Rmrk) protected readonly repository: Repository<Rmrk>) {
-    super(Rmrk, repository);
+@Service('RmrkEntityService')
+export class RmrkEntityService extends HydraBaseService<RmrkEntity> {
+  constructor(@InjectRepository(RmrkEntity) protected readonly repository: Repository<RmrkEntity>) {
+    super(RmrkEntity, repository);
   }
 
   async find<W extends WhereInput>(
@@ -19,7 +19,7 @@ export class RmrkService extends HydraBaseService<Rmrk> {
     limit?: number,
     offset?: number,
     fields?: string[]
-  ): Promise<Rmrk[]> {
+  ): Promise<RmrkEntity[]> {
     return this.findWithRelations<W>(where, orderBy, limit, offset, fields);
   }
 
@@ -29,7 +29,7 @@ export class RmrkService extends HydraBaseService<Rmrk> {
     limit?: number,
     offset?: number,
     fields?: string[]
-  ): Promise<Rmrk[]> {
+  ): Promise<RmrkEntity[]> {
     return this.buildFindWithRelationsQuery(_where, orderBy, limit, offset, fields).getMany();
   }
 
@@ -39,8 +39,8 @@ export class RmrkService extends HydraBaseService<Rmrk> {
     limit?: number,
     offset?: number,
     fields?: string[]
-  ): SelectQueryBuilder<Rmrk> {
-    const where = <RmrkWhereInput>(_where || {});
+  ): SelectQueryBuilder<RmrkEntity> {
+    const where = <RmrkEntityWhereInput>(_where || {});
 
     let mainQuery = this.buildFindQueryWithParams(<any>where, orderBy, undefined, fields, 'main').take(undefined); // remove LIMIT
 

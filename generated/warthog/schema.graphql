@@ -631,33 +631,19 @@ type Query {
   nfts(offset: Int, limit: Int = 50, where: NftWhereInput, orderBy: [NftOrderByInput!]): [Nft!]!
   nftByUniqueInput(where: NftWhereUniqueInput!): Nft
   nftsConnection(first: Int, after: String, last: Int, before: String, where: NftWhereInput, orderBy: [NftOrderByInput!]): NftConnection!
-  rmrks(offset: Int, limit: Int = 50, where: RmrkWhereInput, orderBy: [RmrkOrderByInput!]): [Rmrk!]!
-  rmrkByUniqueInput(where: RmrkWhereUniqueInput!): Rmrk
-  rmrksConnection(first: Int, after: String, last: Int, before: String, where: RmrkWhereInput, orderBy: [RmrkOrderByInput!]): RmrkConnection!
+  rmrkEntities(offset: Int, limit: Int = 50, where: RmrkEntityWhereInput, orderBy: [RmrkEntityOrderByInput!]): [RmrkEntity!]!
+  rmrkEntityByUniqueInput(where: RmrkEntityWhereUniqueInput!): RmrkEntity
+  rmrkEntitiesConnection(first: Int, after: String, last: Int, before: String, where: RmrkEntityWhereInput, orderBy: [RmrkEntityOrderByInput!]): RmrkEntityConnection!
   hello: Hello!
 }
 
-type Rmrk implements BaseGraphQLObject {
-  id: ID!
-  createdAt: DateTime!
-  createdById: String!
-  updatedAt: DateTime
-  updatedById: String
-  deletedAt: DateTime
-  deletedById: String
-  version: Int!
+type Rmrk {
   block: BigInt!
   caller: String!
   interactionType: String!
   rmrkVersion: String!
   remark: String!
-  extraEx: Call
-}
-
-type RmrkConnection {
-  totalCount: Int!
-  edges: [RmrkEdge!]!
-  pageInfo: PageInfo!
+  extraEx: [Call!]!
 }
 
 input RmrkCreateInput {
@@ -666,31 +652,89 @@ input RmrkCreateInput {
   interactionType: String!
   rmrkVersion: String!
   remark: String!
-  extraEx: CallInput
 }
 
-type RmrkEdge {
-  node: Rmrk!
+type RmrkEntity implements BaseGraphQLObject {
+  id: ID!
+  createdAt: DateTime!
+  createdById: String!
+  updatedAt: DateTime
+  updatedById: String
+  deletedAt: DateTime
+  deletedById: String
+  version: Int!
+  rmrk: Rmrk!
+}
+
+type RmrkEntityConnection {
+  totalCount: Int!
+  edges: [RmrkEntityEdge!]!
+  pageInfo: PageInfo!
+}
+
+input RmrkEntityCreateInput {
+  rmrk: RmrkInput!
+}
+
+type RmrkEntityEdge {
+  node: RmrkEntity!
   cursor: String!
 }
 
-enum RmrkOrderByInput {
+enum RmrkEntityOrderByInput {
   createdAt_ASC
   createdAt_DESC
   updatedAt_ASC
   updatedAt_DESC
   deletedAt_ASC
   deletedAt_DESC
-  block_ASC
-  block_DESC
-  caller_ASC
-  caller_DESC
-  interactionType_ASC
-  interactionType_DESC
-  rmrkVersion_ASC
-  rmrkVersion_DESC
-  remark_ASC
-  remark_DESC
+}
+
+input RmrkEntityUpdateInput {
+  rmrk: RmrkInput
+}
+
+input RmrkEntityWhereInput {
+  id_eq: ID
+  id_in: [ID!]
+  createdAt_eq: DateTime
+  createdAt_lt: DateTime
+  createdAt_lte: DateTime
+  createdAt_gt: DateTime
+  createdAt_gte: DateTime
+  createdById_eq: ID
+  createdById_in: [ID!]
+  updatedAt_eq: DateTime
+  updatedAt_lt: DateTime
+  updatedAt_lte: DateTime
+  updatedAt_gt: DateTime
+  updatedAt_gte: DateTime
+  updatedById_eq: ID
+  updatedById_in: [ID!]
+  deletedAt_all: Boolean
+  deletedAt_eq: DateTime
+  deletedAt_lt: DateTime
+  deletedAt_lte: DateTime
+  deletedAt_gt: DateTime
+  deletedAt_gte: DateTime
+  deletedById_eq: ID
+  deletedById_in: [ID!]
+  rmrk_json: JSONObject
+  AND: [RmrkEntityWhereInput!]
+  OR: [RmrkEntityWhereInput!]
+}
+
+input RmrkEntityWhereUniqueInput {
+  id: ID!
+}
+
+input RmrkInput {
+  block: BigInt!
+  caller: String!
+  interactionType: String!
+  rmrkVersion: String!
+  remark: String!
+  extraEx: [CallInput!]!
 }
 
 input RmrkUpdateInput {
@@ -699,7 +743,6 @@ input RmrkUpdateInput {
   interactionType: String
   rmrkVersion: String
   remark: String
-  extraEx: CallInput
 }
 
 input RmrkWhereInput {
@@ -753,7 +796,6 @@ input RmrkWhereInput {
   remark_startsWith: String
   remark_endsWith: String
   remark_in: [String!]
-  extraEx_json: JSONObject
   AND: [RmrkWhereInput!]
   OR: [RmrkWhereInput!]
 }

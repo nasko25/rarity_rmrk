@@ -1,6 +1,6 @@
 import BN from 'bn.js'
 import { DatabaseManager, EventContext, StoreContext, AnyJsonField } from '@subsquid/hydra-common'
-import { Account, HistoricalBalance, Rmrk, Call as RmrkCall } from '../generated/model'
+import { Account, HistoricalBalance, RmrkEntity, Rmrk, Call as RmrkCall } from '../generated/model'
 import { Balances } from '../chain'
 import { getRemarksFromBlocks } from 'rmrk-tools';
 import { hexToString, stringToHex } from "@polkadot/util";
@@ -131,10 +131,12 @@ export async function systemRemark({
             }
             rmrk.extraEx = rmrkExtraEx;
         }
+        let rmrkEntity = new RmrkEntity();
+        rmrkEntity.rmrk = rmrk;
         // otherwise rmrk.extraEx will be undefined
-        console.log("saving rmrk", rmrk);
-        await store.save(rmrk);
-        process.exit(1);
+        console.log("saving rmrk", rmrkEntity);
+        await store.save<RmrkEntity>(rmrkEntity);
+        // process.exit(0);
     }
     // store.save<SubstrateBlock>(block)
 

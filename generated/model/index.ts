@@ -6,8 +6,10 @@ import { HistoricalBalance } from '../modules/historical-balance/historical-bala
 export { HistoricalBalance };
 import { Nft } from '../modules/nft/nft.model';
 export { Nft };
-import { Rmrk } from '../modules/rmrk/rmrk.model';
-export { Rmrk };
+import { RmrkEntity } from '../modules/rmrk-entity/rmrk-entity.model';
+export { RmrkEntity };
 
 import { Call } from '../modules/jsonfields/jsonfields.model';
 export { Call };
+import { Rmrk } from '../modules/jsonfields/jsonfields.model';
+export { Rmrk };

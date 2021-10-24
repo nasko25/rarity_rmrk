@@ -26,3 +26,25 @@ export class Call {
   @StringField({})
   caller!: string;
 }
+
+@InputType('RmrkInput')
+@ObjectType()
+export class Rmrk {
+  @NumericField({})
+  block!: BN;
+
+  @StringField({})
+  caller!: string;
+
+  @StringField({})
+  interactionType!: string;
+
+  @StringField({})
+  rmrkVersion!: string;
+
+  @StringField({})
+  remark!: string;
+
+  @Field(() => [Call])
+  extraEx!: Call[];
+}

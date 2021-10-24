@@ -27,34 +27,34 @@ import {
 } from '@subsquid/warthog';
 
 import {
-  RmrkCreateInput,
-  RmrkCreateManyArgs,
-  RmrkUpdateArgs,
-  RmrkWhereArgs,
-  RmrkWhereInput,
-  RmrkWhereUniqueInput,
-  RmrkOrderByEnum,
+  RmrkEntityCreateInput,
+  RmrkEntityCreateManyArgs,
+  RmrkEntityUpdateArgs,
+  RmrkEntityWhereArgs,
+  RmrkEntityWhereInput,
+  RmrkEntityWhereUniqueInput,
+  RmrkEntityOrderByEnum,
 } from '../../warthog';
 
-import { Rmrk } from './rmrk.model';
-import { RmrkService } from './rmrk.service';
+import { RmrkEntity } from './rmrk-entity.model';
+import { RmrkEntityService } from './rmrk-entity.service';
 
 @ObjectType()
-export class RmrkEdge {
-  @Field(() => Rmrk, { nullable: false })
-  node!: Rmrk;
+export class RmrkEntityEdge {
+  @Field(() => RmrkEntity, { nullable: false })
+  node!: RmrkEntity;
 
   @Field(() => String, { nullable: false })
   cursor!: string;
 }
 
 @ObjectType()
-export class RmrkConnection {
+export class RmrkEntityConnection {
   @Field(() => Int, { nullable: false })
   totalCount!: number;
 
-  @Field(() => [RmrkEdge], { nullable: false })
-  edges!: RmrkEdge[];
+  @Field(() => [RmrkEntityEdge], { nullable: false })
+  edges!: RmrkEntityEdge[];
 
   @Field(() => PageInfo, { nullable: false })
   pageInfo!: PageInfo;
@@ -78,34 +78,40 @@ export class ConnectionPageInputOptions {
 }
 
 @ArgsType()
-export class RmrkConnectionWhereArgs extends ConnectionPageInputOptions {
-  @Field(() => RmrkWhereInput, { nullable: true })
-  where?: RmrkWhereInput;
+export class RmrkEntityConnectionWhereArgs extends ConnectionPageInputOptions {
+  @Field(() => RmrkEntityWhereInput, { nullable: true })
+  where?: RmrkEntityWhereInput;
 
-  @Field(() => RmrkOrderByEnum, { nullable: true })
-  orderBy?: [RmrkOrderByEnum];
+  @Field(() => RmrkEntityOrderByEnum, { nullable: true })
+  orderBy?: [RmrkEntityOrderByEnum];
 }
 
-@Resolver(Rmrk)
-export class RmrkResolver {
-  constructor(@Inject('RmrkService') public readonly service: RmrkService) {}
+@Resolver(RmrkEntity)
+export class RmrkEntityResolver {
+  constructor(@Inject('RmrkEntityService') public readonly service: RmrkEntityService) {}
 
-  @Query(() => [Rmrk])
-  async rmrks(@Args() { where, orderBy, limit, offset }: RmrkWhereArgs, @Fields() fields: string[]): Promise<Rmrk[]> {
-    return this.service.find<RmrkWhereInput>(where, orderBy, limit, offset, fields);
+  @Query(() => [RmrkEntity])
+  async rmrkEntities(
+    @Args() { where, orderBy, limit, offset }: RmrkEntityWhereArgs,
+    @Fields() fields: string[]
+  ): Promise<RmrkEntity[]> {
+    return this.service.find<RmrkEntityWhereInput>(where, orderBy, limit, offset, fields);
   }
 
-  @Query(() => Rmrk, { nullable: true })
-  async rmrkByUniqueInput(@Arg('where') where: RmrkWhereUniqueInput, @Fields() fields: string[]): Promise<Rmrk | null> {
+  @Query(() => RmrkEntity, { nullable: true })
+  async rmrkEntityByUniqueInput(
+    @Arg('where') where: RmrkEntityWhereUniqueInput,
+    @Fields() fields: string[]
+  ): Promise<RmrkEntity | null> {
     const result = await this.service.find(where, undefined, 1, 0, fields);
     return result && result.length >= 1 ? result[0] : null;
   }
 
-  @Query(() => RmrkConnection)
-  async rmrksConnection(
-    @Args() { where, orderBy, ...pageOptions }: RmrkConnectionWhereArgs,
+  @Query(() => RmrkEntityConnection)
+  async rmrkEntitiesConnection(
+    @Args() { where, orderBy, ...pageOptions }: RmrkEntityConnectionWhereArgs,
     @Info() info: any
-  ): Promise<RmrkConnection> {
+  ): Promise<RmrkEntityConnection> {
     const rawFields = graphqlFields(info, {}, { excludedFields: ['__typename'] });
 
     let result: any = {
@@ -119,13 +125,13 @@ export class RmrkResolver {
     // If the related database table does not have any records then an error is thrown to the client
     // by warthog
     try {
-      result = await this.service.findConnection<RmrkWhereInput>(where, orderBy, pageOptions, rawFields);
+      result = await this.service.findConnection<RmrkEntityWhereInput>(where, orderBy, pageOptions, rawFields);
     } catch (err: any) {
       console.log(err);
       // TODO: should continue to return this on `Error: Items is empty` or throw the error
       if (!(err.message as string).includes('Items is empty')) throw err;
     }
 
-    return result as Promise<RmrkConnection>;
+    return result as Promise<RmrkEntityConnection>;
   }
 }

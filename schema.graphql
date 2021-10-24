@@ -71,11 +71,15 @@ type Call @jsonField {
   caller: String!
 }
 
-type Rmrk @entity {
+type Rmrk @jsonField {
   block: BigInt!
   caller: String!
   interaction_type: String!
   rmrkVersion: String!
   remark: String!
-  extra_ex: [Call]
+  extra_ex: [Call!]
+}
+
+type RmrkEntity @entity {
+    rmrk: Rmrk!
 }
