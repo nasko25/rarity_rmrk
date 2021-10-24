@@ -64,3 +64,18 @@ type Nft @entity {
     sn: String
     metadata: String
 }
+
+type Call @jsonField {
+  call: String!
+  value: String!
+  caller: String!
+}
+
+type Rmrk @entity {
+  block: BigInt!
+  caller: String!
+  interaction_type: String!
+  rmrkVersion: String!
+  remark: String!
+  extra_ex: [Call]
+}

@@ -1,6 +1,6 @@
 import BN from 'bn.js'
 import { DatabaseManager, EventContext, StoreContext, AnyJsonField } from '@subsquid/hydra-common'
-import { Account, HistoricalBalance, Nft, Collection } from '../generated/model'
+import { Account, HistoricalBalance, Rmrk, Call as RmrkCall } from '../generated/model'
 import { Balances } from '../chain'
 import { getRemarksFromBlocks } from 'rmrk-tools';
 import { hexToString, stringToHex } from "@polkadot/util";
@@ -100,7 +100,7 @@ export async function systemRemark({
     }
     console.log(calls)
     const remarks = getRemarksFromBlocks([new RemarkBlock(block.height, calls)], ["0x726d726b", "0x524d524b"]);
-    if (remarks.length !== 0) {
+    for (let remark of remarks) {
         /*
         remarks:
         [
@@ -114,8 +114,27 @@ export async function systemRemark({
             }
         ]
         */
-        console.log(remarks);
-        process.exit(-1);
+        let rmrk = new Rmrk();
+        rmrk.block = new BN(remark.block);
+        rmrk.caller = remark.caller;
+        rmrk.interactionType = remark.interaction_type;
+        rmrk.rmrkVersion = remark.version;
+        rmrk.remark = remark.remark;
+        if (remark?.extra_ex) {
+            let rmrkExtraEx = [];
+            for (const remark_extra of remark.extra_ex) {
+                let extraEx = new RmrkCall();
+                extraEx.call = remark_extra.call;
+                extraEx.value = remark_extra.value;
+                extraEx.caller = remark_extra.caller;
+                rmrkExtraEx.push(extraEx);
+            }
+            rmrk.extraEx = rmrkExtraEx;
+        }
+        // otherwise rmrk.extraEx will be undefined
+        console.log("saving rmrk", rmrk);
+        await store.save(rmrk);
+        process.exit(1);
     }
     // store.save<SubstrateBlock>(block)
 

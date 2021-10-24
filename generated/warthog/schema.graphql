@@ -153,6 +153,78 @@ input BaseWhereInput {
 """GraphQL representation of BigInt"""
 scalar BigInt
 
+type Call {
+  call: String!
+  value: String!
+  caller: String!
+}
+
+input CallCreateInput {
+  call: String!
+  value: String!
+  caller: String!
+}
+
+input CallInput {
+  call: String!
+  value: String!
+  caller: String!
+}
+
+input CallUpdateInput {
+  call: String
+  value: String
+  caller: String
+}
+
+input CallWhereInput {
+  id_eq: ID
+  id_in: [ID!]
+  createdAt_eq: DateTime
+  createdAt_lt: DateTime
+  createdAt_lte: DateTime
+  createdAt_gt: DateTime
+  createdAt_gte: DateTime
+  createdById_eq: ID
+  createdById_in: [ID!]
+  updatedAt_eq: DateTime
+  updatedAt_lt: DateTime
+  updatedAt_lte: DateTime
+  updatedAt_gt: DateTime
+  updatedAt_gte: DateTime
+  updatedById_eq: ID
+  updatedById_in: [ID!]
+  deletedAt_all: Boolean
+  deletedAt_eq: DateTime
+  deletedAt_lt: DateTime
+  deletedAt_lte: DateTime
+  deletedAt_gt: DateTime
+  deletedAt_gte: DateTime
+  deletedById_eq: ID
+  deletedById_in: [ID!]
+  call_eq: String
+  call_contains: String
+  call_startsWith: String
+  call_endsWith: String
+  call_in: [String!]
+  value_eq: String
+  value_contains: String
+  value_startsWith: String
+  value_endsWith: String
+  value_in: [String!]
+  caller_eq: String
+  caller_contains: String
+  caller_startsWith: String
+  caller_endsWith: String
+  caller_in: [String!]
+  AND: [CallWhereInput!]
+  OR: [CallWhereInput!]
+}
+
+input CallWhereUniqueInput {
+  id: ID!
+}
+
 type Collection implements BaseGraphQLObject {
   id: ID!
   createdAt: DateTime!
@@ -396,6 +468,11 @@ input HistoricalBalanceWhereUniqueInput {
   id: ID!
 }
 
+"""
+The `JSONObject` scalar type represents JSON objects as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf).
+"""
+scalar JSONObject
+
 type Nft implements BaseGraphQLObject {
   id: ID!
   createdAt: DateTime!
@@ -554,7 +631,135 @@ type Query {
   nfts(offset: Int, limit: Int = 50, where: NftWhereInput, orderBy: [NftOrderByInput!]): [Nft!]!
   nftByUniqueInput(where: NftWhereUniqueInput!): Nft
   nftsConnection(first: Int, after: String, last: Int, before: String, where: NftWhereInput, orderBy: [NftOrderByInput!]): NftConnection!
+  rmrks(offset: Int, limit: Int = 50, where: RmrkWhereInput, orderBy: [RmrkOrderByInput!]): [Rmrk!]!
+  rmrkByUniqueInput(where: RmrkWhereUniqueInput!): Rmrk
+  rmrksConnection(first: Int, after: String, last: Int, before: String, where: RmrkWhereInput, orderBy: [RmrkOrderByInput!]): RmrkConnection!
   hello: Hello!
+}
+
+type Rmrk implements BaseGraphQLObject {
+  id: ID!
+  createdAt: DateTime!
+  createdById: String!
+  updatedAt: DateTime
+  updatedById: String
+  deletedAt: DateTime
+  deletedById: String
+  version: Int!
+  block: BigInt!
+  caller: String!
+  interactionType: String!
+  rmrkVersion: String!
+  remark: String!
+  extraEx: Call
+}
+
+type RmrkConnection {
+  totalCount: Int!
+  edges: [RmrkEdge!]!
+  pageInfo: PageInfo!
+}
+
+input RmrkCreateInput {
+  block: String!
+  caller: String!
+  interactionType: String!
+  rmrkVersion: String!
+  remark: String!
+  extraEx: CallInput
+}
+
+type RmrkEdge {
+  node: Rmrk!
+  cursor: String!
+}
+
+enum RmrkOrderByInput {
+  createdAt_ASC
+  createdAt_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+  deletedAt_ASC
+  deletedAt_DESC
+  block_ASC
+  block_DESC
+  caller_ASC
+  caller_DESC
+  interactionType_ASC
+  interactionType_DESC
+  rmrkVersion_ASC
+  rmrkVersion_DESC
+  remark_ASC
+  remark_DESC
+}
+
+input RmrkUpdateInput {
+  block: String
+  caller: String
+  interactionType: String
+  rmrkVersion: String
+  remark: String
+  extraEx: CallInput
+}
+
+input RmrkWhereInput {
+  id_eq: ID
+  id_in: [ID!]
+  createdAt_eq: DateTime
+  createdAt_lt: DateTime
+  createdAt_lte: DateTime
+  createdAt_gt: DateTime
+  createdAt_gte: DateTime
+  createdById_eq: ID
+  createdById_in: [ID!]
+  updatedAt_eq: DateTime
+  updatedAt_lt: DateTime
+  updatedAt_lte: DateTime
+  updatedAt_gt: DateTime
+  updatedAt_gte: DateTime
+  updatedById_eq: ID
+  updatedById_in: [ID!]
+  deletedAt_all: Boolean
+  deletedAt_eq: DateTime
+  deletedAt_lt: DateTime
+  deletedAt_lte: DateTime
+  deletedAt_gt: DateTime
+  deletedAt_gte: DateTime
+  deletedById_eq: ID
+  deletedById_in: [ID!]
+  block_eq: BigInt
+  block_gt: BigInt
+  block_gte: BigInt
+  block_lt: BigInt
+  block_lte: BigInt
+  block_in: [BigInt!]
+  caller_eq: String
+  caller_contains: String
+  caller_startsWith: String
+  caller_endsWith: String
+  caller_in: [String!]
+  interactionType_eq: String
+  interactionType_contains: String
+  interactionType_startsWith: String
+  interactionType_endsWith: String
+  interactionType_in: [String!]
+  rmrkVersion_eq: String
+  rmrkVersion_contains: String
+  rmrkVersion_startsWith: String
+  rmrkVersion_endsWith: String
+  rmrkVersion_in: [String!]
+  remark_eq: String
+  remark_contains: String
+  remark_startsWith: String
+  remark_endsWith: String
+  remark_in: [String!]
+  extraEx_json: JSONObject
+  AND: [RmrkWhereInput!]
+  OR: [RmrkWhereInput!]
+}
+
+input RmrkWhereUniqueInput {
+  id: ID!
 }
 
 type StandardDeleteResponse {
