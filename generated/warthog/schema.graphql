@@ -638,7 +638,6 @@ type Query {
 }
 
 type Rmrk {
-  block: BigInt!
   caller: String!
   interactionType: String!
   rmrkVersion: String!
@@ -647,7 +646,6 @@ type Rmrk {
 }
 
 input RmrkCreateInput {
-  block: String!
   caller: String!
   interactionType: String!
   rmrkVersion: String!
@@ -663,6 +661,7 @@ type RmrkEntity implements BaseGraphQLObject {
   deletedAt: DateTime
   deletedById: String
   version: Int!
+  block: BigInt!
   rmrk: Rmrk!
 }
 
@@ -673,6 +672,7 @@ type RmrkEntityConnection {
 }
 
 input RmrkEntityCreateInput {
+  block: String!
   rmrk: RmrkInput!
 }
 
@@ -688,9 +688,12 @@ enum RmrkEntityOrderByInput {
   updatedAt_DESC
   deletedAt_ASC
   deletedAt_DESC
+  block_ASC
+  block_DESC
 }
 
 input RmrkEntityUpdateInput {
+  block: String
   rmrk: RmrkInput
 }
 
@@ -719,6 +722,12 @@ input RmrkEntityWhereInput {
   deletedAt_gte: DateTime
   deletedById_eq: ID
   deletedById_in: [ID!]
+  block_eq: BigInt
+  block_gt: BigInt
+  block_gte: BigInt
+  block_lt: BigInt
+  block_lte: BigInt
+  block_in: [BigInt!]
   rmrk_json: JSONObject
   AND: [RmrkEntityWhereInput!]
   OR: [RmrkEntityWhereInput!]
@@ -729,7 +738,6 @@ input RmrkEntityWhereUniqueInput {
 }
 
 input RmrkInput {
-  block: BigInt!
   caller: String!
   interactionType: String!
   rmrkVersion: String!
@@ -738,7 +746,6 @@ input RmrkInput {
 }
 
 input RmrkUpdateInput {
-  block: String
   caller: String
   interactionType: String
   rmrkVersion: String
@@ -770,12 +777,6 @@ input RmrkWhereInput {
   deletedAt_gte: DateTime
   deletedById_eq: ID
   deletedById_in: [ID!]
-  block_eq: BigInt
-  block_gt: BigInt
-  block_gte: BigInt
-  block_lt: BigInt
-  block_lte: BigInt
-  block_in: [BigInt!]
   caller_eq: String
   caller_contains: String
   caller_startsWith: String

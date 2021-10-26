@@ -121,7 +121,9 @@ export type RmrkEntityOrderByInput =   'createdAt_ASC' |
   'updatedAt_ASC' |
   'updatedAt_DESC' |
   'deletedAt_ASC' |
-  'deletedAt_DESC'
+  'deletedAt_DESC' |
+  'block_ASC' |
+  'block_DESC'
 
 export interface AccountCreateInput {
   wallet: String
@@ -493,7 +495,6 @@ export interface NftWhereUniqueInput {
 }
 
 export interface RmrkCreateInput {
-  block: String
   caller: String
   interactionType: String
   rmrkVersion: String
@@ -501,10 +502,12 @@ export interface RmrkCreateInput {
 }
 
 export interface RmrkEntityCreateInput {
+  block: String
   rmrk: RmrkInput
 }
 
 export interface RmrkEntityUpdateInput {
+  block?: String | null
   rmrk?: RmrkInput | null
 }
 
@@ -533,6 +536,12 @@ export interface RmrkEntityWhereInput {
   deletedAt_gte?: DateTime | null
   deletedById_eq?: ID_Input | null
   deletedById_in?: ID_Output[] | ID_Output | null
+  block_eq?: BigInt | null
+  block_gt?: BigInt | null
+  block_gte?: BigInt | null
+  block_lt?: BigInt | null
+  block_lte?: BigInt | null
+  block_in?: BigInt[] | BigInt | null
   rmrk_json?: JSONObject | null
   AND?: RmrkEntityWhereInput[] | RmrkEntityWhereInput | null
   OR?: RmrkEntityWhereInput[] | RmrkEntityWhereInput | null
@@ -543,7 +552,6 @@ export interface RmrkEntityWhereUniqueInput {
 }
 
 export interface RmrkInput {
-  block: BigInt
   caller: String
   interactionType: String
   rmrkVersion: String
@@ -552,7 +560,6 @@ export interface RmrkInput {
 }
 
 export interface RmrkUpdateInput {
-  block?: String | null
   caller?: String | null
   interactionType?: String | null
   rmrkVersion?: String | null
@@ -584,12 +591,6 @@ export interface RmrkWhereInput {
   deletedAt_gte?: DateTime | null
   deletedById_eq?: ID_Input | null
   deletedById_in?: ID_Output[] | ID_Output | null
-  block_eq?: BigInt | null
-  block_gt?: BigInt | null
-  block_gte?: BigInt | null
-  block_lt?: BigInt | null
-  block_lte?: BigInt | null
-  block_in?: BigInt[] | BigInt | null
   caller_eq?: String | null
   caller_contains?: String | null
   caller_startsWith?: String | null
@@ -787,7 +788,6 @@ export interface ProcessorState {
 }
 
 export interface Rmrk {
-  block: BigInt
   caller: String
   interactionType: String
   rmrkVersion: String
@@ -804,6 +804,7 @@ export interface RmrkEntity extends BaseGraphQLObject {
   deletedAt?: DateTime | null
   deletedById?: String | null
   version: Int
+  block: BigInt
   rmrk: Rmrk
 }
 

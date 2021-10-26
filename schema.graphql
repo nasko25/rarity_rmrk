@@ -72,7 +72,6 @@ type Call @jsonField {
 }
 
 type Rmrk @jsonField {
-  block: BigInt!
   caller: String!
   interaction_type: String!
   rmrkVersion: String!
@@ -81,5 +80,6 @@ type Rmrk @jsonField {
 }
 
 type RmrkEntity @entity {
+    block: BigInt!
     rmrk: Rmrk!
 }

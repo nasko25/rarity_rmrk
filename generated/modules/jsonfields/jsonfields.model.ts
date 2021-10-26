@@ -30,9 +30,6 @@ export class Call {
 @InputType('RmrkInput')
 @ObjectType()
 export class Rmrk {
-  @NumericField({})
-  block!: BN;
-
   @StringField({})
   caller!: string;
 

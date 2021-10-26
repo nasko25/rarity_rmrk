@@ -1,4 +1,4 @@
-const { fetchRemarks, getRemarksFromBlocks, getLatestFinalizedBlock, Consolidator } = require('rmrk-tools')
+const { fetchRemarks, getRemarksFromBlocks, getLatestFinalizedBlock, Consolidator } = require('rmrk-tools');
 const { ApiPromise, WsProvider } = require('@polkadot/api')
 const fetch = require('node-fetch');
 

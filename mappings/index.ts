@@ -98,7 +98,7 @@ export async function systemRemark({
     for (const arg of extrinsic.args) {
         calls.push(<Call> { call: /* extrinsic.section + "." + extrinsic.method */ "system.remark", value: arg.value, caller: extrinsic.signer });
     }
-    console.log(calls)
+    // console.log(calls)
     const remarks = getRemarksFromBlocks([new RemarkBlock(block.height, calls)], ["0x726d726b", "0x524d524b"]);
     for (let remark of remarks) {
         /*
@@ -115,7 +115,6 @@ export async function systemRemark({
         ]
         */
         let rmrk = new Rmrk();
-        rmrk.block = new BN(remark.block);
         rmrk.caller = remark.caller;
         rmrk.interactionType = remark.interaction_type;
         rmrk.rmrkVersion = remark.version;
@@ -132,9 +131,9 @@ export async function systemRemark({
             rmrk.extraEx = rmrkExtraEx;
         }
         let rmrkEntity = new RmrkEntity();
+        rmrkEntity.block = new BN(remark.block);
         rmrkEntity.rmrk = rmrk;
         // otherwise rmrk.extraEx will be undefined
-        console.log("saving rmrk", rmrkEntity);
         await store.save<RmrkEntity>(rmrkEntity);
         // process.exit(0);
     }

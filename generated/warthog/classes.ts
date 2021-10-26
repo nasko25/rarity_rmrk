@@ -909,9 +909,6 @@ export enum RmrkOrderByEnum {
   deletedAt_ASC = "deletedAt_ASC",
   deletedAt_DESC = "deletedAt_DESC",
 
-  block_ASC = "block_ASC",
-  block_DESC = "block_DESC",
-
   caller_ASC = "caller_ASC",
   caller_DESC = "caller_DESC",
 
@@ -1003,24 +1000,6 @@ export class RmrkWhereInput {
   @TypeGraphQLField(() => [ID], { nullable: true })
   deletedById_in?: string[];
 
-  @TypeGraphQLField(() => BigInt, { nullable: true })
-  block_eq?: string;
-
-  @TypeGraphQLField(() => BigInt, { nullable: true })
-  block_gt?: string;
-
-  @TypeGraphQLField(() => BigInt, { nullable: true })
-  block_gte?: string;
-
-  @TypeGraphQLField(() => BigInt, { nullable: true })
-  block_lt?: string;
-
-  @TypeGraphQLField(() => BigInt, { nullable: true })
-  block_lte?: string;
-
-  @TypeGraphQLField(() => [BigInt], { nullable: true })
-  block_in?: string[];
-
   @TypeGraphQLField({ nullable: true })
   caller_eq?: string;
 
@@ -1097,9 +1076,6 @@ export class RmrkWhereUniqueInput {
 @TypeGraphQLInputType()
 export class RmrkCreateInput {
   @TypeGraphQLField()
-  block!: string;
-
-  @TypeGraphQLField()
   caller!: string;
 
   @TypeGraphQLField()
@@ -1114,9 +1090,6 @@ export class RmrkCreateInput {
 
 @TypeGraphQLInputType()
 export class RmrkUpdateInput {
-  @TypeGraphQLField({ nullable: true })
-  block?: string;
-
   @TypeGraphQLField({ nullable: true })
   caller?: string;
 
@@ -1436,6 +1409,9 @@ export enum RmrkEntityOrderByEnum {
 
   deletedAt_ASC = "deletedAt_ASC",
   deletedAt_DESC = "deletedAt_DESC",
+
+  block_ASC = "block_ASC",
+  block_DESC = "block_DESC",
 }
 
 registerEnumType(RmrkEntityOrderByEnum, {
@@ -1516,6 +1492,24 @@ export class RmrkEntityWhereInput {
   @TypeGraphQLField(() => [ID], { nullable: true })
   deletedById_in?: string[];
 
+  @TypeGraphQLField(() => BigInt, { nullable: true })
+  block_eq?: string;
+
+  @TypeGraphQLField(() => BigInt, { nullable: true })
+  block_gt?: string;
+
+  @TypeGraphQLField(() => BigInt, { nullable: true })
+  block_gte?: string;
+
+  @TypeGraphQLField(() => BigInt, { nullable: true })
+  block_lt?: string;
+
+  @TypeGraphQLField(() => BigInt, { nullable: true })
+  block_lte?: string;
+
+  @TypeGraphQLField(() => [BigInt], { nullable: true })
+  block_in?: string[];
+
   @TypeGraphQLField(() => GraphQLJSONObject, { nullable: true })
   rmrk_json?: JsonObject;
 
@@ -1534,12 +1528,18 @@ export class RmrkEntityWhereUniqueInput {
 
 @TypeGraphQLInputType()
 export class RmrkEntityCreateInput {
+  @TypeGraphQLField()
+  block!: string;
+
   @TypeGraphQLField(() => Rmrk)
   rmrk!: Rmrk;
 }
 
 @TypeGraphQLInputType()
 export class RmrkEntityUpdateInput {
+  @TypeGraphQLField({ nullable: true })
+  block?: string;
+
   @TypeGraphQLField(() => Rmrk, { nullable: true })
   rmrk?: Rmrk;
 }
