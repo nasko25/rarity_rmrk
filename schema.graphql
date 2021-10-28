@@ -76,7 +76,7 @@ type Rmrk @jsonField {
   interaction_type: String!
   rmrkVersion: String!
   remark: String!
-  extra_ex: [Call!]
+  extra_ex: [Call]
 }
 
 type RmrkEntity @entity {

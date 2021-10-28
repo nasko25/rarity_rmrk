@@ -556,7 +556,7 @@ export interface RmrkInput {
   interactionType: String
   rmrkVersion: String
   remark: String
-  extraEx: Array<CallInput>
+  extraEx?: CallInput[] | CallInput | null
 }
 
 export interface RmrkUpdateInput {
@@ -792,7 +792,7 @@ export interface Rmrk {
   interactionType: String
   rmrkVersion: String
   remark: String
-  extraEx: Array<Call>
+  extraEx?: Array<Call> | null
 }
 
 export interface RmrkEntity extends BaseGraphQLObject {

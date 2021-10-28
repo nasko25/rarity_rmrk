@@ -42,6 +42,6 @@ export class Rmrk {
   @StringField({})
   remark!: string;
 
-  @Field(() => [Call])
-  extraEx!: Call[];
+  @Field(() => [Call], { nullable: true })
+  extraEx?: Call[];
 }

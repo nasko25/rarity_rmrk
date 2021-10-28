@@ -642,7 +642,7 @@ type Rmrk {
   interactionType: String!
   rmrkVersion: String!
   remark: String!
-  extraEx: [Call!]!
+  extraEx: [Call!]
 }
 
 input RmrkCreateInput {
@@ -742,7 +742,7 @@ input RmrkInput {
   interactionType: String!
   rmrkVersion: String!
   remark: String!
-  extraEx: [CallInput!]!
+  extraEx: [CallInput!]
 }
 
 input RmrkUpdateInput {
