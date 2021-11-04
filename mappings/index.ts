@@ -89,6 +89,7 @@ export async function systemRemark({
   block,
   extrinsic,
 }: EventContext & StoreContext): Promise<void> {
+    // TODO consolidator.consolidate() here and pass a dbAdapter that uses store
     if (!extrinsic || !extrinsic.args || extrinsic.args.length !== 1) {
         console.error("Unexpected extrinsic format.");
         return;
