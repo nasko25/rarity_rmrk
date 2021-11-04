@@ -1,7 +1,7 @@
 const { Consolidator } = require('rmrk-tools')
 const fetch = require('node-fetch');
 
-const WAIT_BETWEEN_FETCHES = 10 * 1000;     // how long to wait between fetches of rmrks from the database to not overload the db with requests
+const WAIT_BETWEEN_FETCHES = 2 * 1000;     // how long to wait between fetches of rmrks from the database to not overload the db with requests
 const consolidator = new Consolidator();
 let lastRetrievedBlock = 0;
 
@@ -24,18 +24,19 @@ async function fetchRmrkEntities() {
                 // (which is the first rmrk in data, as they are ordered by ascending block number)
                 lastRetrievedBlock = data.data.rmrkEntities[0].block;
 
-                /* how a rmrk given to consolidate looks like:
-                    const r = {
-                        block: row.block,
-                        caller: call.caller,
-                        interaction_type: meta.type,
-                        version: meta.version,
-                        remark: remark,
-                        extra_ex: call.extras,
+                const { nfts, collections } = await consolidator.consolidate(data.data.rmrkEntities.map(rmrk => {
+                    return {
+                        block: rmrk.block,
+                        caller: rmrk.rmrk.caller,
+                        interaction_type: rmrk.rmrk.interactionType,
+                        version: rmrk.rmrk.rmrkVersion,
+                        remark: rmrk.rmrk.remark,
+                        extra_ex: rmrk.rmrk.extraEx
                     };
-                */
-                const { nfts, collections } = await consolidator.consolidate(data.data.rmrkEntities);
+                }));
                 console.log(nfts, collections);
+                // TODO save nfts and collections in the database
+                // TODO pass dbAdapter to Consolidator()
             }
         });
 }
@@ -44,8 +45,13 @@ function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
 
+process.on ('SIGINT',() => {
+    console.log('Exiting');
+    process.exit(1);
+});
+
 async function fetchAllRmrkEntities() {
-    while (lastRetrievedBlock < 9469350) {
+    while (true) {
         console.log("Fetching rmrk entities from the database...");
         await fetchRmrkEntities();
         console.log("Fetching done\nWaiting before fetching the next batch...");
