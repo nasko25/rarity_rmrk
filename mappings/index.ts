@@ -2,8 +2,9 @@ import BN from 'bn.js'
 import { DatabaseManager, EventContext, StoreContext, AnyJsonField } from '@subsquid/hydra-common'
 import { Account, HistoricalBalance, RmrkEntity, Rmrk, Call as RmrkCall } from '../generated/model'
 import { Balances } from '../chain'
-import { getRemarksFromBlocks } from 'rmrk-tools';
+import { getRemarksFromBlocks, Consolidator } from 'rmrk-tools';
 import { hexToString, stringToHex } from "@polkadot/util";
+import { DBAdapter } from '../using_rmrk_tools/DBAdapter';
 
 
 export async function balancesTransfer({
@@ -101,6 +102,7 @@ export async function systemRemark({
     }
     // console.log(calls)
     const remarks = getRemarksFromBlocks([new RemarkBlock(block.height, calls)], ["0x726d726b", "0x524d524b"]);
+    const consolidator = new Consolidator(undefined, new DBAdapter(store));
     for (let remark of remarks) {
         /*
         remarks:

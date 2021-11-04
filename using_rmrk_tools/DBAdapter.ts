@@ -1,14 +1,16 @@
 import { DatabaseManager } from '@subsquid/hydra-common'
 import { Nft, Collection } from '../generated/model'
+import { IConsolidatorAdapter } from "rmrk-tools/dist/tools/consolidator/adapters/types";
+import { NFTConsolidated } from "rmrk-tools/dist/tools/consolidator/consolidator";
 
-export class DBAdapter {
+export class DBAdapter implements IConsolidatorAdapter {
     store: DatabaseManager;
     constructor(store: DatabaseManager) {
         this.store = store;
     }
     async getAllNFTs() {
         // TODO not sure if valid
-        return await this.store.getMany(Nft, {});
+        return this.store.getMany(Nft, {}).then(nfts => { return nfts.map(nft => { return {id: nft.id, nft: nft as unknown as NFTConsolidated }}) as unknown as Record<string, NFTConsolidated>});
     }
     async getAllCollections() {
         return await this.store.getMany(Collection, {});
