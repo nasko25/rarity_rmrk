@@ -36,6 +36,15 @@ export class Nft extends BaseModel {
   })
   metadata?: string;
 
+  @NumericField({
+    transformer: {
+      to: (entityValue: BN) => (entityValue !== undefined ? entityValue.toString(10) : null),
+      from: (dbValue: string) =>
+        dbValue !== undefined && dbValue !== null && dbValue.length > 0 ? new BN(dbValue, 10) : undefined,
+    },
+  })
+  block!: BN;
+
   constructor(init?: Partial<Nft>) {
     super();
     Object.assign(this, init);

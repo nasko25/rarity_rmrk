@@ -449,6 +449,9 @@ export enum CollectionOrderByEnum {
 
   metadata_ASC = "metadata_ASC",
   metadata_DESC = "metadata_DESC",
+
+  block_ASC = "block_ASC",
+  block_DESC = "block_DESC",
 }
 
 registerEnumType(CollectionOrderByEnum, {
@@ -622,6 +625,24 @@ export class CollectionWhereInput {
   @TypeGraphQLField(() => [String], { nullable: true })
   metadata_in?: string[];
 
+  @TypeGraphQLField(() => BigInt, { nullable: true })
+  block_eq?: string;
+
+  @TypeGraphQLField(() => BigInt, { nullable: true })
+  block_gt?: string;
+
+  @TypeGraphQLField(() => BigInt, { nullable: true })
+  block_gte?: string;
+
+  @TypeGraphQLField(() => BigInt, { nullable: true })
+  block_lt?: string;
+
+  @TypeGraphQLField(() => BigInt, { nullable: true })
+  block_lte?: string;
+
+  @TypeGraphQLField(() => [BigInt], { nullable: true })
+  block_in?: string[];
+
   @TypeGraphQLField(() => CollectionWhereInput, { nullable: true })
   AND?: [CollectionWhereInput];
 
@@ -643,8 +664,8 @@ export class CollectionCreateInput {
   @TypeGraphQLField()
   max!: string;
 
-  @TypeGraphQLField()
-  issuer!: string;
+  @TypeGraphQLField({ nullable: true })
+  issuer?: string;
 
   @TypeGraphQLField()
   symbol!: string;
@@ -654,6 +675,9 @@ export class CollectionCreateInput {
 
   @TypeGraphQLField({ nullable: true })
   metadata?: string;
+
+  @TypeGraphQLField()
+  block!: string;
 }
 
 @TypeGraphQLInputType()
@@ -675,6 +699,9 @@ export class CollectionUpdateInput {
 
   @TypeGraphQLField({ nullable: true })
   metadata?: string;
+
+  @TypeGraphQLField({ nullable: true })
+  block?: string;
 }
 
 @ArgsType()
@@ -1151,6 +1178,9 @@ export enum NftOrderByEnum {
 
   metadata_ASC = "metadata_ASC",
   metadata_DESC = "metadata_DESC",
+
+  block_ASC = "block_ASC",
+  block_DESC = "block_DESC",
 }
 
 registerEnumType(NftOrderByEnum, {
@@ -1324,6 +1354,24 @@ export class NftWhereInput {
   @TypeGraphQLField(() => [String], { nullable: true })
   metadata_in?: string[];
 
+  @TypeGraphQLField(() => BigInt, { nullable: true })
+  block_eq?: string;
+
+  @TypeGraphQLField(() => BigInt, { nullable: true })
+  block_gt?: string;
+
+  @TypeGraphQLField(() => BigInt, { nullable: true })
+  block_gte?: string;
+
+  @TypeGraphQLField(() => BigInt, { nullable: true })
+  block_lt?: string;
+
+  @TypeGraphQLField(() => BigInt, { nullable: true })
+  block_lte?: string;
+
+  @TypeGraphQLField(() => [BigInt], { nullable: true })
+  block_in?: string[];
+
   @TypeGraphQLField(() => NftWhereInput, { nullable: true })
   AND?: [NftWhereInput];
 
@@ -1356,6 +1404,9 @@ export class NftCreateInput {
 
   @TypeGraphQLField({ nullable: true })
   metadata?: string;
+
+  @TypeGraphQLField()
+  block!: string;
 }
 
 @TypeGraphQLInputType()
@@ -1377,6 +1428,9 @@ export class NftUpdateInput {
 
   @TypeGraphQLField({ nullable: true })
   metadata?: string;
+
+  @TypeGraphQLField({ nullable: true })
+  block?: string;
 }
 
 @ArgsType()

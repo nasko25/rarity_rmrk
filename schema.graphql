@@ -20,10 +20,11 @@ type Collection @entity {
     id: String!
     name: String
     max: BigInt!
-    issuer: String!
+    issuer: String
     symbol: String!
     rmrkVersion: String!
     metadata: String
+    block: BigInt!
 #     data???
 #     properties: IProperties
 }
@@ -57,12 +58,14 @@ type Collection @entity {
 
 # TODO make Nftv2 and Collectionv2 because they have different formats
 type Nft @entity {
+    id: String!
     collection: String!
     symbol: String
     transferable: BigInt!
     rmrkVersion: String!
     sn: String
     metadata: String
+    block: BigInt!
 }
 
 type Call @jsonField {

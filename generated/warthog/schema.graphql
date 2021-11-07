@@ -236,10 +236,11 @@ type Collection implements BaseGraphQLObject {
   version: Int!
   name: String
   max: BigInt!
-  issuer: String!
+  issuer: String
   symbol: String!
   rmrkVersion: String!
   metadata: String
+  block: BigInt!
 }
 
 type CollectionConnection {
@@ -251,10 +252,11 @@ type CollectionConnection {
 input CollectionCreateInput {
   name: String
   max: String!
-  issuer: String!
+  issuer: String
   symbol: String!
   rmrkVersion: String!
   metadata: String
+  block: String!
 }
 
 type CollectionEdge {
@@ -281,6 +283,8 @@ enum CollectionOrderByInput {
   rmrkVersion_DESC
   metadata_ASC
   metadata_DESC
+  block_ASC
+  block_DESC
 }
 
 input CollectionUpdateInput {
@@ -290,6 +294,7 @@ input CollectionUpdateInput {
   symbol: String
   rmrkVersion: String
   metadata: String
+  block: String
 }
 
 input CollectionWhereInput {
@@ -348,6 +353,12 @@ input CollectionWhereInput {
   metadata_startsWith: String
   metadata_endsWith: String
   metadata_in: [String!]
+  block_eq: BigInt
+  block_gt: BigInt
+  block_gte: BigInt
+  block_lt: BigInt
+  block_lte: BigInt
+  block_in: [BigInt!]
   AND: [CollectionWhereInput!]
   OR: [CollectionWhereInput!]
 }
@@ -488,6 +499,7 @@ type Nft implements BaseGraphQLObject {
   rmrkVersion: String!
   sn: String
   metadata: String
+  block: BigInt!
 }
 
 type NftConnection {
@@ -503,6 +515,7 @@ input NftCreateInput {
   rmrkVersion: String!
   sn: String
   metadata: String
+  block: String!
 }
 
 type NftEdge {
@@ -529,6 +542,8 @@ enum NftOrderByInput {
   sn_DESC
   metadata_ASC
   metadata_DESC
+  block_ASC
+  block_DESC
 }
 
 input NftUpdateInput {
@@ -538,6 +553,7 @@ input NftUpdateInput {
   rmrkVersion: String
   sn: String
   metadata: String
+  block: String
 }
 
 input NftWhereInput {
@@ -596,6 +612,12 @@ input NftWhereInput {
   metadata_startsWith: String
   metadata_endsWith: String
   metadata_in: [String!]
+  block_eq: BigInt
+  block_gt: BigInt
+  block_gte: BigInt
+  block_lt: BigInt
+  block_lte: BigInt
+  block_in: [BigInt!]
   AND: [NftWhereInput!]
   OR: [NftWhereInput!]
 }

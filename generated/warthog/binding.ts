@@ -82,7 +82,9 @@ export type CollectionOrderByInput =   'createdAt_ASC' |
   'rmrkVersion_ASC' |
   'rmrkVersion_DESC' |
   'metadata_ASC' |
-  'metadata_DESC'
+  'metadata_DESC' |
+  'block_ASC' |
+  'block_DESC'
 
 export type HistoricalBalanceOrderByInput =   'createdAt_ASC' |
   'createdAt_DESC' |
@@ -114,7 +116,9 @@ export type NftOrderByInput =   'createdAt_ASC' |
   'sn_ASC' |
   'sn_DESC' |
   'metadata_ASC' |
-  'metadata_DESC'
+  'metadata_DESC' |
+  'block_ASC' |
+  'block_DESC'
 
 export type RmrkEntityOrderByInput =   'createdAt_ASC' |
   'createdAt_DESC' |
@@ -275,10 +279,11 @@ export interface CallWhereUniqueInput {
 export interface CollectionCreateInput {
   name?: String | null
   max: String
-  issuer: String
+  issuer?: String | null
   symbol: String
   rmrkVersion: String
   metadata?: String | null
+  block: String
 }
 
 export interface CollectionUpdateInput {
@@ -288,6 +293,7 @@ export interface CollectionUpdateInput {
   symbol?: String | null
   rmrkVersion?: String | null
   metadata?: String | null
+  block?: String | null
 }
 
 export interface CollectionWhereInput {
@@ -346,6 +352,12 @@ export interface CollectionWhereInput {
   metadata_startsWith?: String | null
   metadata_endsWith?: String | null
   metadata_in?: String[] | String | null
+  block_eq?: BigInt | null
+  block_gt?: BigInt | null
+  block_gte?: BigInt | null
+  block_lt?: BigInt | null
+  block_lte?: BigInt | null
+  block_in?: BigInt[] | BigInt | null
   AND?: CollectionWhereInput[] | CollectionWhereInput | null
   OR?: CollectionWhereInput[] | CollectionWhereInput | null
 }
@@ -419,6 +431,7 @@ export interface NftCreateInput {
   rmrkVersion: String
   sn?: String | null
   metadata?: String | null
+  block: String
 }
 
 export interface NftUpdateInput {
@@ -428,6 +441,7 @@ export interface NftUpdateInput {
   rmrkVersion?: String | null
   sn?: String | null
   metadata?: String | null
+  block?: String | null
 }
 
 export interface NftWhereInput {
@@ -486,6 +500,12 @@ export interface NftWhereInput {
   metadata_startsWith?: String | null
   metadata_endsWith?: String | null
   metadata_in?: String[] | String | null
+  block_eq?: BigInt | null
+  block_gt?: BigInt | null
+  block_gte?: BigInt | null
+  block_lt?: BigInt | null
+  block_lte?: BigInt | null
+  block_in?: BigInt[] | BigInt | null
   AND?: NftWhereInput[] | NftWhereInput | null
   OR?: NftWhereInput[] | NftWhereInput | null
 }
@@ -698,10 +718,11 @@ export interface Collection extends BaseGraphQLObject {
   version: Int
   name?: String | null
   max: BigInt
-  issuer: String
+  issuer?: String | null
   symbol: String
   rmrkVersion: String
   metadata?: String | null
+  block: BigInt
 }
 
 export interface CollectionConnection {
@@ -760,6 +781,7 @@ export interface Nft extends BaseGraphQLObject {
   rmrkVersion: String
   sn?: String | null
   metadata?: String | null
+  block: BigInt
 }
 
 export interface NftConnection {
