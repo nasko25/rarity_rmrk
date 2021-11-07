@@ -22,7 +22,7 @@ type Collection @entity {
     max: BigInt!
     issuer: String
     symbol: String!
-    rmrkVersion: String!
+    rmrkVersion: String
     metadata: String
     block: BigInt!
 #     data???

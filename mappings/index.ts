@@ -103,6 +103,9 @@ export async function systemRemark({
     // console.log(calls)
     const remarks = getRemarksFromBlocks([new RemarkBlock(block.height, calls)], ["0x726d726b", "0x524d524b"]);
     const consolidator = new Consolidator(undefined, new DBAdapter(store));
+    const { nfts, collections } = await consolidator.consolidate(remarks);
+    console.log('Consolidated nfts:', nfts);
+    console.log('Consolidated collections:', collections);
     for (let remark of remarks) {
         /*
         remarks:

@@ -6,6 +6,7 @@ import { NFT } from "rmrk-tools/dist/classes/nft";
 import { Collection as CollectionDist } from "rmrk-tools/dist/classes/collection";
 import { Base } from 'rmrk-tools';
 import { AcceptEntityType } from 'rmrk-tools/dist/classes/accept';
+import BN from 'bn.js'
 
 export class DBAdapter implements IConsolidatorAdapter {
     store: DatabaseManager;
@@ -14,10 +15,10 @@ export class DBAdapter implements IConsolidatorAdapter {
     }
     async getAllNFTs() {
         // TODO not sure if valid
-        return this.store.getMany(Nft, {}).then(nfts => { return nfts.map(nft => { return {id: nft.id, nft: nft as unknown as NFTConsolidated }}) as unknown as Record<string, NFTConsolidated>});
+        return await this.store.getMany(Nft, {}).then(nfts => { return nfts.map(nft => { return {id: nft.id, nft: nft as unknown as NFTConsolidated }}) as unknown as Record<string, NFTConsolidated>});
     }
     async getAllCollections() {
-        return this.store.getMany(Collection, {}).then(collections => { return collections.map(collection => { return {id: collection.id, collection: collection as unknown as CollectionConsolidated } }) as unknown as Record<string, CollectionConsolidated> });
+        return await this.store.getMany(Collection, {}).then(collections => { return collections.map(collection => { return {id: collection.id, collection: collection as unknown as CollectionConsolidated } }) as unknown as Record<string, CollectionConsolidated> });
     }
     // TODO base
     async getAllBases() {
@@ -74,19 +75,27 @@ export class DBAdapter implements IConsolidatorAdapter {
         // this.nfts[consolidatedNFT.id] = Object.assign(Object.assign({}, this.nfts[consolidatedNFT.id]), { changes: nft === null || nft === void 0 ? void 0 : nft.changes, owner: nft === null || nft === void 0 ? void 0 : nft.owner, rootowner: nft === null || nft === void 0 ? void 0 : nft.rootowner, forsale: BigInt(0), pending: nft === null || nft === void 0 ? void 0 : nft.pending });
     }
     async updateNFTBurn(nft: NFT | NFTConsolidated, consolidatedNFT: NFTConsolidated) {
-        this.store.get(Nft, {where: {id: consolidatedNFT.id}}).then(nft => {
+        await this.store.get(Nft, {where: {id: consolidatedNFT.id}}).then(async nft => {
             if (nft)
-                this.store.remove(nft);
+                await this.store.remove(nft);
             else
                 console.error(`Nft with id ${consolidatedNFT.id} is undefined and cannot be burned.`);
         });
     }
     async updateNFTMint(nft: NFT) {
         // TODO types?
-        this.store.save(nft);
+        await this.store.save(nft);
     }
     async updateCollectionMint(collection: CollectionConsolidated) {
-        this.store.save(collection);
+        // TODO this is how this.store methods should be called
+        let collectionToAdd = new Collection();
+        collectionToAdd.block = new BN(collection.block);
+        collectionToAdd.id = collection.id;
+        collectionToAdd.issuer = collection.issuer;
+        collectionToAdd.metadata = collection.metadata;
+        collectionToAdd.symbol = collection.symbol;
+        collectionToAdd.max = new BN(collection.max);
+        await this.store.save<Collection>(collectionToAdd);
     }
     async updateBase(base: Base) {
         // return (this.bases[base.getId()] = Object.assign(Object.assign({}, base), { id: base.getId() }));
@@ -95,17 +104,17 @@ export class DBAdapter implements IConsolidatorAdapter {
         // this.bases[consolidatedBase.id] = Object.assign(Object.assign({}, this.bases[consolidatedBase.id]), { themes: base === null || base === void 0 ? void 0 : base.themes });
     }
     async updateCollectionIssuer(collection: CollectionDist, consolidatedCollection: CollectionConsolidated) {
-        this.store.get(Collection, {where: {id: consolidatedCollection.id}}).then(collectionFromDb => {
+        await this.store.get(Collection, {where: {id: consolidatedCollection.id}}).then(async collectionFromDb => {
             // if the collection exists in the db, remove it and add it again with the new issuer
             if(collectionFromDb) {
-                this.store.remove(collectionFromDb);
+                await this.store.remove(collectionFromDb);
                 collectionFromDb.issuer = collection === null || collection === void 0 ? void 0 : collection.issuer;
-                this.store.save(collectionFromDb);
+                await this.store.save(collectionFromDb);
             }
             // otherwise just add the given collection to the db
             else {
                 console.error(`Collection with id ${consolidatedCollection.id} is undefined in the db.`);
-                this.store.save(collection);
+                await this.store.save(collection);
             }
         });
         // this.collections[consolidatedCollection.id] = Object.assign(Object.assign({}, this.collections[consolidatedCollection.id]), { issuer: collection === null || collection === void 0 ? void 0 : collection.issuer, changes: collection === null || collection === void 0 ? void 0 : collection.changes });
@@ -114,17 +123,17 @@ export class DBAdapter implements IConsolidatorAdapter {
         // this.bases[consolidatedBase.id] = Object.assign(Object.assign({}, this.bases[consolidatedBase.id]), { issuer: base === null || base === void 0 ? void 0 : base.issuer, changes: base === null || base === void 0 ? void 0 : base.changes });
     }
     async getNFTById(id: string) {
-        return this.store.get(Nft, {where: {id: id}}).then(nft => { return nft as unknown as NFTConsolidated });
+        return await this.store.get(Nft, {where: {id: id}}).then(nft => { return nft as unknown as NFTConsolidated });
         // return this.nfts[id];
     }
     async getCollectionById(id: string) {
-        return this.store.get(Collection, {where: {id: id}}).then(collection => { return collection as unknown as CollectionConsolidated });
+        return await this.store.get(Collection, {where: {id: id}}).then(collection => { return collection as unknown as CollectionConsolidated });
     }
     /**
      * Find existing NFT by id
      */
     async getNFTByIdUnique(id: string) {
-        return this.store.get(Nft, {where: {id: id}}).then(nft => { return nft as unknown as NFTConsolidated });
+        return await this.store.get(Nft, {where: {id: id}}).then(nft => { return nft as unknown as NFTConsolidated });
         // return this.nfts[id];
     }
     async getBaseById(id: string) {

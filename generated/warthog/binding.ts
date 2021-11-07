@@ -281,7 +281,7 @@ export interface CollectionCreateInput {
   max: String
   issuer?: String | null
   symbol: String
-  rmrkVersion: String
+  rmrkVersion?: String | null
   metadata?: String | null
   block: String
 }
@@ -720,7 +720,7 @@ export interface Collection extends BaseGraphQLObject {
   max: BigInt
   issuer?: String | null
   symbol: String
-  rmrkVersion: String
+  rmrkVersion?: String | null
   metadata?: String | null
   block: BigInt
 }

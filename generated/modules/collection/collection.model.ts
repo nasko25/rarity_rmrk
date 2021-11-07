@@ -28,8 +28,10 @@ export class Collection extends BaseModel {
   @StringField({})
   symbol!: string;
 
-  @StringField({})
-  rmrkVersion!: string;
+  @StringField({
+    nullable: true,
+  })
+  rmrkVersion?: string;
 
   @StringField({
     nullable: true,

@@ -670,8 +670,8 @@ export class CollectionCreateInput {
   @TypeGraphQLField()
   symbol!: string;
 
-  @TypeGraphQLField()
-  rmrkVersion!: string;
+  @TypeGraphQLField({ nullable: true })
+  rmrkVersion?: string;
 
   @TypeGraphQLField({ nullable: true })
   metadata?: string;

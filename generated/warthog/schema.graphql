@@ -238,7 +238,7 @@ type Collection implements BaseGraphQLObject {
   max: BigInt!
   issuer: String
   symbol: String!
-  rmrkVersion: String!
+  rmrkVersion: String
   metadata: String
   block: BigInt!
 }
@@ -254,7 +254,7 @@ input CollectionCreateInput {
   max: String!
   issuer: String
   symbol: String!
-  rmrkVersion: String!
+  rmrkVersion: String
   metadata: String
   block: String!
 }
