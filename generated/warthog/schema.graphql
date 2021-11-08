@@ -496,7 +496,7 @@ type Nft implements BaseGraphQLObject {
   collection: String!
   symbol: String
   transferable: BigInt!
-  rmrkVersion: String!
+  rmrkVersion: String
   sn: String
   metadata: String
   block: BigInt!
@@ -512,7 +512,7 @@ input NftCreateInput {
   collection: String!
   symbol: String
   transferable: String!
-  rmrkVersion: String!
+  rmrkVersion: String
   sn: String
   metadata: String
   block: String!

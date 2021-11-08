@@ -428,7 +428,7 @@ export interface NftCreateInput {
   collection: String
   symbol?: String | null
   transferable: String
-  rmrkVersion: String
+  rmrkVersion?: String | null
   sn?: String | null
   metadata?: String | null
   block: String
@@ -778,7 +778,7 @@ export interface Nft extends BaseGraphQLObject {
   collection: String
   symbol?: String | null
   transferable: BigInt
-  rmrkVersion: String
+  rmrkVersion?: String | null
   sn?: String | null
   metadata?: String | null
   block: BigInt

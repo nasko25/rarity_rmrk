@@ -83,8 +83,15 @@ export class DBAdapter implements IConsolidatorAdapter {
         });
     }
     async updateNFTMint(nft: NFT) {
-        // TODO types?
-        await this.store.save(nft);
+        const nftToAdd = new Nft();
+        nftToAdd.id = nft.getId();
+        nftToAdd.collection = nft.collection;
+        nftToAdd.symbol = nft.symbol;
+        nftToAdd.transferable = new BN(nft.transferable);
+        nftToAdd.sn = nft.sn;
+        nftToAdd.metadata = nft.metadata;
+        nftToAdd.block = new BN(nft.block);
+        await this.store.save<Nft>(nftToAdd);
     }
     async updateCollectionMint(collection: CollectionConsolidated) {
         // TODO this is how this.store methods should be called

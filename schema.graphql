@@ -62,7 +62,7 @@ type Nft @entity {
     collection: String!
     symbol: String
     transferable: BigInt!
-    rmrkVersion: String!
+    rmrkVersion: String
     sn: String
     metadata: String
     block: BigInt!

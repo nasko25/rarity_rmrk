@@ -1396,8 +1396,8 @@ export class NftCreateInput {
   @TypeGraphQLField()
   transferable!: string;
 
-  @TypeGraphQLField()
-  rmrkVersion!: string;
+  @TypeGraphQLField({ nullable: true })
+  rmrkVersion?: string;
 
   @TypeGraphQLField({ nullable: true })
   sn?: string;
