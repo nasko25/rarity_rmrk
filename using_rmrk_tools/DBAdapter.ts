@@ -121,7 +121,15 @@ export class DBAdapter implements IConsolidatorAdapter {
             // otherwise just add the given collection to the db
             else {
                 console.error(`Collection with id ${consolidatedCollection.id} is undefined in the db.`);
-                await this.store.save(collection);
+                let collectionToAdd = new Collection();
+                collectionToAdd.block = new BN(collection.block);
+                collectionToAdd.id = collection.id;
+                collectionToAdd.issuer = collection.issuer;
+                collectionToAdd.metadata = collection.metadata;
+                collectionToAdd.symbol = collection.symbol;
+                collectionToAdd.max = new BN(collection.max);
+
+                await this.store.save(collectionToAdd);
             }
         });
         // this.collections[consolidatedCollection.id] = Object.assign(Object.assign({}, this.collections[consolidatedCollection.id]), { issuer: collection === null || collection === void 0 ? void 0 : collection.issuer, changes: collection === null || collection === void 0 ? void 0 : collection.changes });
