@@ -116,7 +116,7 @@ export class DBAdapter implements IConsolidatorAdapter {
             if(collectionFromDb) {
                 await this.store.remove(collectionFromDb);
                 collectionFromDb.issuer = collection === null || collection === void 0 ? void 0 : collection.issuer;
-                await this.store.save(collectionFromDb);
+                await this.store.save<Collection>(collectionFromDb);
             }
             // otherwise just add the given collection to the db
             else {
@@ -129,7 +129,7 @@ export class DBAdapter implements IConsolidatorAdapter {
                 collectionToAdd.symbol = collection.symbol;
                 collectionToAdd.max = new BN(collection.max);
 
-                await this.store.save(collectionToAdd);
+                await this.store.save<Collection>(collectionToAdd);
             }
         });
         // this.collections[consolidatedCollection.id] = Object.assign(Object.assign({}, this.collections[consolidatedCollection.id]), { issuer: collection === null || collection === void 0 ? void 0 : collection.issuer, changes: collection === null || collection === void 0 ? void 0 : collection.changes });

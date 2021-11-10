@@ -104,8 +104,9 @@ export async function systemRemark({
     const remarks = getRemarksFromBlocks([new RemarkBlock(block.height, calls)], ["0x726d726b", "0x524d524b"]);
     const consolidator = new Consolidator(undefined, new DBAdapter(store));
     const { nfts, collections } = await consolidator.consolidate(remarks);
-    console.log('Consolidated nfts:', nfts);
-    console.log('Consolidated collections:', collections);
+    // console.log('Consolidated nfts:', nfts);
+    // console.log('Consolidated collections:', collections);
+    /*
     for (let remark of remarks) {
         /*
         remarks:
@@ -120,6 +121,7 @@ export async function systemRemark({
             }
         ]
         */
+        /*
         let rmrk = new Rmrk();
         rmrk.caller = remark.caller;
         rmrk.interactionType = remark.interaction_type;
@@ -143,6 +145,7 @@ export async function systemRemark({
         await store.save<RmrkEntity>(rmrkEntity);
         // process.exit(0);
     }
+    */
     // store.save<SubstrateBlock>(block)
 
     // TODO error checks; don't assume all nfts follow the standard
