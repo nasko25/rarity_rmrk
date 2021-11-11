@@ -121,6 +121,7 @@ export class DBAdapter implements IConsolidatorAdapter {
             // otherwise just add the given collection to the db
             else {
                 console.error(`Collection with id ${consolidatedCollection.id} is undefined in the db.`);
+                process.exit(-1);
                 let collectionToAdd = new Collection();
                 collectionToAdd.block = new BN(collection.block);
                 collectionToAdd.id = collection.id;
