@@ -1,7 +1,7 @@
 const fetch = require('node-fetch');
 
-async function fetchNfts() {
-    await fetch('http://localhost:4000/graphql', {
+async function fetchNfts(condition) {
+    return await fetch('http://localhost:4000/graphql', {
         method: "POST",
         headers: {
             'Content-Type': 'application/json',
@@ -10,7 +10,10 @@ async function fetchNfts() {
         body: JSON.stringify({query: "{ nfts { block collection id metadata rmrkVersion sn symbol transferable } }"})
     })
         .then(res => res.json())
-        .then(data => console.log(data));
+        //.then(data => console.log(data));
+        .then(data => data.data.nfts);
 }
-fetchNfts();
+fetchNfts().then(nfts => {
+    console.log(nfts);
+});
 // TOOD calculate rarity
