@@ -2,7 +2,7 @@ import BN from 'bn.js'
 import { DatabaseManager, EventContext, StoreContext, AnyJsonField } from '@subsquid/hydra-common'
 import { Account, HistoricalBalance, RmrkEntity, Rmrk, Call as RmrkCall } from '../generated/model'
 import { Balances } from '../chain'
-import { getRemarksFromBlocks, Consolidator } from 'rmrk-tools';
+import { getRemarksFromBlocks as asdf, Consolidator } from 'rmrk-tools';
 import { hexToString, stringToHex } from "@polkadot/util";
 import { DBAdapter } from '../using_rmrk_tools/DBAdapter';
 
@@ -83,6 +83,145 @@ class RemarkBlock {
     }
 }
 
+// code taken from node_modules/rmrk-tools
+const VERSION = "2.0.0";
+const PREFIX = "RMRK";
+enum OP_TYPES {
+    BUY = "BUY",
+    LIST = "LIST",
+    CREATE = "CREATE",
+    MINT = "MINT",
+    SEND = "SEND",
+    EMOTE = "EMOTE",
+    CHANGEISSUER = "CHANGEISSUER",
+    BURN = "BURN",
+    BASE = "BASE",
+    EQUIPPABLE = "EQUIPPABLE",
+    THEMEADD = "THEMEADD",
+    RESADD = "RESADD",
+    ACCEPT = "ACCEPT",
+    EQUIP = "EQUIP",
+    SETPROPERTY = "SETPROPERTY",
+    LOCK = "LOCK",
+    SETPRIORITY = "SETPRIORITY"
+}
+const getMeta = (call: Call, block: number) => {
+    const str = hexToString(call.value);
+    const arr = str.split("::");
+    if (arr.length < 3) {
+        console.error(`Invalid RMRK in block ${block}: ${str}`);
+        return false;
+    }
+    return {
+        type: arr[1],
+        version: parseFloat(arr[2]) ? arr[2] : "0.1",
+    };
+};
+// const getRemarksFromBlocks = (blocks: RemarkBlock[], prefixes: string[]) => {
+//     const remarks = [];
+//     for (const row of blocks) {
+//         for (const call of row.calls) {
+//             if (call.call !== "system.remark")
+//                 continue;
+//             const str = hexToString(call.value);
+//             if (!prefixes.some((word) => str.startsWith(hexToString(word)))) {
+//                 continue;
+//             }
+//             const meta = getMeta(call, row.block);
+//             if (!meta)
+//                 continue;
+//             let remark;
+//             switch (meta.type) {
+//                 case "MINTNFT":
+//                 case "MINT":
+//                     remark = decodeURI(hexToString(call.value));
+//                     break;
+//                 default:
+//                     remark = hexToString(call.value);
+//                     break;
+//             }
+//             const r = {
+//                 block: row.block,
+//                 caller: call.caller,
+//                 interaction_type: meta.type,
+//                 version: meta.version,
+//                 remark: remark,
+//                 extra_ex: undefined,
+//             };
+//             remarks.push(r);
+//         }
+//     }
+//     return remarks;
+// };
+
+const getRemarksFromBlocks = (blocks: RemarkBlock[], prefixes: string[]) => {
+    console.log("asdfasdf")
+    const remarks = [];
+    for (const row of blocks) {
+        for (const call of row.calls) {
+            if (call.call !== "system.remark")
+                continue;
+            console.log("it is a remark")
+            const str = hexToString(call.value);
+            console.log(prefixes, str, prefixes.some((word) => str.startsWith(hexToString(word))))
+            if (!prefixes.some((word) => str.startsWith(hexToString(word)))) {
+                continue;
+            }
+            console.log("has right prefix")
+            const meta = getMeta(call, row.block);
+            if (!meta)
+                continue;
+            console.log("has meta")
+            let remark;
+            if (str.includes("::2.0.0::")) {
+                switch (meta.type) {
+                    case OP_TYPES.MINT:
+                    case OP_TYPES.CREATE:
+                    case OP_TYPES.RESADD:
+                    case OP_TYPES.THEMEADD:
+                    case OP_TYPES.SETPROPERTY:
+                    case OP_TYPES.SETPRIORITY:
+                    case OP_TYPES.BASE:
+                        remark = decodeURI(hexToString(call.value));
+                        break;
+                    default:
+                        remark = hexToString(call.value);
+                        break;
+                }
+                const r = {
+                    block: row.block,
+                    caller: call.caller,
+                    interaction_type: meta.type,
+                    version: meta.version,
+                    remark: remark,
+                    extra_ex: undefined,
+                };
+                remarks.push(r);
+            } else {
+                switch (meta.type) {
+                    case "MINTNFT":
+                    case "MINT":
+                        remark = decodeURI(hexToString(call.value));
+                        break;
+                    default:
+                        remark = hexToString(call.value);
+                        break;
+                }
+                const r = {
+                    block: row.block,
+                    caller: call.caller,
+                    interaction_type: meta.type,
+                    version: meta.version,
+                    remark: remark,
+                    extra_ex: undefined,
+                };
+                remarks.push(r);
+            }
+
+        }
+    }
+    return remarks;
+};
 // TODO unit tests
 export async function systemRemark({
   store,
@@ -93,6 +232,7 @@ export async function systemRemark({
     // TODO consolidator.consolidate() here and pass a dbAdapter that uses store
     if (!extrinsic || !extrinsic.args || extrinsic.args.length !== 1) {
         console.error("Unexpected extrinsic format.");
+        process.exit(-1);
         return;
     }
 
@@ -100,8 +240,9 @@ export async function systemRemark({
     for (const arg of extrinsic.args) {
         calls.push(<Call> { call: /* extrinsic.section + "." + extrinsic.method */ "system.remark", value: arg.value, caller: extrinsic.signer });
     }
-    // console.log(calls)
+    console.log(calls)
     const remarks = getRemarksFromBlocks([new RemarkBlock(block.height, calls)], ["0x726d726b", "0x524d524b"]);
+    console.log(remarks);
     const consolidator = new Consolidator(undefined, new DBAdapter(store));
     const { nfts, collections } = await consolidator.consolidate(remarks);
     // console.log('Consolidated nfts:', nfts);

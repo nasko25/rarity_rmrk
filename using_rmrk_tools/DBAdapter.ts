@@ -102,6 +102,7 @@ export class DBAdapter implements IConsolidatorAdapter {
         collectionToAdd.metadata = collection.metadata;
         collectionToAdd.symbol = collection.symbol;
         collectionToAdd.max = new BN(collection.max);
+        console.log("update collection mint", collectionToAdd);
         await this.store.save<Collection>(collectionToAdd);
     }
     async updateBase(base: Base) {
