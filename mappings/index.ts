@@ -84,6 +84,7 @@ class RemarkBlock {
 }
 
 // code taken from node_modules/rmrk-tools
+// TODO do that for Consolidator v1.0.0 and v2.0.0
 const VERSION = "2.0.0";
 const PREFIX = "RMRK";
 enum OP_TYPES {
@@ -243,7 +244,7 @@ export async function systemRemark({
     console.log(calls)
     const remarks = getRemarksFromBlocks([new RemarkBlock(block.height, calls)], ["0x726d726b", "0x524d524b"]);
     console.log(remarks);
-    const consolidator = new Consolidator(undefined, new DBAdapter(store));
+    const consolidator = new Consolidator(undefined, new DBAdapter(store), false, false);
     const { nfts, collections } = await consolidator.consolidate(remarks);
     // console.log('Consolidated nfts:', nfts);
     // console.log('Consolidated collections:', collections);

@@ -18,6 +18,7 @@ export class DBAdapter implements IConsolidatorAdapter {
         return await this.store.getMany(Nft, {}).then(nfts => { return nfts.map(nft => { return {id: nft.id, nft: nft as unknown as NFTConsolidated }}) as unknown as Record<string, NFTConsolidated>});
     }
     async getAllCollections() {
+        console.log("getting all collections")
         return await this.store.getMany(Collection, {}).then(collections => { return collections.map(collection => { return {id: collection.id, collection: collection as unknown as CollectionConsolidated } }) as unknown as Record<string, CollectionConsolidated> });
     }
     // TODO base
@@ -144,6 +145,7 @@ export class DBAdapter implements IConsolidatorAdapter {
         // return this.nfts[id];
     }
     async getCollectionById(id: string) {
+        console.log("get collection by id", id);
         return await this.store.get(Collection, {where: {id: id}}).then(collection => { return collection as unknown as CollectionConsolidated });
     }
     /**
