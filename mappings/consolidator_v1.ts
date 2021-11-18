@@ -1,10 +1,12 @@
-import { Collection, getCollectionFromRemark } from "rmrk-tools";
 import { IConsolidatorAdapter } from "rmrk-tools/dist-cli/src/rmrk1.0.0/tools/consolidator/adapters/types";
 import { InMemoryAdapter }  from "rmrk-tools/dist-cli/src/rmrk1.0.0/tools/consolidator/adapters/in-memory-adapter";
 import { consolidatedCollectionToInstance, consolidatedNFTtoInstance, validateMintIds,
     validateMintNFT, NFT, Send, sendInteraction, List, listForSaleInteraction,
     Consume, consumeInteraction, Buy, buyInteraction, Emote, emoteInteraction,
-    getChangeIssuerEntity, changeIssuerInteraction } from "rmrk-tools/dist-cli/src/rmrk1.0.0";
+    getChangeIssuerEntity, changeIssuerInteraction,
+    getCollectionFromRemark, Collection } from "rmrk-tools/dist-cli/src/rmrk1.0.0";
+import { Remark } from "rmrk-tools/dist-cli/src/rmrk1.0.0/tools/consolidator/remark";
+import { CollectionConsolidated, NFTConsolidated } from "rmrk-tools/dist-cli/src/rmrk1.0.0/tools/consolidator/consolidator";
 
 // code taken from node_modules/rmrk-tools in order to debug it
 declare type InvalidCall = {
@@ -26,6 +28,8 @@ declare enum OP_TYPES {
     CONSUME = "CONSUME"
 }
 
+declare type InteractionChanges = Partial<Record<OP_TYPES, string>>[];
+
 export class Consolidator {
     readonly invalidCalls: InvalidCall[];
     readonly collections: Collection[];
@@ -34,14 +38,14 @@ export class Consolidator {
     readonly ss58Format?: number;
     readonly emitEmoteChanges?: boolean;
     readonly emitInteractionChanges?: boolean;
-    private interactionChanges;
+    private interactionChanges: InteractionChanges;
     /**
      * @param ss58Format
      * @param dbAdapter
      * @param emitEmoteChanges log EMOTE events in nft 'changes' prop
      * @param emitInteractionChanges return interactions changes ( OP_TYPE: id )
      */
-    constructor(ss58Format, dbAdapter, emitEmoteChanges, emitInteractionChanges) {
+    constructor(ss58Format?: number, dbAdapter?: IConsolidatorAdapter, emitEmoteChanges?: boolean, emitInteractionChanges?: boolean) {
         this.interactionChanges = [];
         if (ss58Format) {
             this.ss58Format = ss58Format;
@@ -53,13 +57,15 @@ export class Consolidator {
         this.collections = [];
         this.nfts = [];
     }
-    updateInvalidCalls(op_type, remark) {
+    updateInvalidCalls(op_type: string, remark: Remark) {
         const invalidCallBase = {
             op_type,
             block: remark.block,
             caller: remark.caller,
         };
-        return function update(object_id, message) {
+
+                        // not sure about this: any being here
+        return function update(this: any, object_id: any, message: any) {
             this.invalidCalls.push(Object.assign(Object.assign({}, invalidCallBase), { object_id,
                 message }));
         };
@@ -68,13 +74,14 @@ export class Consolidator {
      * The MINT interaction creates an NFT collection.
      * https://github.com/rmrk-team/rmrk-spec/blob/master/standards/rmrk1.0.0/interactions/mint.md
      */
-    async mint(remark) {
+    async mint(remark: Remark) {
+        console.log("minting a collection...")
         const invalidate = this.updateInvalidCalls(OP_TYPES.MINT, remark).bind(this);
         let collection;
         try {
             collection = getCollectionFromRemark(remark);
         }
-        catch (e) {
+        catch (e: any) {
             invalidate(remark.remark, e.message);
             return true;
         }
@@ -91,7 +98,7 @@ export class Consolidator {
                 this.interactionChanges.push({ [OP_TYPES.MINT]: collection.id });
             }
         }
-        catch (e) {
+        catch (e: any) {
             invalidate(collection.id, e.message);
             return true;
         }
@@ -101,7 +108,7 @@ export class Consolidator {
      * The MINT interaction creates an NFT inside of a Collection.
      * https://github.com/rmrk-team/rmrk-spec/blob/master/standards/rmrk1.0.0/interactions/mintnft.md
      */
-    async mintNFT(remark) {
+    async mintNFT(remark: Remark) {
         const invalidate = this.updateInvalidCalls(OP_TYPES.MINTNFT, remark).bind(this);
         const nft = NFT.fromRemark(remark.remark, remark.block);
         if (typeof nft === "string") {
@@ -125,7 +132,7 @@ export class Consolidator {
                 this.interactionChanges.push({ [OP_TYPES.MINTNFT]: nft.getId() });
             }
         }
-        catch (e) {
+        catch (e: any) {
             invalidate(nft.getId(), e.message);
             return true;
         }
@@ -136,7 +143,7 @@ export class Consolidator {
      * You can only SEND an existing NFT (one that has not been CONSUMEd yet).
      * https://github.com/rmrk-team/rmrk-spec/blob/master/standards/rmrk1.0.0/interactions/send.md
      */
-    async send(remark) {
+    async send(remark: Remark) {
         const invalidate = this.updateInvalidCalls(OP_TYPES.SEND, remark).bind(this);
         const sendEntity = Send.fromRemark(remark.remark);
         if (typeof sendEntity === "string") {
@@ -154,7 +161,7 @@ export class Consolidator {
                 }
             }
         }
-        catch (e) {
+        catch (e: any) {
             invalidate(sendEntity.id, e.message);
             return true;
         }
@@ -166,7 +173,7 @@ export class Consolidator {
      * You can only LIST an existing NFT (one that has not been CONSUMEd yet).
      * https://github.com/rmrk-team/rmrk-spec/blob/master/standards/rmrk1.0.0/interactions/list.md
      */
-    async list(remark) {
+    async list(remark: Remark) {
         const invalidate = this.updateInvalidCalls(OP_TYPES.LIST, remark).bind(this);
         const listEntity = List.fromRemark(remark.remark);
         if (typeof listEntity === "string") {
@@ -184,7 +191,7 @@ export class Consolidator {
                 }
             }
         }
-        catch (e) {
+        catch (e: any) {
             invalidate(listEntity.id, e.message);
             return true;
         }
@@ -196,7 +203,7 @@ export class Consolidator {
      * You can only CONSUME an existing NFT (one that has not been CONSUMEd yet).
      * https://github.com/rmrk-team/rmrk-spec/blob/master/standards/rmrk1.0.0/interactions/consume.md
      */
-    async consume(remark) {
+    async consume(remark: Remark) {
         const invalidate = this.updateInvalidCalls(OP_TYPES.CONSUME, remark).bind(this);
         const consumeEntity = Consume.fromRemark(remark.remark);
         // Check if consume is valid
@@ -216,7 +223,7 @@ export class Consolidator {
                 }
             }
         }
-        catch (e) {
+        catch (e: any) {
             invalidate(consumeEntity.id, e.message);
             return true;
         }
@@ -228,7 +235,7 @@ export class Consolidator {
      * You can only BUY an existing NFT (one that has not been CONSUMEd yet).
      * https://github.com/rmrk-team/rmrk-spec/blob/master/standards/rmrk1.0.0/interactions/buy.md
      */
-    async buy(remark) {
+    async buy(remark: Remark) {
         const invalidate = this.updateInvalidCalls(OP_TYPES.BUY, remark).bind(this);
         const buyEntity = Buy.fromRemark(remark.remark);
         if (typeof buyEntity === "string") {
@@ -246,7 +253,7 @@ export class Consolidator {
                 }
             }
         }
-        catch (e) {
+        catch (e: any) {
             invalidate(buyEntity.id, e.message);
             return true;
         }
@@ -257,7 +264,7 @@ export class Consolidator {
      * You can only EMOTE on an existing NFT (one that has not been CONSUMEd yet).
      * https://github.com/rmrk-team/rmrk-spec/blob/master/standards/rmrk1.0.0/interactions/emote.md
      */
-    async emote(remark) {
+    async emote(remark: Remark) {
         const invalidate = this.updateInvalidCalls(OP_TYPES.EMOTE, remark).bind(this);
         const emoteEntity = Emote.fromRemark(remark.remark);
         if (typeof emoteEntity === "string") {
@@ -277,7 +284,7 @@ export class Consolidator {
                 }
             }
         }
-        catch (e) {
+        catch (e: any) {
             invalidate(emoteEntity.id, e.message);
             return true;
         }
@@ -290,13 +297,13 @@ export class Consolidator {
      * or changing the issuer to a null address to relinquish control over it.
      * https://github.com/rmrk-team/rmrk-spec/blob/master/standards/rmrk1.0.0/interactions/changeissuer.md
      */
-    async changeIssuer(remark) {
+    async changeIssuer(remark: Remark) {
         const invalidate = this.updateInvalidCalls(OP_TYPES.CHANGEISSUER, remark).bind(this);
         let changeIssuerEntity;
         try {
             changeIssuerEntity = getChangeIssuerEntity(remark);
         }
-        catch (e) {
+        catch (e: any) {
             invalidate(remark.remark, e.message);
             return true;
         }
@@ -313,13 +320,13 @@ export class Consolidator {
                 }
             }
         }
-        catch (e) {
+        catch (e: any) {
             invalidate(changeIssuerEntity.id, e.message);
             return true;
         }
         return false;
     }
-    async consolidate(rmrks) {
+    async consolidate(rmrks: Remark[]) {
         const remarks = rmrks || [];
         // console.log(remarks);
         for (const remark of remarks) {
@@ -387,8 +394,7 @@ export class Consolidator {
                 ? await this.dbAdapter.getAllCollections()
                 : [],
             invalid: this.invalidCalls,
-            changes: undefined
-        };
+        } as { nfts: NFTConsolidated[] , collections: CollectionConsolidated[], invalid: InvalidCall[], changes: InteractionChanges };
         if (this.emitInteractionChanges) {
             result.changes = this.interactionChanges;
         }
