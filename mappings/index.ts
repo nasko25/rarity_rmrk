@@ -158,23 +158,22 @@ const getMeta = (call: Call, block: number) => {
 // };
 
 const getRemarksFromBlocks = (blocks: RemarkBlock[], prefixes: string[]) => {
-    console.log("asdfasdf")
-    const remarks = [];
+    const remarks: { v1: any[], v2: any[] } = { v1: [], v2: [] };
     for (const row of blocks) {
         for (const call of row.calls) {
             if (call.call !== "system.remark")
                 continue;
-            console.log("it is a remark")
+            // console.log("it is a remark")
             const str = hexToString(call.value);
-            console.log(prefixes, str, prefixes.some((word) => str.startsWith(hexToString(word))))
+            // console.log(prefixes, str, prefixes.some((word) => str.startsWith(hexToString(word))))
             if (!prefixes.some((word) => str.startsWith(hexToString(word)))) {
                 continue;
             }
-            console.log("has right prefix")
+            // console.log("has right prefix")
             const meta = getMeta(call, row.block);
             if (!meta)
                 continue;
-            console.log("has meta")
+            // console.log("has meta")
             let remark;
             if (str.includes("::2.0.0::")) {
                 switch (meta.type) {
@@ -199,7 +198,7 @@ const getRemarksFromBlocks = (blocks: RemarkBlock[], prefixes: string[]) => {
                     remark: remark,
                     extra_ex: undefined,
                 };
-                remarks.push(r);
+                remarks.v2.push(r);
             } else {
                 switch (meta.type) {
                     case "MINTNFT":
@@ -218,7 +217,7 @@ const getRemarksFromBlocks = (blocks: RemarkBlock[], prefixes: string[]) => {
                     remark: remark,
                     extra_ex: undefined,
                 };
-                remarks.push(r);
+                remarks.v1.push(r);
             }
 
         }
@@ -243,12 +242,13 @@ export async function systemRemark({
     for (const arg of extrinsic.args) {
         calls.push(<Call> { call: /* extrinsic.section + "." + extrinsic.method */ "system.remark", value: arg.value, caller: extrinsic.signer });
     }
-    console.log(calls)
+    // console.log(calls)
     const remarks = getRemarksFromBlocks([new RemarkBlock(block.height, calls)], ["0x726d726b", "0x524d524b"]);
-    console.log(remarks);
+    // console.log(remarks);
+
     // TODO also v2.0.0
     const consolidator = new ConsolidatorV1(new DBAdapterV1(store), undefined, false, false);
-    const { nfts, collections } = await consolidator.consolidate(remarks);
+    const { nfts, collections } = await consolidator.consolidate(remarks.v1);
     // console.log('Consolidated nfts:', nfts);
     // console.log('Consolidated collections:', collections);
     /*
