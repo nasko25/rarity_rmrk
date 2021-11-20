@@ -1,15 +1,15 @@
-import { IConsolidatorAdapter } from "rmrk-tools/dist-cli/src/rmrk1.0.0/tools/consolidator/adapters/types";
-import { InMemoryAdapter }  from "rmrk-tools/dist-cli/src/rmrk1.0.0/tools/consolidator/adapters/in-memory-adapter";
+import { IConsolidatorAdapter } from "../node_modules/rmrk-tools/dist-cli/src/rmrk1.0.0/tools/consolidator/adapters/types";
+// import { InMemoryAdapter }  from "rmrk-tools/dist-cli/src/rmrk1.0.0/tools/consolidator/adapters/in-memory-adapter";
 import { consolidatedCollectionToInstance, consolidatedNFTtoInstance, validateMintIds,
     validateMintNFT, NFT, Send, sendInteraction, List, listForSaleInteraction,
     Consume, consumeInteraction, Buy, buyInteraction, Emote, emoteInteraction,
     getChangeIssuerEntity, changeIssuerInteraction,
-    getCollectionFromRemark, Collection } from "rmrk-tools/dist-cli/src/rmrk1.0.0";
-import { Remark } from "rmrk-tools/dist-cli/src/rmrk1.0.0/tools/consolidator/remark";
-import { CollectionConsolidated, NFTConsolidated } from "rmrk-tools/dist-cli/src/rmrk1.0.0/tools/consolidator/consolidator";
+    getCollectionFromRemark, Collection } from "../node_modules/rmrk-tools/dist-cli/src/rmrk1.0.0";
+import { Remark } from "../node_modules/rmrk-tools/dist-cli/src/rmrk1.0.0/tools/consolidator/remark";
+import { CollectionConsolidated, NFTConsolidated } from "../node_modules/rmrk-tools/dist-cli/src/rmrk1.0.0/tools/consolidator/consolidator";
 
 // code taken from node_modules/rmrk-tools in order to debug it
-declare type InvalidCall = {
+type InvalidCall = {
     message: string;
     caller: string;
     block: number;
@@ -17,7 +17,7 @@ declare type InvalidCall = {
     op_type: string;
 };
 
-declare enum OP_TYPES {
+enum OP_TYPES {
     BUY = "BUY",
     LIST = "LIST",
     MINT = "MINT",
@@ -28,7 +28,7 @@ declare enum OP_TYPES {
     CONSUME = "CONSUME"
 }
 
-declare type InteractionChanges = Partial<Record<OP_TYPES, string>>[];
+type InteractionChanges = Partial<Record<OP_TYPES, string>>[];
 
 export class Consolidator {
     readonly invalidCalls: InvalidCall[];
@@ -45,14 +45,14 @@ export class Consolidator {
      * @param emitEmoteChanges log EMOTE events in nft 'changes' prop
      * @param emitInteractionChanges return interactions changes ( OP_TYPE: id )
      */
-    constructor(ss58Format?: number, dbAdapter?: IConsolidatorAdapter, emitEmoteChanges?: boolean, emitInteractionChanges?: boolean) {
+    constructor(dbAdapter: IConsolidatorAdapter, ss58Format?: number, emitEmoteChanges?: boolean, emitInteractionChanges?: boolean) {
         this.interactionChanges = [];
         if (ss58Format) {
             this.ss58Format = ss58Format;
         }
         this.emitEmoteChanges = emitEmoteChanges || false;
         this.emitInteractionChanges = emitInteractionChanges || false;
-        this.dbAdapter = dbAdapter || new InMemoryAdapter();
+        this.dbAdapter = dbAdapter /* || new InMemoryAdapter() */;
         this.invalidCalls = [];
         this.collections = [];
         this.nfts = [];
