@@ -1,10 +1,18 @@
 import { IConsolidatorAdapter } from "../node_modules/rmrk-tools/dist-cli/src/rmrk2.0.0/tools/consolidator/adapters/types";
 import { Collection, Base, NFT, getCollectionFromRemark, validateCreateIds, consolidatedCollectionToInstance,
     invalidateIfRecursion, validateMintNFT, Send, consolidatedNFTtoInstance, sendInteraction, List,
-    isValidAddressPolkadotAddress } from "../node_modules/rmrk-tools/dist-cli/src/rmrk2.0.0";
+    isValidAddressPolkadotAddress, listForSaleInteraction, Burn, burnInteraction, Buy, buyInteraction,
+    Emote, emoteInteraction, getChangeIssuerEntity, changeIssuerBase, changeIssuerCollection,
+    Equippable, consolidatedBasetoInstance, equippableInteraction, Resadd, resAddInteraction,
+    Accept, acceptInteraction, Equip, equipInteraction, Setpriority, Setproperty } from "../node_modules/rmrk-tools/dist-cli/src/rmrk2.0.0";
+import { setPriorityInteraction } from "../node_modules/rmrk-tools/dist-cli/src/rmrk2.0.0/tools/consolidator/interactions/setpriority";
+import { setPropertyInteraction } from "../node_modules/rmrk-tools/dist-cli/src/rmrk2.0.0/tools/consolidator/interactions/setproperty";
+import { Themeadd } from "../node_modules/rmrk-tools/dist-cli/src/rmrk2.0.0/classes/themeadd";
+import { themeAddInteraction } from "../node_modules/rmrk-tools/dist-cli/src/rmrk2.0.0/tools/consolidator/interactions/themeadd";
 import { getBaseFromRemark } from "../node_modules/rmrk-tools/dist-cli/src/rmrk2.0.0/tools/consolidator/interactions/base";
 import { InMemoryAdapter } from "../node_modules/rmrk-tools/dist-cli/src/rmrk2.0.0/tools/consolidator/adapters/in-memory-adapter";
 import { Remark } from "../node_modules/rmrk-tools/dist-cli/src/rmrk2.0.0/tools/consolidator/remark";
+import { CollectionConsolidated, NFTConsolidated, BaseConsolidated } from "../node_modules/rmrk-tools/dist-cli/src/rmrk2.0.0/tools/consolidator/consolidator";
 
 // code taken from node_modules/rmrk-tools in order to debug it
 type InvalidCall = {
@@ -16,7 +24,7 @@ type InvalidCall = {
 };
 
                                                                                                 // not sure for this return type
-const invalidateIfParentIsForsale = async (nftId: string, dbAdapter: IConsolidatorAdapter, level = 1): Promise<boolean> => {
+const invalidateIfParentIsForsale = async (nftId: string | undefined, dbAdapter: IConsolidatorAdapter, level = 1): Promise<boolean> => {
     if (!nftId) {
         throw new Error("invalidateIfParentIsForsale NFT id is missing");
     }
@@ -222,7 +230,7 @@ class Consolidator {
         try {
             if (nft === null || nft === void 0 ? void 0 : nft.owner) {
                 await invalidateIfRecursion(sendEntity.id, sendEntity.recipient, this.dbAdapter);
-                await invalidateIfParentIsForsale(nft ? nft.owner : null, this.dbAdapter);
+                await invalidateIfParentIsForsale(nft ? nft.owner : undefined, this.dbAdapter);
             }
             await sendInteraction(remark, sendEntity, this.dbAdapter, nft);
             if (nft && consolidatedNFT) {
@@ -253,20 +261,20 @@ class Consolidator {
             return true;
         }
         const consolidatedNFT = await this.dbAdapter.getNFTByIdUnique(listEntity.id);
-        const nft = (0, utils_1.consolidatedNFTtoInstance)(consolidatedNFT);
+        const nft = consolidatedNFTtoInstance(consolidatedNFT);
         try {
             if (nft === null || nft === void 0 ? void 0 : nft.owner) {
-                await invalidateIfParentIsForsale(nft.owner, this.dbAdapter);
+                await invalidateIfParentIsForsale(nft ? nft.owner : undefined, this.dbAdapter);
             }
-            await (0, list_2.listForSaleInteraction)(remark, listEntity, this.dbAdapter, nft);
+            await listForSaleInteraction(remark, listEntity, this.dbAdapter, nft);
             if (nft && consolidatedNFT) {
                 await this.dbAdapter.updateNFTList(nft, consolidatedNFT);
                 if (this.emitInteractionChanges) {
-                    this.interactionChanges.push({ [constants_1.OP_TYPES.LIST]: nft.getId() });
+                    this.interactionChanges.push({ [OP_TYPES.LIST]: nft.getId() });
                 }
             }
         }
-        catch (e) {
+        catch (e: any) {
             invalidate(listEntity.id, e.message);
             return true;
         }
@@ -278,30 +286,30 @@ class Consolidator {
      * You can only BURN an existing NFT (one that has not been BURNd yet).
      * https://github.com/rmrk-team/rmrk-spec/blob/master/standards/rmrk2.0.0/interactions/burn.md
      */
-    async burn(remark) {
-        const invalidate = this.updateInvalidCalls(constants_1.OP_TYPES.BURN, remark).bind(this);
-        const burnEntity = burn_1.Burn.fromRemark(remark.remark);
+    async burn(remark: Remark) {
+        const invalidate = this.updateInvalidCalls(OP_TYPES.BURN, remark).bind(this);
+        const burnEntity = Burn.fromRemark(remark.remark);
         // Check if burn is valid
         if (typeof burnEntity === "string") {
-            invalidate(remark.remark, `[${constants_1.OP_TYPES.BURN}] Dead before instantiation: ${burnEntity}`);
+            invalidate(remark.remark, `[${OP_TYPES.BURN}] Dead before instantiation: ${burnEntity}`);
             return true;
         }
         // Find the NFT in state
         const consolidatedNFT = await this.dbAdapter.getNFTByIdUnique(burnEntity.id);
-        const nft = (0, utils_1.consolidatedNFTtoInstance)(consolidatedNFT);
+        const nft = consolidatedNFTtoInstance(consolidatedNFT);
         try {
             if (nft === null || nft === void 0 ? void 0 : nft.owner) {
-                await invalidateIfParentIsForsale(nft.owner, this.dbAdapter);
+                await invalidateIfParentIsForsale(nft ? nft.owner : undefined, this.dbAdapter);
             }
-            await (0, burn_2.burnInteraction)(remark, burnEntity, this.dbAdapter, nft);
+            await burnInteraction(remark, burnEntity, this.dbAdapter, nft);
             if (nft && consolidatedNFT) {
                 await this.dbAdapter.updateNFTBurn(nft, consolidatedNFT);
                 if (this.emitInteractionChanges) {
-                    this.interactionChanges.push({ [constants_1.OP_TYPES.BURN]: nft.getId() });
+                    this.interactionChanges.push({ [OP_TYPES.BURN]: nft.getId() });
                 }
             }
         }
-        catch (e) {
+        catch (e: any) {
             invalidate(burnEntity.id, e.message);
             return true;
         }
@@ -313,29 +321,29 @@ class Consolidator {
      * You can only BUY an existing NFT (one that has not been BURNd yet).
      * https://github.com/rmrk-team/rmrk-spec/blob/master/standards/rmrk2.0.0/interactions/buy.md
      */
-    async buy(remark) {
-        const invalidate = this.updateInvalidCalls(constants_1.OP_TYPES.BUY, remark).bind(this);
-        const buyEntity = buy_1.Buy.fromRemark(remark.remark);
+    async buy(remark: Remark) {
+        const invalidate = this.updateInvalidCalls(OP_TYPES.BUY, remark).bind(this);
+        const buyEntity = Buy.fromRemark(remark.remark);
         if (typeof buyEntity === "string") {
-            invalidate(remark.remark, `[${constants_1.OP_TYPES.BUY}] Dead before instantiation: ${buyEntity}`);
+            invalidate(remark.remark, `[${OP_TYPES.BUY}] Dead before instantiation: ${buyEntity}`);
             return true;
         }
         const consolidatedNFT = await this.dbAdapter.getNFTByIdUnique(buyEntity.id);
-        const nft = (0, utils_1.consolidatedNFTtoInstance)(consolidatedNFT);
+        const nft = consolidatedNFTtoInstance(consolidatedNFT);
         try {
             if (nft === null || nft === void 0 ? void 0 : nft.owner) {
-                await invalidateIfParentIsForsale(nft.owner, this.dbAdapter);
+                await invalidateIfParentIsForsale(nft ? nft.owner : undefined, this.dbAdapter);
             }
-            await (0, buy_2.buyInteraction)(remark, buyEntity, this.dbAdapter, nft, this.ss58Format);
+            await buyInteraction(remark, buyEntity, this.dbAdapter, nft, this.ss58Format);
             if (nft && consolidatedNFT) {
                 await this.dbAdapter.updateNFTBuy(nft, consolidatedNFT);
                 await this.dbAdapter.updateNFTChildrenRootOwner(nft);
                 if (this.emitInteractionChanges) {
-                    this.interactionChanges.push({ [constants_1.OP_TYPES.BUY]: nft.getId() });
+                    this.interactionChanges.push({ [OP_TYPES.BUY]: nft.getId() });
                 }
             }
         }
-        catch (e) {
+        catch (e: any) {
             invalidate(buyEntity.id, e.message);
             return true;
         }
@@ -346,25 +354,25 @@ class Consolidator {
      * You can only EMOTE on an existing NFT (one that has not been BURNd yet).
      * https://github.com/rmrk-team/rmrk-spec/blob/master/standards/rmrk2.0.0/interactions/emote.md
      */
-    async emote(remark) {
-        const invalidate = this.updateInvalidCalls(constants_1.OP_TYPES.EMOTE, remark).bind(this);
-        const emoteEntity = emote_1.Emote.fromRemark(remark.remark);
+    async emote(remark: Remark) {
+        const invalidate = this.updateInvalidCalls(OP_TYPES.EMOTE, remark).bind(this);
+        const emoteEntity = Emote.fromRemark(remark.remark);
         if (typeof emoteEntity === "string") {
-            invalidate(remark.remark, `[${constants_1.OP_TYPES.EMOTE}] Dead before instantiation: ${emoteEntity}`);
+            invalidate(remark.remark, `[${OP_TYPES.EMOTE}] Dead before instantiation: ${emoteEntity}`);
             return true;
         }
         const consolidatedNFT = await this.dbAdapter.getNFTById(emoteEntity.id);
-        const nft = (0, utils_1.consolidatedNFTtoInstance)(consolidatedNFT);
+        const nft = consolidatedNFTtoInstance(consolidatedNFT);
         try {
-            (0, emote_2.emoteInteraction)(remark, emoteEntity, nft, this.emitEmoteChanges);
+            emoteInteraction(remark, emoteEntity, nft, this.emitEmoteChanges);
             if (nft && consolidatedNFT) {
                 await this.dbAdapter.updateNFTEmote(nft, consolidatedNFT);
                 if (this.emitInteractionChanges) {
-                    this.interactionChanges.push({ [constants_1.OP_TYPES.EMOTE]: nft.getId() });
+                    this.interactionChanges.push({ [OP_TYPES.EMOTE]: nft.getId() });
                 }
             }
         }
-        catch (e) {
+        catch (e: any) {
             invalidate(emoteEntity.id, e.message);
             return true;
         }
@@ -377,21 +385,21 @@ class Consolidator {
      * or changing the issuer to a null address to relinquish control over it.
      * https://github.com/rmrk-team/rmrk-spec/blob/master/standards/rmrk2.0.0/interactions/changeissuer.md
      */
-    async changeIssuer(remark) {
-        const invalidate = this.updateInvalidCalls(constants_1.OP_TYPES.CHANGEISSUER, remark).bind(this);
+    async changeIssuer(remark: Remark) {
+        const invalidate = this.updateInvalidCalls(OP_TYPES.CHANGEISSUER, remark).bind(this);
         let changeIssuerEntity;
         try {
-            changeIssuerEntity = (0, changeIssuer_1.getChangeIssuerEntity)(remark);
+            changeIssuerEntity = getChangeIssuerEntity(remark);
         }
-        catch (e) {
+        catch (e: any) {
             invalidate(remark.remark, e.message);
             return true;
         }
         try {
-            const onSuccess = (id) => {
+            const onSuccess = (id: string) => {
                 if (this.emitInteractionChanges) {
                     this.interactionChanges.push({
-                        [constants_1.OP_TYPES.CHANGEISSUER]: id,
+                        [OP_TYPES.CHANGEISSUER]: id,
                     });
                 }
             };
@@ -399,14 +407,14 @@ class Consolidator {
             // Base id always starts with base- prefix
             if (changeIssuerEntity.id.startsWith("base-")) {
                 // This is BASE change
-                await (0, utils_1.changeIssuerBase)(changeIssuerEntity, remark, onSuccess, this.dbAdapter);
+                await changeIssuerBase(changeIssuerEntity, remark, onSuccess, this.dbAdapter);
             }
             else {
                 // This is NFT Collection change
-                await (0, utils_1.changeIssuerCollection)(changeIssuerEntity, remark, onSuccess, this.dbAdapter);
+                await changeIssuerCollection(changeIssuerEntity, remark, onSuccess, this.dbAdapter);
             }
         }
-        catch (e) {
+        catch (e: any) {
             invalidate(changeIssuerEntity.id, e.message);
             return true;
         }
@@ -416,25 +424,25 @@ class Consolidator {
      * The EQUIPPABLE interaction allows a Base owner to modify the list of equippable collectiones on a Base's slot.
      * https://github.com/rmrk-team/rmrk-spec/blob/master/standards/rmrk2.0.0/interactions/equippable.md
      */
-    async equippable(remark) {
-        const invalidate = this.updateInvalidCalls(constants_1.OP_TYPES.EQUIPPABLE, remark).bind(this);
-        const equippableEntity = equippable_2.Equippable.fromRemark(remark.remark);
+    async equippable(remark: Remark) {
+        const invalidate = this.updateInvalidCalls(OP_TYPES.EQUIPPABLE, remark).bind(this);
+        const equippableEntity = Equippable.fromRemark(remark.remark);
         if (typeof equippableEntity === "string") {
-            invalidate(remark.remark, `[${constants_1.OP_TYPES.EQUIPPABLE}] Dead before instantiation: ${equippableEntity}`);
+            invalidate(remark.remark, `[${OP_TYPES.EQUIPPABLE}] Dead before instantiation: ${equippableEntity}`);
             return true;
         }
         const consolidatedBase = await this.dbAdapter.getBaseById(equippableEntity.id);
-        const base = (0, utils_1.consolidatedBasetoInstance)(consolidatedBase);
+        const base = consolidatedBasetoInstance(consolidatedBase);
         try {
-            (0, equippable_1.equippableInteraction)(remark, equippableEntity, base);
+            equippableInteraction(remark, equippableEntity, base);
             if (base && consolidatedBase) {
                 await this.dbAdapter.updateBaseEquippable(base, consolidatedBase);
                 if (this.emitInteractionChanges) {
-                    this.interactionChanges.push({ [constants_1.OP_TYPES.EQUIPPABLE]: base.getId() });
+                    this.interactionChanges.push({ [OP_TYPES.EQUIPPABLE]: base.getId() });
                 }
             }
         }
-        catch (e) {
+        catch (e: any) {
             invalidate(equippableEntity.id, e.message);
             return true;
         }
@@ -444,25 +452,25 @@ class Consolidator {
      * The RESADD interaction allows anyone to send new resource to a target NFT
      * https://github.com/rmrk-team/rmrk-spec/blob/master/standards/rmrk2.0.0/interactions/resadd.md
      */
-    async resadd(remark) {
-        const invalidate = this.updateInvalidCalls(constants_1.OP_TYPES.RESADD, remark).bind(this);
-        const resaddEntity = resadd_1.Resadd.fromRemark(remark.remark);
+    async resadd(remark: Remark) {
+        const invalidate = this.updateInvalidCalls(OP_TYPES.RESADD, remark).bind(this);
+        const resaddEntity = Resadd.fromRemark(remark.remark);
         if (typeof resaddEntity === "string") {
-            invalidate(remark.remark, `[${constants_1.OP_TYPES.RESADD}] Dead before instantiation: ${resaddEntity}`);
+            invalidate(remark.remark, `[${OP_TYPES.RESADD}] Dead before instantiation: ${resaddEntity}`);
             return true;
         }
         const consolidatedNFT = await this.dbAdapter.getNFTByIdUnique(resaddEntity.nftId);
-        const nft = (0, utils_1.consolidatedNFTtoInstance)(consolidatedNFT);
+        const nft = consolidatedNFTtoInstance(consolidatedNFT);
         try {
-            await (0, resadd_2.resAddInteraction)(remark, resaddEntity, this.dbAdapter, nft);
+            await resAddInteraction(remark, resaddEntity, this.dbAdapter, nft);
             if (nft && consolidatedNFT) {
                 await this.dbAdapter.updateNftResadd(nft, consolidatedNFT);
                 if (this.emitInteractionChanges) {
-                    this.interactionChanges.push({ [constants_1.OP_TYPES.RESADD]: nft.getId() });
+                    this.interactionChanges.push({ [OP_TYPES.RESADD]: nft.getId() });
                 }
             }
         }
-        catch (e) {
+        catch (e: any) {
             invalidate(resaddEntity.nftId, e.message);
             return true;
         }
@@ -472,25 +480,25 @@ class Consolidator {
      * The ACCEPT interaction allows NFT owner to accept pending resource or child NFT new resource toon a target NFT
      * https://github.com/rmrk-team/rmrk-spec/blob/master/standards/rmrk2.0.0/interactions/accept.md
      */
-    async accept(remark) {
-        const invalidate = this.updateInvalidCalls(constants_1.OP_TYPES.ACCEPT, remark).bind(this);
-        const acceptEntity = accept_1.Accept.fromRemark(remark.remark);
+    async accept(remark: Remark) {
+        const invalidate = this.updateInvalidCalls(OP_TYPES.ACCEPT, remark).bind(this);
+        const acceptEntity = Accept.fromRemark(remark.remark);
         if (typeof acceptEntity === "string") {
-            invalidate(remark.remark, `[${constants_1.OP_TYPES.ACCEPT}] Dead before instantiation: ${acceptEntity}`);
+            invalidate(remark.remark, `[${OP_TYPES.ACCEPT}] Dead before instantiation: ${acceptEntity}`);
             return true;
         }
         const consolidatedNFT = await this.dbAdapter.getNFTByIdUnique(acceptEntity.nftId);
-        const nft = (0, utils_1.consolidatedNFTtoInstance)(consolidatedNFT);
+        const nft = consolidatedNFTtoInstance(consolidatedNFT);
         try {
-            await (0, accept_2.acceptInteraction)(remark, acceptEntity, this.dbAdapter, nft);
+            await acceptInteraction(remark, acceptEntity, this.dbAdapter, nft);
             if (nft && consolidatedNFT) {
                 await this.dbAdapter.updateNftAccept(nft, consolidatedNFT, acceptEntity.entity);
                 if (this.emitInteractionChanges) {
-                    this.interactionChanges.push({ [constants_1.OP_TYPES.ACCEPT]: nft.getId() });
+                    this.interactionChanges.push({ [OP_TYPES.ACCEPT]: nft.getId() });
                 }
             }
         }
-        catch (e) {
+        catch (e: any) {
             invalidate(acceptEntity.nftId, e.message);
             return true;
         }
@@ -500,27 +508,27 @@ class Consolidator {
      * The EQUIP interaction allows NFT owner to equip another NFT in it's parent's base slot
      * https://github.com/rmrk-team/rmrk-spec/blob/master/standards/rmrk2.0.0/interactions/equip.md
      */
-    async equip(remark) {
-        const invalidate = this.updateInvalidCalls(constants_1.OP_TYPES.EQUIP, remark).bind(this);
-        const equipEntity = equip_1.Equip.fromRemark(remark.remark);
+    async equip(remark: Remark) {
+        const invalidate = this.updateInvalidCalls(OP_TYPES.EQUIP, remark).bind(this);
+        const equipEntity = Equip.fromRemark(remark.remark);
         if (typeof equipEntity === "string") {
-            invalidate(remark.remark, `[${constants_1.OP_TYPES.EQUIP}] Dead before instantiation: ${equipEntity}`);
+            invalidate(remark.remark, `[${OP_TYPES.EQUIP}] Dead before instantiation: ${equipEntity}`);
             return true;
         }
         const consolidatedNFT = await this.dbAdapter.getNFTByIdUnique(equipEntity.id);
-        const nft = (0, utils_1.consolidatedNFTtoInstance)(consolidatedNFT);
+        const nft = consolidatedNFTtoInstance(consolidatedNFT);
         const consolidatedParentNFT = await this.dbAdapter.getNFTByIdUnique((nft === null || nft === void 0 ? void 0 : nft.owner) || "");
-        const parentNft = (0, utils_1.consolidatedNFTtoInstance)(consolidatedParentNFT);
+        const parentNft = consolidatedNFTtoInstance(consolidatedParentNFT);
         try {
-            await (0, equip_2.equipInteraction)(remark, equipEntity, this.dbAdapter, nft, parentNft);
+            await equipInteraction(remark, equipEntity, this.dbAdapter, nft, parentNft);
             if (parentNft && consolidatedParentNFT) {
                 await this.dbAdapter.updateEquip(parentNft, consolidatedParentNFT);
                 if (this.emitInteractionChanges) {
-                    this.interactionChanges.push({ [constants_1.OP_TYPES.EQUIP]: parentNft.getId() });
+                    this.interactionChanges.push({ [OP_TYPES.EQUIP]: parentNft.getId() });
                 }
             }
         }
-        catch (e) {
+        catch (e: any) {
             invalidate(equipEntity.id, e.message);
             return true;
         }
@@ -530,25 +538,25 @@ class Consolidator {
      * The SETPRIORITY interaction allows NFT owner to change resource priority array on NFT
      * https://github.com/rmrk-team/rmrk-spec/blob/master/standards/rmrk2.0.0/interactions/setpriority.md
      */
-    async setpriority(remark) {
-        const invalidate = this.updateInvalidCalls(constants_1.OP_TYPES.SETPRIORITY, remark).bind(this);
-        const setPriorityEntity = setpriority_2.Setpriority.fromRemark(remark.remark);
+    async setpriority(remark: Remark) {
+        const invalidate = this.updateInvalidCalls(OP_TYPES.SETPRIORITY, remark).bind(this);
+        const setPriorityEntity = Setpriority.fromRemark(remark.remark);
         if (typeof setPriorityEntity === "string") {
-            invalidate(remark.remark, `[${constants_1.OP_TYPES.SETPRIORITY}] Dead before instantiation: ${setPriorityEntity}`);
+            invalidate(remark.remark, `[${OP_TYPES.SETPRIORITY}] Dead before instantiation: ${setPriorityEntity}`);
             return true;
         }
         const consolidatedNFT = await this.dbAdapter.getNFTByIdUnique(setPriorityEntity.id);
-        const nft = (0, utils_1.consolidatedNFTtoInstance)(consolidatedNFT);
+        const nft = consolidatedNFTtoInstance(consolidatedNFT);
         try {
-            await (0, setpriority_1.setPriorityInteraction)(remark, setPriorityEntity, this.dbAdapter, nft);
+            await setPriorityInteraction(remark, setPriorityEntity, this.dbAdapter, nft);
             if (nft && consolidatedNFT) {
                 await this.dbAdapter.updateSetPriority(nft, consolidatedNFT);
                 if (this.emitInteractionChanges) {
-                    this.interactionChanges.push({ [constants_1.OP_TYPES.SETPRIORITY]: nft.getId() });
+                    this.interactionChanges.push({ [OP_TYPES.SETPRIORITY]: nft.getId() });
                 }
             }
         }
-        catch (e) {
+        catch (e: any) {
             invalidate(setPriorityEntity.id, e.message);
             return true;
         }
@@ -558,27 +566,27 @@ class Consolidator {
      * The SETPROPERTY interaction allows NFT owner to change or set new property on NFT
      * https://github.com/rmrk-team/rmrk-spec/blob/master/standards/rmrk2.0.0/interactions/setproperty.md
      */
-    async setproperty(remark) {
-        const invalidate = this.updateInvalidCalls(constants_1.OP_TYPES.SETPROPERTY, remark).bind(this);
-        const setPropertyEntity = setproperty_1.Setproperty.fromRemark(remark.remark);
+    async setproperty(remark: Remark) {
+        const invalidate = this.updateInvalidCalls(OP_TYPES.SETPROPERTY, remark).bind(this);
+        const setPropertyEntity = Setproperty.fromRemark(remark.remark);
         if (typeof setPropertyEntity === "string") {
-            invalidate(remark.remark, `[${constants_1.OP_TYPES.SETPROPERTY}] Dead before instantiation: ${setPropertyEntity}`);
+            invalidate(remark.remark, `[${OP_TYPES.SETPROPERTY}] Dead before instantiation: ${setPropertyEntity}`);
             return true;
         }
         const consolidatedNFT = await this.dbAdapter.getNFTByIdUnique(setPropertyEntity.id);
-        const nft = (0, utils_1.consolidatedNFTtoInstance)(consolidatedNFT);
+        const nft = consolidatedNFTtoInstance(consolidatedNFT);
         try {
-            await (0, setproperty_2.setPropertyInteraction)(remark, setPropertyEntity, this.dbAdapter, nft);
+            await setPropertyInteraction(remark, setPropertyEntity, this.dbAdapter, nft);
             if (nft && consolidatedNFT) {
                 await this.dbAdapter.updateSetAttribute(nft, consolidatedNFT);
                 if (this.emitInteractionChanges) {
                     this.interactionChanges.push({
-                        [constants_1.OP_TYPES.SETPROPERTY]: nft.getId(),
+                        [OP_TYPES.SETPROPERTY]: nft.getId(),
                     });
                 }
             }
         }
-        catch (e) {
+        catch (e: any) {
             invalidate(setPropertyEntity.id, e.message);
             return true;
         }
@@ -588,118 +596,118 @@ class Consolidator {
      * The THEMEADD interaction allows BASE issuer to add a new theme to a Base
      * https://github.com/rmrk-team/rmrk-spec/blob/master/standards/rmrk2.0.0/interactions/themeadd.md
      */
-    async themeadd(remark) {
-        const invalidate = this.updateInvalidCalls(constants_1.OP_TYPES.THEMEADD, remark).bind(this);
-        const themeAddEntity = themeadd_1.Themeadd.fromRemark(remark.remark);
+    async themeadd(remark: Remark) {
+        const invalidate = this.updateInvalidCalls(OP_TYPES.THEMEADD, remark).bind(this);
+        const themeAddEntity = Themeadd.fromRemark(remark.remark);
         if (typeof themeAddEntity === "string") {
-            invalidate(remark.remark, `[${constants_1.OP_TYPES.THEMEADD}] Dead before instantiation: ${themeAddEntity}`);
+            invalidate(remark.remark, `[${OP_TYPES.THEMEADD}] Dead before instantiation: ${themeAddEntity}`);
             return true;
         }
         const consolidatedBase = await this.dbAdapter.getBaseById(themeAddEntity.baseId);
-        const base = (0, utils_1.consolidatedBasetoInstance)(consolidatedBase);
+        const base = consolidatedBasetoInstance(consolidatedBase);
         try {
-            (0, themeadd_2.themeAddInteraction)(remark, themeAddEntity, base);
+            themeAddInteraction(remark, themeAddEntity, base);
             if (base && consolidatedBase) {
                 await this.dbAdapter.updateBaseThemeAdd(base, consolidatedBase);
                 if (this.emitInteractionChanges) {
                     this.interactionChanges.push({
-                        [constants_1.OP_TYPES.THEMEADD]: base.getId(),
+                        [OP_TYPES.THEMEADD]: base.getId(),
                     });
                 }
             }
         }
-        catch (e) {
+        catch (e: any) {
             invalidate(themeAddEntity.baseId, e.message);
             return true;
         }
         return false;
     }
-    async consolidate(rmrks) {
+    async consolidate(rmrks: Remark[]) {
         const remarks = rmrks || [];
         // console.log(remarks);
         for (const remark of remarks) {
             // console.log('==============================');
             // console.log('Remark is: ' + remark.remark);
             switch (remark.interaction_type) {
-                case constants_1.OP_TYPES.CREATE:
+                case OP_TYPES.CREATE:
                     if (await this.create(remark)) {
                         continue;
                     }
                     break;
-                case constants_1.OP_TYPES.MINT:
+                case OP_TYPES.MINT:
                     if (await this.mint(remark)) {
                         continue;
                     }
                     break;
-                case constants_1.OP_TYPES.SEND:
+                case OP_TYPES.SEND:
                     if (await this.send(remark)) {
                         continue;
                     }
                     break;
-                case constants_1.OP_TYPES.BUY:
+                case OP_TYPES.BUY:
                     // An NFT was bought after being LISTed
                     if (await this.buy(remark)) {
                         continue;
                     }
                     break;
-                case constants_1.OP_TYPES.BURN:
+                case OP_TYPES.BURN:
                     // An NFT was burned
                     if (await this.burn(remark)) {
                         continue;
                     }
                     break;
-                case constants_1.OP_TYPES.LIST:
+                case OP_TYPES.LIST:
                     // An NFT was listed for sale
                     if (await this.list(remark)) {
                         continue;
                     }
                     break;
-                case constants_1.OP_TYPES.EMOTE:
+                case OP_TYPES.EMOTE:
                     if (await this.emote(remark)) {
                         continue;
                     }
                     break;
-                case constants_1.OP_TYPES.CHANGEISSUER:
+                case OP_TYPES.CHANGEISSUER:
                     if (await this.changeIssuer(remark)) {
                         continue;
                     }
                     break;
-                case constants_1.OP_TYPES.BASE:
+                case OP_TYPES.BASE:
                     if (await this.base(remark)) {
                         continue;
                     }
                     break;
-                case constants_1.OP_TYPES.EQUIPPABLE:
+                case OP_TYPES.EQUIPPABLE:
                     if (await this.equippable(remark)) {
                         continue;
                     }
                     break;
-                case constants_1.OP_TYPES.RESADD:
+                case OP_TYPES.RESADD:
                     if (await this.resadd(remark)) {
                         continue;
                     }
                     break;
-                case constants_1.OP_TYPES.ACCEPT:
+                case OP_TYPES.ACCEPT:
                     if (await this.accept(remark)) {
                         continue;
                     }
                     break;
-                case constants_1.OP_TYPES.EQUIP:
+                case OP_TYPES.EQUIP:
                     if (await this.equip(remark)) {
                         continue;
                     }
                     break;
-                case constants_1.OP_TYPES.SETPRIORITY:
+                case OP_TYPES.SETPRIORITY:
                     if (await this.setpriority(remark)) {
                         continue;
                     }
                     break;
-                case constants_1.OP_TYPES.SETPROPERTY:
+                case OP_TYPES.SETPROPERTY:
                     if (await this.setproperty(remark)) {
                         continue;
                     }
                     break;
-                case constants_1.OP_TYPES.THEMEADD:
+                case OP_TYPES.THEMEADD:
                     if (await this.themeadd(remark)) {
                         continue;
                     }
@@ -727,7 +735,7 @@ class Consolidator {
                 ? await this.dbAdapter.getAllBases()
                 : {},
             invalid: this.invalidCalls,
-        };
+        } as { nfts: Record<string, NFTConsolidated> , collections: Record<string, CollectionConsolidated>, bases: Record<string, BaseConsolidated>, invalid: InvalidCall[], changes: InteractionChanges };
         if (this.emitInteractionChanges) {
             result.changes = this.interactionChanges;
         }
