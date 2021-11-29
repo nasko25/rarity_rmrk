@@ -71,7 +71,7 @@ enum OP_TYPES {
 
 type InteractionChanges = Partial<Record<OP_TYPES, string>>[];
 
-class Consolidator {
+export class Consolidator {
     readonly invalidCalls: InvalidCall[];
     readonly collections: Collection[];
     readonly bases: Base[];
@@ -87,7 +87,7 @@ class Consolidator {
      * @param emitEmoteChanges log EMOTE events in nft 'changes' prop
      * @param emitInteractionChanges return interactions changes ( OP_TYPE: id )
      */
-    constructor(ss58Format: number, dbAdapter: IConsolidatorAdapter, emitEmoteChanges: boolean, emitInteractionChanges: boolean) {
+    constructor(dbAdapter: IConsolidatorAdapter, ss58Format?: number, emitEmoteChanges?: boolean, emitInteractionChanges?: boolean) {
         this.interactionChanges = [];
         if (ss58Format) {
             this.ss58Format = ss58Format;

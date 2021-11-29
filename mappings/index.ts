@@ -4,6 +4,7 @@ import { Account, HistoricalBalance, RmrkEntity, Rmrk, Call as RmrkCall } from '
 import { Balances } from '../chain'
 import { getRemarksFromBlocks as asdf, Consolidator } from 'rmrk-tools';
 import { Consolidator as ConsolidatorV1 } from './consolidator_v1';
+import { Consolidator as ConsolidatorV2 } from './consolidator_v2';
 import { hexToString, stringToHex } from "@polkadot/util";
 import { DBAdapter } from '../using_rmrk_tools/DBAdapter';
 import { DBAdapterV1} from '../using_rmrk_tools/DBAdapterV1';
@@ -246,9 +247,11 @@ export async function systemRemark({
     const remarks = getRemarksFromBlocks([new RemarkBlock(block.height, calls)], ["0x726d726b", "0x524d524b"]);
     // console.log(remarks);
 
-    // TODO also v2.0.0
-    const consolidator = new ConsolidatorV1(new DBAdapterV1(store), undefined, false, false);
-    const { nfts, collections } = await consolidator.consolidate(remarks.v1);
+    // TODO same db adapter or different ?
+    const dbAdapter = new DBAdapterV1(store);
+    const consolidator_v1 = new ConsolidatorV1(dbAdapter, undefined, false, false);
+    const consolidator_v2 = new ConsolidatorV2(dbAdapter, undefined, false, false);
+    const { nfts, collections } = await consolidator_v1.consolidate(remarks.v1);
     // console.log('Consolidated nfts:', nfts);
     // console.log('Consolidated collections:', collections);
     /*
