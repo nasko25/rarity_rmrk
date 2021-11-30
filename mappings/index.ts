@@ -7,7 +7,7 @@ import { Consolidator as ConsolidatorV1 } from './consolidator_v1';
 import { Consolidator as ConsolidatorV2 } from './consolidator_v2';
 import { hexToString, stringToHex } from "@polkadot/util";
 import { DBAdapter } from '../using_rmrk_tools/DBAdapter';
-import { DBAdapterV1} from '../using_rmrk_tools/DBAdapterV1';
+import { DBAdapterV1 } from '../using_rmrk_tools/DBAdapterV1';
 
 
 export async function balancesTransfer({
@@ -248,10 +248,12 @@ export async function systemRemark({
     // console.log(remarks);
 
     // TODO same db adapter or different ?
-    const dbAdapter = new DBAdapterV1(store);
-    const consolidator_v1 = new ConsolidatorV1(dbAdapter, undefined, false, false);
-    const consolidator_v2 = new ConsolidatorV2(dbAdapter, undefined, false, false);
+    const dbAdapterV1 = new DBAdapterV1(store);
+    const dbAdapterV2 = new DBAdapter(store);
+    const consolidator_v1 = new ConsolidatorV1(dbAdapterV1, undefined, false, false);
+    const consolidator_v2 = new ConsolidatorV2(dbAdapterV2, undefined, false, false);
     const { nfts, collections } = await consolidator_v1.consolidate(remarks.v1);
+    await consolidator_v2.consolidate(remarks.v2);
     // console.log('Consolidated nfts:', nfts);
     // console.log('Consolidated collections:', collections);
     /*
