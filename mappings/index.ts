@@ -232,13 +232,17 @@ export async function systemRemark({
   block,
   extrinsic,
 }: EventContext & StoreContext): Promise<void> {
-    // TODO consolidator.consolidate() here and pass a dbAdapter that uses store
     if (!extrinsic || !extrinsic.args || extrinsic.args.length !== 1) {
         console.error("Unexpected extrinsic format.");
         process.exit(-1);
         return;
     }
 
+    let ext_val = extrinsic?.args[0]?.value;
+    // return if the extrinsic is not a rmrk
+    if (!ext_val?.toString().startsWith("0x726d726b") && !ext_val?.toString().startsWith("0x524d524b")) {
+        return;
+    }
     let calls = [];
     for (const arg of extrinsic.args) {
         calls.push(<Call> { call: /* extrinsic.section + "." + extrinsic.method */ "system.remark", value: arg.value, caller: extrinsic.signer });
@@ -247,9 +251,10 @@ export async function systemRemark({
     const remarks = getRemarksFromBlocks([new RemarkBlock(block.height, calls)], ["0x726d726b", "0x524d524b"]);
     // console.log(remarks);
 
-    // TODO same db adapter or different ?
     const dbAdapterV1 = new DBAdapterV1(store);
     const dbAdapterV2 = new DBAdapter(store);
+    // TODO use the two dbAdapters with the library consolidator?
+    //  then only the getRemarksFromBlocks() will need to be overwritten
     const consolidator_v1 = new ConsolidatorV1(dbAdapterV1, undefined, false, false);
     const consolidator_v2 = new ConsolidatorV2(dbAdapterV2, undefined, false, false);
     const { nfts, collections } = await consolidator_v1.consolidate(remarks.v1);
