@@ -1,8 +1,7 @@
 import BN from 'bn.js'
 import { DatabaseManager, EventContext, StoreContext, AnyJsonField } from '@subsquid/hydra-common'
-import { Account, HistoricalBalance, RmrkEntity, Rmrk, Call as RmrkCall } from '../generated/model'
+import { Account, HistoricalBalance } from '../generated/model'
 import { Balances } from '../chain'
-import { getRemarksFromBlocks as asdf, Consolidator } from 'rmrk-tools';
 import { Consolidator as ConsolidatorV1 } from './consolidator_v1';
 import { Consolidator as ConsolidatorV2 } from './consolidator_v2';
 import { hexToString, stringToHex } from "@polkadot/util";

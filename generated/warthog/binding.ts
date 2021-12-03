@@ -18,9 +18,6 @@ export interface Query {
     nfts: <T = Array<Nft>>(args: { offset?: Int | null, limit?: Int | null, where?: NftWhereInput | null, orderBy?: Array<NftOrderByInput> | null }, info?: GraphQLResolveInfo | string, options?: Options) => Promise<T> ,
     nftByUniqueInput: <T = Nft | null>(args: { where: NftWhereUniqueInput }, info?: GraphQLResolveInfo | string, options?: Options) => Promise<T | null> ,
     nftsConnection: <T = NftConnection>(args: { first?: Int | null, after?: String | null, last?: Int | null, before?: String | null, where?: NftWhereInput | null, orderBy?: Array<NftOrderByInput> | null }, info?: GraphQLResolveInfo | string, options?: Options) => Promise<T> ,
-    rmrkEntities: <T = Array<RmrkEntity>>(args: { offset?: Int | null, limit?: Int | null, where?: RmrkEntityWhereInput | null, orderBy?: Array<RmrkEntityOrderByInput> | null }, info?: GraphQLResolveInfo | string, options?: Options) => Promise<T> ,
-    rmrkEntityByUniqueInput: <T = RmrkEntity | null>(args: { where: RmrkEntityWhereUniqueInput }, info?: GraphQLResolveInfo | string, options?: Options) => Promise<T | null> ,
-    rmrkEntitiesConnection: <T = RmrkEntityConnection>(args: { first?: Int | null, after?: String | null, last?: Int | null, before?: String | null, where?: RmrkEntityWhereInput | null, orderBy?: Array<RmrkEntityOrderByInput> | null }, info?: GraphQLResolveInfo | string, options?: Options) => Promise<T> ,
     hello: <T = Hello>(args?: {}, info?: GraphQLResolveInfo | string, options?: Options) => Promise<T> 
   }
 
@@ -120,15 +117,6 @@ export type NftOrderByInput =   'createdAt_ASC' |
   'block_ASC' |
   'block_DESC'
 
-export type RmrkEntityOrderByInput =   'createdAt_ASC' |
-  'createdAt_DESC' |
-  'updatedAt_ASC' |
-  'updatedAt_DESC' |
-  'deletedAt_ASC' |
-  'deletedAt_DESC' |
-  'block_ASC' |
-  'block_DESC'
-
 export interface AccountCreateInput {
   wallet: String
   balance: String
@@ -208,72 +196,6 @@ export interface BaseWhereInput {
   deletedAt_gt?: String | null
   deletedAt_gte?: String | null
   deletedById_eq?: String | null
-}
-
-export interface CallCreateInput {
-  call: String
-  value: String
-  caller: String
-}
-
-export interface CallInput {
-  call: String
-  value: String
-  caller: String
-}
-
-export interface CallUpdateInput {
-  call?: String | null
-  value?: String | null
-  caller?: String | null
-}
-
-export interface CallWhereInput {
-  id_eq?: ID_Input | null
-  id_in?: ID_Output[] | ID_Output | null
-  createdAt_eq?: DateTime | null
-  createdAt_lt?: DateTime | null
-  createdAt_lte?: DateTime | null
-  createdAt_gt?: DateTime | null
-  createdAt_gte?: DateTime | null
-  createdById_eq?: ID_Input | null
-  createdById_in?: ID_Output[] | ID_Output | null
-  updatedAt_eq?: DateTime | null
-  updatedAt_lt?: DateTime | null
-  updatedAt_lte?: DateTime | null
-  updatedAt_gt?: DateTime | null
-  updatedAt_gte?: DateTime | null
-  updatedById_eq?: ID_Input | null
-  updatedById_in?: ID_Output[] | ID_Output | null
-  deletedAt_all?: Boolean | null
-  deletedAt_eq?: DateTime | null
-  deletedAt_lt?: DateTime | null
-  deletedAt_lte?: DateTime | null
-  deletedAt_gt?: DateTime | null
-  deletedAt_gte?: DateTime | null
-  deletedById_eq?: ID_Input | null
-  deletedById_in?: ID_Output[] | ID_Output | null
-  call_eq?: String | null
-  call_contains?: String | null
-  call_startsWith?: String | null
-  call_endsWith?: String | null
-  call_in?: String[] | String | null
-  value_eq?: String | null
-  value_contains?: String | null
-  value_startsWith?: String | null
-  value_endsWith?: String | null
-  value_in?: String[] | String | null
-  caller_eq?: String | null
-  caller_contains?: String | null
-  caller_startsWith?: String | null
-  caller_endsWith?: String | null
-  caller_in?: String[] | String | null
-  AND?: CallWhereInput[] | CallWhereInput | null
-  OR?: CallWhereInput[] | CallWhereInput | null
-}
-
-export interface CallWhereUniqueInput {
-  id: ID_Output
 }
 
 export interface CollectionCreateInput {
@@ -514,131 +436,6 @@ export interface NftWhereUniqueInput {
   id: ID_Output
 }
 
-export interface RmrkCreateInput {
-  caller: String
-  interactionType: String
-  rmrkVersion: String
-  remark: String
-}
-
-export interface RmrkEntityCreateInput {
-  block: String
-  rmrk: RmrkInput
-}
-
-export interface RmrkEntityUpdateInput {
-  block?: String | null
-  rmrk?: RmrkInput | null
-}
-
-export interface RmrkEntityWhereInput {
-  id_eq?: ID_Input | null
-  id_in?: ID_Output[] | ID_Output | null
-  createdAt_eq?: DateTime | null
-  createdAt_lt?: DateTime | null
-  createdAt_lte?: DateTime | null
-  createdAt_gt?: DateTime | null
-  createdAt_gte?: DateTime | null
-  createdById_eq?: ID_Input | null
-  createdById_in?: ID_Output[] | ID_Output | null
-  updatedAt_eq?: DateTime | null
-  updatedAt_lt?: DateTime | null
-  updatedAt_lte?: DateTime | null
-  updatedAt_gt?: DateTime | null
-  updatedAt_gte?: DateTime | null
-  updatedById_eq?: ID_Input | null
-  updatedById_in?: ID_Output[] | ID_Output | null
-  deletedAt_all?: Boolean | null
-  deletedAt_eq?: DateTime | null
-  deletedAt_lt?: DateTime | null
-  deletedAt_lte?: DateTime | null
-  deletedAt_gt?: DateTime | null
-  deletedAt_gte?: DateTime | null
-  deletedById_eq?: ID_Input | null
-  deletedById_in?: ID_Output[] | ID_Output | null
-  block_eq?: BigInt | null
-  block_gt?: BigInt | null
-  block_gte?: BigInt | null
-  block_lt?: BigInt | null
-  block_lte?: BigInt | null
-  block_in?: BigInt[] | BigInt | null
-  rmrk_json?: JSONObject | null
-  AND?: RmrkEntityWhereInput[] | RmrkEntityWhereInput | null
-  OR?: RmrkEntityWhereInput[] | RmrkEntityWhereInput | null
-}
-
-export interface RmrkEntityWhereUniqueInput {
-  id: ID_Output
-}
-
-export interface RmrkInput {
-  caller: String
-  interactionType: String
-  rmrkVersion: String
-  remark: String
-  extraEx?: CallInput[] | CallInput | null
-}
-
-export interface RmrkUpdateInput {
-  caller?: String | null
-  interactionType?: String | null
-  rmrkVersion?: String | null
-  remark?: String | null
-}
-
-export interface RmrkWhereInput {
-  id_eq?: ID_Input | null
-  id_in?: ID_Output[] | ID_Output | null
-  createdAt_eq?: DateTime | null
-  createdAt_lt?: DateTime | null
-  createdAt_lte?: DateTime | null
-  createdAt_gt?: DateTime | null
-  createdAt_gte?: DateTime | null
-  createdById_eq?: ID_Input | null
-  createdById_in?: ID_Output[] | ID_Output | null
-  updatedAt_eq?: DateTime | null
-  updatedAt_lt?: DateTime | null
-  updatedAt_lte?: DateTime | null
-  updatedAt_gt?: DateTime | null
-  updatedAt_gte?: DateTime | null
-  updatedById_eq?: ID_Input | null
-  updatedById_in?: ID_Output[] | ID_Output | null
-  deletedAt_all?: Boolean | null
-  deletedAt_eq?: DateTime | null
-  deletedAt_lt?: DateTime | null
-  deletedAt_lte?: DateTime | null
-  deletedAt_gt?: DateTime | null
-  deletedAt_gte?: DateTime | null
-  deletedById_eq?: ID_Input | null
-  deletedById_in?: ID_Output[] | ID_Output | null
-  caller_eq?: String | null
-  caller_contains?: String | null
-  caller_startsWith?: String | null
-  caller_endsWith?: String | null
-  caller_in?: String[] | String | null
-  interactionType_eq?: String | null
-  interactionType_contains?: String | null
-  interactionType_startsWith?: String | null
-  interactionType_endsWith?: String | null
-  interactionType_in?: String[] | String | null
-  rmrkVersion_eq?: String | null
-  rmrkVersion_contains?: String | null
-  rmrkVersion_startsWith?: String | null
-  rmrkVersion_endsWith?: String | null
-  rmrkVersion_in?: String[] | String | null
-  remark_eq?: String | null
-  remark_contains?: String | null
-  remark_startsWith?: String | null
-  remark_endsWith?: String | null
-  remark_in?: String[] | String | null
-  AND?: RmrkWhereInput[] | RmrkWhereInput | null
-  OR?: RmrkWhereInput[] | RmrkWhereInput | null
-}
-
-export interface RmrkWhereUniqueInput {
-  id: ID_Output
-}
-
 export interface BaseGraphQLObject {
   id: ID_Output
   createdAt: DateTime
@@ -699,12 +496,6 @@ export interface BaseModelUUID extends BaseGraphQLObject {
   deletedAt?: DateTime | null
   deletedById?: String | null
   version: Int
-}
-
-export interface Call {
-  call: String
-  value: String
-  caller: String
 }
 
 export interface Collection extends BaseGraphQLObject {
@@ -809,38 +600,6 @@ export interface ProcessorState {
   chainHead: Float
 }
 
-export interface Rmrk {
-  caller: String
-  interactionType: String
-  rmrkVersion: String
-  remark: String
-  extraEx?: Array<Call> | null
-}
-
-export interface RmrkEntity extends BaseGraphQLObject {
-  id: ID_Output
-  createdAt: DateTime
-  createdById: String
-  updatedAt?: DateTime | null
-  updatedById?: String | null
-  deletedAt?: DateTime | null
-  deletedById?: String | null
-  version: Int
-  block: BigInt
-  rmrk: Rmrk
-}
-
-export interface RmrkEntityConnection {
-  totalCount: Int
-  edges: Array<RmrkEntityEdge>
-  pageInfo: PageInfo
-}
-
-export interface RmrkEntityEdge {
-  node: RmrkEntity
-  cursor: String
-}
-
 export interface StandardDeleteResponse {
   id: ID_Output
 }
@@ -875,22 +634,6 @@ export type ID_Output = string
 The `Int` scalar type represents non-fractional signed whole numeric values. Int can represent values between -(2^31) and 2^31 - 1.
 */
 export type Int = number
-
-/*
-The `JSONObject` scalar type represents JSON objects as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf).
-*/
-
-    export type JsonValue = JsonPrimitive | JsonObject | JsonArray;
-
-    export type JsonPrimitive = string | number | boolean | null | {};
-    
-        // eslint-disable-next-line @typescript-eslint/no-empty-interface
-    export interface JsonArray extends Array<JsonValue> {}
-    
-    export type JsonObject = { [member: string]: JsonValue };
-
-    export type JSONObject = JsonObject;
-  
 
 /*
 The `String` scalar type represents textual data, represented as UTF-8 character sequences. The String type is most often used by GraphQL to represent free-form human-readable text.

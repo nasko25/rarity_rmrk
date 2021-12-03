@@ -68,21 +68,17 @@ type Nft @entity {
     block: BigInt!
 }
 
-type Call @jsonField {
-  call: String!
-  value: String!
-  caller: String!
-}
+# type Call @jsonField {
+#   call: String!
+#   value: String!
+#   caller: String!
+# }
+# 
+# type Rmrk @jsonField {
+#   caller: String!
+#   interaction_type: String!
+#   rmrkVersion: String!
+#   remark: String!
+#   extra_ex: [Call]
+# }
 
-type Rmrk @jsonField {
-  caller: String!
-  interaction_type: String!
-  rmrkVersion: String!
-  remark: String!
-  extra_ex: [Call]
-}
-
-type RmrkEntity @entity {
-    block: BigInt!
-    rmrk: Rmrk!
-}
