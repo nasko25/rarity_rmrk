@@ -21,9 +21,9 @@
     "consolidate-remarks": "node using_rmrk_tools/consolidateRemarks.js"
   },
   "dependencies": {
-    "@subsquid/hydra-cli": "4.2.0-alpha.0",
-    "@subsquid/hydra-processor": "4.2.0-alpha.0",
-    "@subsquid/hydra-typegen": "4.2.0-alpha.0",
+    "@subsquid/hydra-cli": "4.2.0-alpha.8",
+    "@subsquid/hydra-processor": "4.2.0-alpha.8",
+    "@subsquid/hydra-typegen": "4.2.0-alpha.8",
     "rmrk-tools": "^2.0.19"
   },
   "devDependencies": {

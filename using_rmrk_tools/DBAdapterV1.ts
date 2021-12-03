@@ -1,25 +1,26 @@
-import { DatabaseManager } from '@subsquid/hydra-common'
-import { Nft, Collection } from '../generated/model'
-import { IConsolidatorAdapter } from "rmrk-tools/dist/tools/consolidator/adapters/types";
-import { NFTConsolidated, CollectionConsolidated, BaseConsolidated } from "rmrk-tools/dist/tools/consolidator/consolidator";
-import { NFT } from "rmrk-tools/dist/classes/nft";
-import { Collection as CollectionDist } from "rmrk-tools/dist/classes/collection";
-import { Base } from 'rmrk-tools';
+import { NFT } from "../node_modules/rmrk-tools/dist-cli/src/rmrk1.0.0/classes/nft";
+import { Base } from "rmrk-tools";
+import { DatabaseManager } from '@subsquid/hydra-common';
+import { BaseConsolidated } from "rmrk-tools/dist/tools/consolidator/consolidator";
+import { Nft, Collection } from '../generated/model';
+import { NFTConsolidated, CollectionConsolidated } from "../node_modules/rmrk-tools/dist-cli/src/rmrk1.0.0/tools/consolidator/consolidator";
+import { IConsolidatorAdapter } from '../node_modules/rmrk-tools/dist-cli/src/rmrk1.0.0/tools/consolidator/adapters/types';
 import { AcceptEntityType } from 'rmrk-tools/dist/classes/accept';
-import BN from 'bn.js'
+import { Collection as CollectionDist } from "../node_modules/rmrk-tools/dist-cli/src/rmrk1.0.0/classes/collection";
+import BN from 'bn.js';
 
-export class DBAdapter implements IConsolidatorAdapter {
+export class DBAdapterV1 implements IConsolidatorAdapter {
     store: DatabaseManager;
     constructor(store: DatabaseManager) {
         this.store = store;
     }
     async getAllNFTs() {
         // TODO not sure if valid
-        return await this.store.getMany(Nft, {}).then(nfts => { return nfts.map(nft => { return {id: nft.id, nft: nft as unknown as NFTConsolidated }}) as unknown as Record<string, NFTConsolidated>});
+        return await this.store.getMany(Nft, {}).then(nfts => { return nfts.map(nft => { return nft as unknown as NFTConsolidated }) });
     }
     async getAllCollections() {
         // console.log("getting all collections")
-        return await this.store.getMany(Collection, {}).then(collections => { return collections.map(collection => { return {id: collection.id, collection: collection as unknown as CollectionConsolidated } }) as unknown as Record<string, CollectionConsolidated> });
+        return await this.store.getMany(Collection, {}).then(collections => { return collections.map(collection => { return collection as unknown as CollectionConsolidated }) });
     }
     // TODO base
     async getAllBases() {
@@ -52,6 +53,14 @@ export class DBAdapter implements IConsolidatorAdapter {
         // else if (entity === "RES") {
         //     this.nfts[consolidatedNFT.id] = Object.assign(Object.assign({}, this.nfts[consolidatedNFT.id]), { resources: nft === null || nft === void 0 ? void 0 : nft.resources, priority: (nft === null || nft === void 0 ? void 0 : nft.priority) || this.nfts[consolidatedNFT.id].priority });
         // }
+    }
+    async updateNFTConsume(nft: NFT, consolidatedNFT: NFTConsolidated, updatedAtBlock: number) {
+        await this.store.get(Nft, {where: {id: consolidatedNFT.id}}).then(async nft => {
+            if (nft)
+                await this.store.remove(nft);
+            else
+                console.error(`Nft with id ${consolidatedNFT.id} is undefined and cannot be burned.`);
+        });
     }
     async updateNftResadd(nft: NFT, consolidatedNFT: NFTConsolidated) {
         // this.nfts[consolidatedNFT.id] = Object.assign(Object.assign({}, this.nfts[consolidatedNFT.id]), { resources: nft === null || nft === void 0 ? void 0 : nft.resources, priority: (nft === null || nft === void 0 ? void 0 : nft.priority) || this.nfts[consolidatedNFT.id].priority });
@@ -87,7 +96,7 @@ export class DBAdapter implements IConsolidatorAdapter {
         const nftToAdd = new Nft();
         nftToAdd.id = nft.getId();
         nftToAdd.collection = nft.collection;
-        nftToAdd.symbol = nft.symbol;
+        // nftToAdd.symbol = nft.symbol;
         nftToAdd.transferable = new BN(nft.transferable);
         nftToAdd.sn = nft.sn;
         nftToAdd.metadata = nft.metadata;
@@ -112,7 +121,7 @@ export class DBAdapter implements IConsolidatorAdapter {
     async updateBaseThemeAdd(base: Base, consolidatedBase: BaseConsolidated) {
         // this.bases[consolidatedBase.id] = Object.assign(Object.assign({}, this.bases[consolidatedBase.id]), { themes: base === null || base === void 0 ? void 0 : base.themes });
     }
-    async updateCollectionIssuer(collection: CollectionDist, consolidatedCollection: CollectionConsolidated) {
+    async updateCollectionIssuer(collection: CollectionDist, consolidatedCollection: CollectionConsolidated, updatedAtBlock: number) {
         await this.store.get(Collection, {where: {id: consolidatedCollection.id}}).then(async collectionFromDb => {
             // if the collection exists in the db, remove it and add it again with the new issuer
             if(collectionFromDb) {
@@ -160,4 +169,3 @@ export class DBAdapter implements IConsolidatorAdapter {
         return undefined;
     }
 }
-//# sourceMappingURL=in-memory-adapter.js.map
