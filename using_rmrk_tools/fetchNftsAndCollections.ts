@@ -1,4 +1,4 @@
-import { Nft } from '../generated/model/index.ts';
+import { Nft } from '../generated/model/index';
 import fetch from 'node-fetch';
 
 const WAIT_BETWEEN_FETCHES = 2 * 1000;     // how long to wait between fetches of rmrks from the database to not overload the db with requests

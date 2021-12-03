@@ -18,7 +18,8 @@
     "processor:start": "hydra-processor run",
     "query-node:start": "ts-node --type-check ./generated/server/index.ts",
     "test": "node_modules/jest/bin/jest.js",
-    "consolidate-remarks": "node using_rmrk_tools/consolidateRemarks.js"
+    "consolidate-remarks": "node using_rmrk_tools/consolidateRemarks.js",
+    "test-fetch-nfts": "using_rmrk_tools/node_modules/ts-node/dist/bin.js using_rmrk_tools/fetchNftsAndCollections.ts"
   },
   "dependencies": {
     "@subsquid/hydra-cli": "4.2.0-alpha.8",
