@@ -9,8 +9,8 @@ let lastRetrievedBlock = 0;
 let WAIT_BETWEEN_FETCHES = WAIT_BETWEEN_FETCHES_NORMAL;
 
 // TODO add 'where' as a parameter and fetch collections
-async function fetchNftsAndCollections() {
-    await fetch('http://localhost:4000/graphql', {
+async function fetchNfts() {
+    return await fetch('http://localhost:4000/graphql', {
         method: "POST",
         headers: {
             'Content-Type': 'application/json',
@@ -21,9 +21,7 @@ async function fetchNftsAndCollections() {
     })
         .then(res => res.json())
         .then(async data => {
-            // TODO
-            console.log("data: ", JSON.stringify(data))
-            // if rmrk entities are not empty
+            // if rmrk nfts are not empty
             if (data && data.data && data.data.nfts && data.data.nfts.length > 0) {
                 const nfts = data.data.nfts;
                 // if there is only one fetched nft and it is the lastRetrievedBlock, wait for a little bit longer
@@ -37,7 +35,7 @@ async function fetchNftsAndCollections() {
                 // (which is the last nft in data, as they are ordered by ascending block number)
                 lastRetrievedBlock = nfts[nfts.length - 1].block;
 
-                console.log(nfts);
+                return nfts;
             }
         });
 }
@@ -51,17 +49,17 @@ process.on ('SIGINT',() => {
     process.exit(1);
 });
 
-async function fetchAllNftsAndCollections() {
+async function fetchAllNfts() {
     while (true) {
-        console.log("Fetching rmrk entities from the database...");
-        await fetchNftsAndCollections();
+        console.log("Fetching rmrk nfts from the database...");
+        await fetchNfts().then(nfts => console.log(nfts));
         console.log("Fetching done\nWaiting before fetching the next batch...");
         await sleep(WAIT_BETWEEN_FETCHES);
         console.log(lastRetrievedBlock)
     }
 }
 
-fetchAllNftsAndCollections().then();
+fetchAllNfts().then();
 
 //const { nfts, collections } = await consolidator.consolidate(remarks);
 //
