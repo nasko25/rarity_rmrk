@@ -204,6 +204,9 @@ export class Consolidator {
      * https://github.com/rmrk-team/rmrk-spec/blob/master/standards/rmrk1.0.0/interactions/consume.md
      */
     async consume(remark: Remark) {
+        console.log("consume() called", remark);
+        process.exit(-1);
+        /*
         const invalidate = this.updateInvalidCalls(OP_TYPES.CONSUME, remark).bind(this);
         const consumeEntity = Consume.fromRemark(remark.remark);
         // Check if consume is valid
@@ -227,6 +230,7 @@ export class Consolidator {
             invalidate(consumeEntity.id, e.message);
             return true;
         }
+        */
         return true;
     }
     /**

@@ -238,6 +238,7 @@ export async function systemRemark({
         return;
     }
 
+    // console.log(event, block);
     let ext_val = extrinsic?.args[0]?.value;
     // return if the extrinsic is not a rmrk
     if (!ext_val?.toString().startsWith("0x726d726b") && !ext_val?.toString().startsWith("0x524d524b")) {
@@ -245,7 +246,7 @@ export async function systemRemark({
     }
     let calls = [];
     for (const arg of extrinsic.args) {
-        calls.push(<Call> { call: /* extrinsic.section + "." + extrinsic.method */ "system.remark", value: arg.value, caller: extrinsic.signer });
+        calls.push(<Call> { call: /* extrinsic.section + "." + extrinsic.method or arg.name */ "system.remark", value: arg.value, caller: extrinsic.signer });
     }
     // TODO for some reason some v2.0.0 rmrks are not extracted from the blocks,
     //  such as MINT and CREATE
