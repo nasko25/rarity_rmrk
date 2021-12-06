@@ -181,7 +181,7 @@ export class Consolidator {
      * https://github.com/rmrk-team/rmrk-spec/blob/master/standards/rmrk2.0.0/interactions/mint.md
      */
     async mint(remark: Remark) {
-        console.log("minting a v2 collection...")
+        console.log("minting a v2 nft...")
         const invalidate = this.updateInvalidCalls(OP_TYPES.MINT, remark).bind(this);
         const nft = NFT.fromRemark(remark.remark, remark.block);
         if (typeof nft === "string") {
@@ -624,6 +624,7 @@ export class Consolidator {
         return false;
     }
     async consolidate(rmrks: Remark[]) {
+        // console.log("consolidating v2: ", rmrks);
         const remarks = rmrks || [];
         // console.log(remarks);
         for (const remark of remarks) {

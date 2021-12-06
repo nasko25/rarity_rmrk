@@ -75,7 +75,7 @@ export class Consolidator {
      * https://github.com/rmrk-team/rmrk-spec/blob/master/standards/rmrk1.0.0/interactions/mint.md
      */
     async mint(remark: Remark) {
-        console.log("minting a collection...")
+        // console.log("minting a collection...")
         const invalidate = this.updateInvalidCalls(OP_TYPES.MINT, remark).bind(this);
         let collection;
         try {
@@ -327,6 +327,7 @@ export class Consolidator {
         return false;
     }
     async consolidate(rmrks: Remark[]) {
+        // console.log("consolidating v1: ", rmrks);
         const remarks = rmrks || [];
         // console.log(remarks);
         for (const remark of remarks) {
