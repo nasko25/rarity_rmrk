@@ -225,6 +225,20 @@ const getRemarksFromBlocks = (blocks: RemarkBlock[], prefixes: string[]) => {
     }
     return remarks;
 };
+
+export async function testUtilityBatch({
+  store,
+  event,
+  block,
+  extrinsic,
+}: EventContext & StoreContext): Promise<void> {
+    const value = extrinsic?.args[0]?.value;
+    console.log(value);
+    if (value && Array.isArray(value))
+        value.map((arg: any) => console.log(arg?.args?.remark));
+}
+
+
 // TODO unit tests
 export async function systemRemark({
   store,

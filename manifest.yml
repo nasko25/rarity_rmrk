@@ -31,7 +31,9 @@ mappings:
   #   - event: balances.Transfer
   #     handler: balancesTransfer
   extrinsicHandlers:
-    - extrinsic: system.remark
-      handler: systemRemark
+    #- extrinsic: system.remark
+    #  handler: systemRemark
+    - extrinsic: utility.batch
+      handler: testUtilityBatch
   preBlockHooks:
   postBlockHooks:
