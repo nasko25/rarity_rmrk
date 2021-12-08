@@ -162,23 +162,18 @@ const getRemarksFromBlocks = (blocks: RemarkBlock[], prefixes: string[]) => {
         for (const call of row.calls) {
             if (call.call !== "system.remark")
                 continue;
-            console.log("it is a remark")
             const str = hexToString(call.value);
             // console.log(prefixes, str, prefixes.some((word) => str.startsWith(hexToString(word))))
             if (!prefixes.some((word) => str.startsWith(hexToString(word)))) {
                 continue;
             }
-            console.log("has right prefix")
             const meta = getMeta(call, row.block);
             if (!meta)
                 continue;
-            console.log("has meta")
             let remark;
             if (str.includes("::2.0.0::")) {
-                console.log("is v2.0.0 of type", meta.type);
                 switch (meta.type) {
                     case OP_TYPES.MINT:
-                        console.log("is mint!");
                     case OP_TYPES.CREATE:
                     case OP_TYPES.RESADD:
                     case OP_TYPES.THEMEADD:
@@ -230,9 +225,7 @@ async function extractRmrks(calls: Call[], { block, store }: BlockContext & Stor
     // TODO for some reason some v2.0.0 rmrks are not extracted from the blocks,
     //  such as MINT and CREATE
     //  (it is probably because they are packed in a utility.batch call)
-    console.log(calls)
     const remarks = getRemarksFromBlocks([new RemarkBlock(block.height, calls)], ["0x726d726b", "0x524d524b"]);
-    console.log(remarks.v2);
     // check if some rmrks are not processed
     if (remarks.v1.length + remarks.v2.length !== calls.length)
         process.exit(-1);
@@ -265,8 +258,7 @@ export async function utilityBatch({
     let ext_val = extrinsic?.args[0]?.value;
     if (ext_val && Array.isArray(ext_val)) {
         ext_val.map( async (arg: any) => {
-            if (arg?.args?.remark) {
-                console.log(ext_val, extrinsic.signer, arg.args.remark);
+            if (arg?.args?.remark && (arg.args.remark.startsWith("0x726d726b") || arg.args.remark.startsWith("0x524d524b"))) {
                 await extractRmrks([<Call> { call: /* extrinsic.section + "." + extrinsic.method or arg.name */ "system.remark", value: arg.args.remark, caller: extrinsic.signer }], { block, store })
             }
         });

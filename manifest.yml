@@ -25,7 +25,8 @@ mappings:
   # range: '[8741520, 8941520)'
   # range: '[8941520, )'
   # range: '[9468348, )'
-  range: '[7633630, )'
+  # This block mints the first collection in the db, but the first nft is minted at block 7370524
+  range: '[6432195, )'
   mappingsModule: mappings
   # eventHandlers:
   #   - event: balances.Transfer
