@@ -1,5 +1,5 @@
 import BN from 'bn.js'
-import { DatabaseManager, EventContext, StoreContext, AnyJsonField } from '@subsquid/hydra-common'
+import { DatabaseManager, EventContext, StoreContext, BlockContext, AnyJsonField } from '@subsquid/hydra-common'
 import { Account, HistoricalBalance } from '../generated/model'
 import { Balances } from '../chain'
 import { Consolidator as ConsolidatorV1 } from './consolidator_v1';
@@ -226,7 +226,31 @@ const getRemarksFromBlocks = (blocks: RemarkBlock[], prefixes: string[]) => {
     return remarks;
 };
 
-export async function testUtilityBatch({
+async function extractRmrks(calls: Call[], { block, store }: BlockContext & StoreContext) {
+    // TODO for some reason some v2.0.0 rmrks are not extracted from the blocks,
+    //  such as MINT and CREATE
+    //  (it is probably because they are packed in a utility.batch call)
+    console.log(calls)
+    const remarks = getRemarksFromBlocks([new RemarkBlock(block.height, calls)], ["0x726d726b", "0x524d524b"]);
+    console.log(remarks.v2);
+    // check if some rmrks are not processed
+    if (remarks.v1.length + remarks.v2.length !== calls.length)
+        process.exit(-1);
+
+    const dbAdapterV1 = new DBAdapterV1(store);
+    const dbAdapterV2 = new DBAdapter(store);
+    // TODO use the two dbAdapters with the library consolidator?
+    //  then only the getRemarksFromBlocks() will need to be overwritten
+    const consolidator_v1 = new ConsolidatorV1(dbAdapterV1, undefined, false, false);
+    const consolidator_v2 = new ConsolidatorV2(dbAdapterV2, undefined, false, false);
+    const { nfts, collections } = await consolidator_v1.consolidate(remarks.v1);
+    await consolidator_v2.consolidate(remarks.v2);
+    // console.log('Consolidated nfts:', nfts);
+    // console.log('Consolidated collections:', collections);
+}
+
+// handle system.remarks inside utility.batch calls
+export async function utilityBatch({
   store,
   event,
   block,
@@ -240,9 +264,11 @@ export async function testUtilityBatch({
 
     let ext_val = extrinsic?.args[0]?.value;
     if (ext_val && Array.isArray(ext_val)) {
-        ext_val.map((arg: any) => {
-            if (arg?.args?.remark)
+        ext_val.map( async (arg: any) => {
+            if (arg?.args?.remark) {
                 console.log(ext_val, extrinsic.signer, arg.args.remark);
+                await extractRmrks([<Call> { call: /* extrinsic.section + "." + extrinsic.method or arg.name */ "system.remark", value: arg.args.remark, caller: extrinsic.signer }], { block, store })
+            }
         });
     }
 }
@@ -271,27 +297,9 @@ export async function systemRemark({
     for (const arg of extrinsic.args) {
         calls.push(<Call> { call: /* extrinsic.section + "." + extrinsic.method or arg.name */ "system.remark", value: arg.value, caller: extrinsic.signer });
     }
-    // TODO extract into a separate helper method
-    // TODO for some reason some v2.0.0 rmrks are not extracted from the blocks,
-    //  such as MINT and CREATE
-    //  (it is probably because they are packed in a utility.batch call)
-    console.log(calls)
-    const remarks = getRemarksFromBlocks([new RemarkBlock(block.height, calls)], ["0x726d726b", "0x524d524b"]);
-    console.log(remarks.v2);
-    // check if some rmrks are not processed
-    if (remarks.v1.length + remarks.v2.length !== calls.length)
-        process.exit(-1);
 
-    const dbAdapterV1 = new DBAdapterV1(store);
-    const dbAdapterV2 = new DBAdapter(store);
-    // TODO use the two dbAdapters with the library consolidator?
-    //  then only the getRemarksFromBlocks() will need to be overwritten
-    const consolidator_v1 = new ConsolidatorV1(dbAdapterV1, undefined, false, false);
-    const consolidator_v2 = new ConsolidatorV2(dbAdapterV2, undefined, false, false);
-    const { nfts, collections } = await consolidator_v1.consolidate(remarks.v1);
-    await consolidator_v2.consolidate(remarks.v2);
-    // console.log('Consolidated nfts:', nfts);
-    // console.log('Consolidated collections:', collections);
+    // TODO await?
+    await extractRmrks(calls, { block, store });
     /*
     for (let remark of remarks) {
         /*
