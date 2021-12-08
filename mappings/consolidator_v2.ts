@@ -288,6 +288,10 @@ export class Consolidator {
      * https://github.com/rmrk-team/rmrk-spec/blob/master/standards/rmrk2.0.0/interactions/burn.md
      */
     async burn(remark: Remark) {
+        // TODO remove
+        console.log("burn() called with", remark);
+        process.exit(-1);
+        /*
         const invalidate = this.updateInvalidCalls(OP_TYPES.BURN, remark).bind(this);
         const burnEntity = Burn.fromRemark(remark.remark);
         // Check if burn is valid
@@ -314,6 +318,7 @@ export class Consolidator {
             invalidate(burnEntity.id, e.message);
             return true;
         }
+        */
         return true;
     }
     /**

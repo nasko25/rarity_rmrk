@@ -204,7 +204,8 @@ export class Consolidator {
      * https://github.com/rmrk-team/rmrk-spec/blob/master/standards/rmrk1.0.0/interactions/consume.md
      */
     async consume(remark: Remark) {
-        console.log("consume() called", remark);
+        // TODO remove
+        console.log("consume() called with", remark);
         process.exit(-1);
         /*
         const invalidate = this.updateInvalidCalls(OP_TYPES.CONSUME, remark).bind(this);

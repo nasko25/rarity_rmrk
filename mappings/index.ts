@@ -232,10 +232,19 @@ export async function testUtilityBatch({
   block,
   extrinsic,
 }: EventContext & StoreContext): Promise<void> {
-    const value = extrinsic?.args[0]?.value;
-    console.log(value);
-    if (value && Array.isArray(value))
-        value.map((arg: any) => console.log(arg?.args?.remark));
+    if (!extrinsic || !extrinsic.args || extrinsic.args.length !== 1) {
+        console.error("Unexpected extrinsic format.");
+        process.exit(-1);
+        return;
+    }
+
+    let ext_val = extrinsic?.args[0]?.value;
+    if (ext_val && Array.isArray(ext_val)) {
+        ext_val.map((arg: any) => {
+            if (arg?.args?.remark)
+                console.log(ext_val, extrinsic.signer, arg.args.remark);
+        });
+    }
 }
 
 
@@ -262,8 +271,10 @@ export async function systemRemark({
     for (const arg of extrinsic.args) {
         calls.push(<Call> { call: /* extrinsic.section + "." + extrinsic.method or arg.name */ "system.remark", value: arg.value, caller: extrinsic.signer });
     }
+    // TODO extract into a separate helper method
     // TODO for some reason some v2.0.0 rmrks are not extracted from the blocks,
     //  such as MINT and CREATE
+    //  (it is probably because they are packed in a utility.batch call)
     console.log(calls)
     const remarks = getRemarksFromBlocks([new RemarkBlock(block.height, calls)], ["0x726d726b", "0x524d524b"]);
     console.log(remarks.v2);
