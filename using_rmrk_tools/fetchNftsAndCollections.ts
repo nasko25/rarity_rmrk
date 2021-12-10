@@ -1,5 +1,6 @@
 import { Nft } from '../generated/model/index';
 import fetch from 'node-fetch';
+const IPFS = require("ipfs");
 
 const WAIT_BETWEEN_FETCHES_NORMAL = 2 * 1000;                         // how long to wait between fetches of rmrks from the database to not overload the db with requests normally
 const WAIT_BETWEEN_FETCHES_WAITING_FOR_NEW_RMRKS = 1 * 60 * 1000;     // how long to wait between fetches of rmrks when the last fetched rmrk was not new (so no new rmrks were saved in the db between the last 2 requests)
@@ -40,6 +41,35 @@ async function fetchNfts() {
         });
 }
 
+function isValidUrl(url: string) {
+  let parsed_url;
+
+  try {
+    parsed_url = new URL(url);
+  } catch (_) {
+    return [ false, null ];
+  }
+
+  return [ parsed_url.protocol === "http:" || parsed_url.protocol === "https:" || parsed_url === "ipfs:", parsed_url ];
+}
+
+function fetchMetadata(url: string) {
+    // if url is http or ipfs:
+    const [valid_url, parsed_url] = isValidUrl(url);
+    if(valid_url) {
+        if (parsed_url.protocol === "ipfs:") {
+            const pathname = parsed_url.pathname;
+            const cid = pathname.split("/")[1];
+        } else {
+            // fetch http url
+        }
+    }
+    // otherwise throw an exception that the protocol is not recognized
+    else {
+        throw new URIError(`Invalid url: ${url}`);
+    }
+}
+
 function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
@@ -52,7 +82,7 @@ process.on ('SIGINT',() => {
 async function fetchAllNfts() {
     while (true) {
         console.log("Fetching rmrk nfts from the database...");
-        await fetchNfts().then(nfts => console.log(nfts));
+        await fetchNfts().then(nfts => nfts.map(nft => console.log(nft.metadata)));
         console.log("Fetching done\nWaiting before fetching the next batch...");
         await sleep(WAIT_BETWEEN_FETCHES);
         console.log(lastRetrievedBlock)

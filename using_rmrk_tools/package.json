@@ -1,5 +1,6 @@
 {
     "dependencies": {
+        "ipfs": "^0.60.2",
         "ts-node": "^10.4.0"
     }
 }
