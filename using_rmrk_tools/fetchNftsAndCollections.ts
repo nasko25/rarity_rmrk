@@ -1,6 +1,9 @@
 import { Nft } from '../generated/model/index';
 import fetch from 'node-fetch';
 const IPFS = require("ipfs");
+const all = require('it-all');
+const { concat: uint8ArrayConcat } = require('uint8arrays/concat');
+const { toString: uint8ArrayToString } = require('uint8arrays/to-string');
 
 const WAIT_BETWEEN_FETCHES_NORMAL = 2 * 1000;                         // how long to wait between fetches of rmrks from the database to not overload the db with requests normally
 const WAIT_BETWEEN_FETCHES_WAITING_FOR_NEW_RMRKS = 1 * 60 * 1000;     // how long to wait between fetches of rmrks when the last fetched rmrk was not new (so no new rmrks were saved in the db between the last 2 requests)
@@ -50,18 +53,22 @@ function isValidUrl(url: string) {
     return [ false, null ];
   }
 
-  return [ parsed_url.protocol === "http:" || parsed_url.protocol === "https:" || parsed_url === "ipfs:", parsed_url ];
+  return [ parsed_url.protocol === "http:" || parsed_url.protocol === "https:" || parsed_url.protocol === "ipfs:", parsed_url ];
 }
 
-function fetchMetadata(url: string) {
+export async function fetchMetadata(url: string) {
     // if url is http or ipfs:
     const [valid_url, parsed_url] = isValidUrl(url);
     if(valid_url) {
         if (parsed_url.protocol === "ipfs:") {
             const pathname = parsed_url.pathname;
             const cid = pathname.split("/")[1];
+            const node = await IPFS.create();
+            const data = uint8ArrayConcat(await all(node.cat(cid)));
+            console.log(uint8ArrayToString(data));
+            // TODO node.close() ?
         } else {
-            // fetch http url
+            // TODO fetch http url
         }
     }
     // otherwise throw an exception that the protocol is not recognized
@@ -89,7 +96,10 @@ async function fetchAllNfts() {
     }
 }
 
-fetchAllNfts().then();
+//fetchAllNfts().then();
+
+// test
+fetchMetadata("ipfs://ipfs/bafkreiac5acoaxawo7srp3rdlkdvtpnki7lfnukn6gvgv6l3cpv7mlxnrq").then(() => console.log("done"));
 
 //const { nfts, collections } = await consolidator.consolidate(remarks);
 //
