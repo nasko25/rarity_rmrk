@@ -66,7 +66,8 @@ export async function fetchMetadata(url: string) {
             const node = await IPFS.create();
             const data = uint8ArrayConcat(await all(node.cat(cid)));
             console.log(uint8ArrayToString(data));
-            // TODO node.close() ?
+            // TODO for some reason this program does not exit because of the ipfs node
+            await node.stop();
         } else {
             // TODO fetch http url
         }
@@ -99,6 +100,7 @@ async function fetchAllNfts() {
 //fetchAllNfts().then();
 
 // test
+fetchMetadata("https://asdf.com").then(() => console.log("done"));
 fetchMetadata("ipfs://ipfs/bafkreiac5acoaxawo7srp3rdlkdvtpnki7lfnukn6gvgv6l3cpv7mlxnrq").then(() => console.log("done"));
 
 //const { nfts, collections } = await consolidator.consolidate(remarks);
