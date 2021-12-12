@@ -67,6 +67,10 @@ export async function fetchMetadata(url: string) {
             const data = uint8ArrayConcat(await all(node.cat(cid)));
             console.log(uint8ArrayToString(data));
             // TODO for some reason this program does not exit because of the ipfs node
+            // TODO create a separate process that will start an ipfs node, and query it from here,
+            //  instead of creating a node here
+            //  maybe use redis (https://stackoverflow.com/questions/6463945/whats-the-most-efficient-node-js-inter-process-communication-library-method)
+            //  to communicate
             await node.stop();
         } else {
             // TODO fetch http url
