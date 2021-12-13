@@ -1,9 +1,6 @@
 import { Nft } from '../generated/model/index';
 import fetch from 'node-fetch';
-const IPFS = require("ipfs");
-const all = require('it-all');
-const { concat: uint8ArrayConcat } = require('uint8arrays/concat');
-const { toString: uint8ArrayToString } = require('uint8arrays/to-string');
+import ipc from 'node-ipc';
 
 const WAIT_BETWEEN_FETCHES_NORMAL = 2 * 1000;                         // how long to wait between fetches of rmrks from the database to not overload the db with requests normally
 const WAIT_BETWEEN_FETCHES_WAITING_FOR_NEW_RMRKS = 1 * 60 * 1000;     // how long to wait between fetches of rmrks when the last fetched rmrk was not new (so no new rmrks were saved in the db between the last 2 requests)
@@ -63,14 +60,9 @@ export async function fetchMetadata(url: string) {
         if (parsed_url.protocol === "ipfs:") {
             const pathname = parsed_url.pathname;
             const cid = pathname.split("/")[1];
-            const node = await IPFS.create();
-            const data = uint8ArrayConcat(await all(node.cat(cid)));
-            console.log(uint8ArrayToString(data));
             // TODO for some reason this program does not exit because of the ipfs node
             // TODO create a separate process that will start an ipfs node, and query it from here,
             //  instead of creating a node here
-            //  maybe use redis (https://stackoverflow.com/questions/6463945/whats-the-most-efficient-node-js-inter-process-communication-library-method)
-            //  to communicate
             await node.stop();
         } else {
             // TODO fetch http url
