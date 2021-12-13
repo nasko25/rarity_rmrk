@@ -9,6 +9,9 @@ const WAIT_BETWEEN_FETCHES_WAITING_FOR_NEW_RMRKS = 1 * 60 * 1000;     // how lon
 let lastRetrievedBlock = 0;
 let WAIT_BETWEEN_FETCHES = WAIT_BETWEEN_FETCHES_NORMAL;
 
+ipc.config.id   = "client";
+ipc.config.retry= 1500;
+
 // TODO add 'where' as a parameter and fetch collections
 async function fetchNfts() {
     return await fetch('http://localhost:4000/graphql', {
@@ -63,7 +66,31 @@ export async function fetchMetadata(url: string) {
             // TODO for some reason this program does not exit because of the ipfs node
             // TODO create a separate process that will start an ipfs node, and query it from here,
             //  instead of creating a node here
-            await node.stop();
+            ipc.connectTo(
+                "server",
+                function() {
+                    ipc.of.server.on(
+                        "connect",
+                        function() {
+                            ipc.log("## connected to server ##", ipc.config.delay);
+                            ipc.of.server.emit(
+                                "ipfs_request",
+                                cid
+                            );
+                        }
+                    );
+                    ipc.of.server.on(
+                        "disconnect",
+                        () => ipc.log("disconnected from the server")
+                    );
+                    ipc.of.server.on(
+                        "ipfs_response",
+                        function(metadata) {
+                            ipc.log("got a the metadata from the server: ", metadata);
+                        }
+                    );
+                }
+            );
         } else {
             // TODO fetch http url
         }
