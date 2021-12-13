@@ -26,6 +26,7 @@
     "@subsquid/hydra-cli": "4.2.0-alpha.8",
     "@subsquid/hydra-processor": "4.2.0-alpha.8",
     "@subsquid/hydra-typegen": "4.2.0-alpha.8",
+    "node-ipc": "^10.1.0",
     "rmrk-tools": "^2.0.19"
   },
   "devDependencies": {
