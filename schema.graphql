@@ -58,7 +58,8 @@ type Collection @entity {
 
 # TODO make Nftv2 and Collectionv2 because they have different formats
 type Nft @entity {
-    id: String!
+    # TODO recompile
+    id: String! @unique
     collection: String!
     symbol: String
     transferable: BigInt!

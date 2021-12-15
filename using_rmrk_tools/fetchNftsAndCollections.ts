@@ -18,6 +18,30 @@ ipc.config.maxRetries = 10;
 // silent the logs
 // ipc.config.silent = true;
 
+// initialize an ipc connection
+ipc.connectTo(
+    "server",
+    function() {
+        ipc.of.server.on(
+            "connect",
+            function() {
+                ipc.log("## connected to server ##", ipc.config.delay);
+            }
+        );
+        ipc.of.server.on(
+            "disconnect",
+            () => ipc.log("disconnected from the server")
+        );
+        ipc.of.server.on(
+            "ipfs_response",
+            function(data) {
+                // TODO save the metadata to the db
+                ipc.log("got the metadata from the server: ", JSON.parse(data).metadata);
+            }
+        );
+    }
+);
+
 // TODO add 'where' as a parameter and fetch collections
 async function fetchNfts() {
     return await fetch('http://localhost:4000/graphql', {
@@ -62,40 +86,18 @@ function isValidUrl(url: string) {
   return [ parsed_url.protocol === "http:" || parsed_url.protocol === "https:" || parsed_url.protocol === "ipfs:", parsed_url ];
 }
 
-export async function fetchMetadata(url: string) {
+export async function fetchAndSaveMetadata(url: string, nft_id: string) {
     // if url is http or ipfs:
     const [valid_url, parsed_url] = isValidUrl(url);
     if(valid_url) {
         if (parsed_url.protocol === "ipfs:") {
             const pathname = parsed_url.pathname;
             const cid = pathname.split("/")[1];
-            // TODO for some reason this program does not exit because of the ipfs node
             // TODO create a separate process that will start an ipfs node, and query it from here,
             //  instead of creating a node here
-            ipc.connectTo(
-                "server",
-                function() {
-                    ipc.of.server.on(
-                        "connect",
-                        function() {
-                            ipc.log("## connected to server ##", ipc.config.delay);
-                            ipc.of.server.emit(
-                                "ipfs_request",
-                                cid
-                            );
-                        }
-                    );
-                    ipc.of.server.on(
-                        "disconnect",
-                        () => ipc.log("disconnected from the server")
-                    );
-                    ipc.of.server.on(
-                        "ipfs_response",
-                        function(metadata) {
-                            ipc.log("got the metadata from the server: ", metadata);
-                        }
-                    );
-                }
+            ipc.of.server.emit(
+                "ipfs_request",
+                JSON.stringify({ nft_id: nft_id, ipfs_cid: cid })
             );
         } else {
             // TODO fetch http url
@@ -129,8 +131,8 @@ async function fetchAllNfts() {
 //fetchAllNfts().then();
 
 // test
-fetchMetadata("https://asdf.com").then(() => console.log("done"));
-fetchMetadata("ipfs://ipfs/bafkreiac5acoaxawo7srp3rdlkdvtpnki7lfnukn6gvgv6l3cpv7mlxnrq").then(() => console.log("done"));
+fetchAndSaveMetadata("https://asdf.com", "nft_id").then(() => console.log("done"));
+fetchAndSaveMetadata("ipfs://ipfs/bafkreiac5acoaxawo7srp3rdlkdvtpnki7lfnukn6gvgv6l3cpv7mlxnrq", "nft_id").then(() => console.log("done"));
 
 //const { nfts, collections } = await consolidator.consolidate(remarks);
 //

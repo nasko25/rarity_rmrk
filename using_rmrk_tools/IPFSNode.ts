@@ -21,13 +21,14 @@ async function startIPCServerAndIPFSNode() {
         function(){
             ipc.server.on(
                 "ipfs_request",
-                async function(ipfs_cid, socket){
-                    ipc.log('got a request for ipfs cid: ', ipfs_cid);
-                    const data = uint8ArrayConcat(await all(node.cat(ipfs_cid)));
+                async function(data, socket){
+                    const parsed_data = JSON.parse(data);
+                    ipc.log('got a request for ipfs cid: ', parsed_data.ipfs_cid, "; for an nft with id: ", parsed_data.nft_id);
+                    const metadata = uint8ArrayConcat(await all(node.cat(parsed_data.ipfs_cid)));
                     ipc.server.emit(
                         socket,
                         "ipfs_response",
-                        uint8ArrayToString(data)
+                        JSON.stringify({ nft_id: parsed_data.nft_id, metadata: uint8ArrayToString(metadata) })
                     );
                 }
             );
@@ -48,6 +49,8 @@ process.on ('SIGINT', async () => {
     console.log("Stopping ipc server...");
     await ipc.server.stop();
     console.log("ipfs node and ipc server are stopped\nExiting...\n")
+    // for some reason this program does not exit because of the ipfs node
+    // so call process.exit() manually to exit the progeam
     process.exit(1);
 });
 
