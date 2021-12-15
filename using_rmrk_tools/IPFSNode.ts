@@ -13,25 +13,28 @@ async function startIPCServerAndIPFSNode() {
     // TODO https://www.npmjs.com/package/node-ipc#types-of-ipc-sockets
     ipc.config.id = "server";
     ipc.config.retry = 1500;
+    // silent the logs
+    // ipc.config.silent = true;
 
     // TODO tcp or udp
     ipc.serve(
         function(){
             ipc.server.on(
                 "ipfs_request",
-                function(data, socket){
-                    ipc.log('got a request for ipfs cid: ', data);
+                async function(ipfs_cid, socket){
+                    ipc.log('got a request for ipfs cid: ', ipfs_cid);
+                    const data = uint8ArrayConcat(await all(node.cat(ipfs_cid)));
                     ipc.server.emit(
                         socket,
                         "ipfs_response",
-                        "fetched metadata"
+                        uint8ArrayToString(data)
                     );
                 }
             );
             ipc.server.on(
                 "socket.disconnected",
-                function(socket, destroyedSocketID) {
-                    ipc.log("client " + destroyedSocketID + " has disconnected!");
+                function(socket, socket_id) {
+                    ipc.log("client " + socket_id + " has disconnected!");
                 }
             );
         }

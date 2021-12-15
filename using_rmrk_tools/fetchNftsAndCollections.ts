@@ -9,8 +9,14 @@ const WAIT_BETWEEN_FETCHES_WAITING_FOR_NEW_RMRKS = 1 * 60 * 1000;     // how lon
 let lastRetrievedBlock = 0;
 let WAIT_BETWEEN_FETCHES = WAIT_BETWEEN_FETCHES_NORMAL;
 
-ipc.config.id   = "client";
-ipc.config.retry= 1500;
+ipc.config.id = "client";
+ipc.config.retry = 1500 * 60;
+// stop retrying after 10 requests
+ipc.config.maxRetries = 10;
+// ipc.config.stopRetrying = true;
+
+// silent the logs
+// ipc.config.silent = true;
 
 // TODO add 'where' as a parameter and fetch collections
 async function fetchNfts() {
@@ -86,7 +92,7 @@ export async function fetchMetadata(url: string) {
                     ipc.of.server.on(
                         "ipfs_response",
                         function(metadata) {
-                            ipc.log("got a the metadata from the server: ", metadata);
+                            ipc.log("got the metadata from the server: ", metadata);
                         }
                     );
                 }
