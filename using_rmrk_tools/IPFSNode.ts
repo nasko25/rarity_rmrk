@@ -10,7 +10,6 @@ async function startIPCServerAndIPFSNode() {
     // const data = uint8ArrayConcat(await all(node.cat(cid)));
     // console.log(uint8ArrayToString(data));
 
-    // TODO https://www.npmjs.com/package/node-ipc#types-of-ipc-sockets
     ipc.config.id = "server";
     ipc.config.retry = 1500;
     // silent the logs

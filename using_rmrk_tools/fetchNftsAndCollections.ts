@@ -35,7 +35,8 @@ ipc.connectTo(
         ipc.of.server.on(
             "ipfs_response",
             function(data) {
-                // TODO save the metadata to the db
+                // TODO how to save the metadata to the db?
+                //  maybe save it to an array and occasionally return that array to a mappings/index.ts call to fetchNfts() ?
                 ipc.log("got the metadata from the server: ", JSON.parse(data).metadata);
             }
         );
@@ -93,14 +94,16 @@ export async function fetchAndSaveMetadata(url: string, nft_id: string) {
         if (parsed_url.protocol === "ipfs:") {
             const pathname = parsed_url.pathname;
             const cid = pathname.split("/")[1];
-            // TODO create a separate process that will start an ipfs node, and query it from here,
-            //  instead of creating a node here
+            // request the metadata for object with the given cid
             ipc.of.server.emit(
                 "ipfs_request",
                 JSON.stringify({ nft_id: nft_id, ipfs_cid: cid })
             );
         } else {
             // TODO fetch http url
+            fetch(parsed_url)
+                .then(res => res.json())
+                .then(data => console.log(data));
         }
     }
     // otherwise throw an exception that the protocol is not recognized
@@ -131,7 +134,7 @@ async function fetchAllNfts() {
 //fetchAllNfts().then();
 
 // test
-fetchAndSaveMetadata("https://asdf.com", "nft_id").then(() => console.log("done"));
+// fetchAndSaveMetadata("https://asdf.com", "nft_id").then(() => console.log("done"));
 fetchAndSaveMetadata("ipfs://ipfs/bafkreiac5acoaxawo7srp3rdlkdvtpnki7lfnukn6gvgv6l3cpv7mlxnrq", "nft_id").then(() => console.log("done"));
 
 //const { nfts, collections } = await consolidator.consolidate(remarks);
