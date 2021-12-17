@@ -36,7 +36,8 @@ ipc.connectTo(
             "ipfs_response",
             function(data) {
                 // TODO how to save the metadata to the db?
-                //  maybe save it to an array and occasionally return that array to a mappings/index.ts call to fetchNfts() ?
+                //  maybe have a separate db only for fetched metadata_json objects and calculated rarities
+                //  https://stackoverflow.com/a/26599273/14628119
                 ipc.log("got the metadata from the server: ", JSON.parse(data).metadata);
             }
         );
