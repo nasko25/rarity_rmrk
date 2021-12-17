@@ -3,6 +3,7 @@ const ipfs = require("ipfs");
 const all = require('it-all');
 const { concat: uint8ArrayConcat } = require('uint8arrays/concat');
 const { toString: uint8ArrayToString } = require('uint8arrays/to-string');
+require('dotenv').config();
 
 let node;
 async function startIPCServerAndIPFSNode() {
@@ -53,4 +54,5 @@ process.on ('SIGINT', async () => {
     process.exit(1);
 });
 
+console.log(process.env.DB_NAME);
 startIPCServerAndIPFSNode().then();
