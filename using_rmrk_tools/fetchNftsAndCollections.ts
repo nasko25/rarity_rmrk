@@ -1,6 +1,8 @@
 import { Nft } from '../generated/model/index';
 import fetch from 'node-fetch';
 import ipc from 'node-ipc';
+require('dotenv').config();
+const { Pool } = require("pg");
 
 const WAIT_BETWEEN_FETCHES_NORMAL = 2 * 1000;                         // how long to wait between fetches of rmrks from the database to not overload the db with requests normally
 const WAIT_BETWEEN_FETCHES_WAITING_FOR_NEW_RMRKS = 1 * 60 * 1000;     // how long to wait between fetches of rmrks when the last fetched rmrk was not new (so no new rmrks were saved in the db between the last 2 requests)
@@ -9,6 +11,19 @@ const WAIT_BETWEEN_FETCHES_WAITING_FOR_NEW_RMRKS = 1 * 60 * 1000;     // how lon
 let lastRetrievedBlock = 0;
 let WAIT_BETWEEN_FETCHES = WAIT_BETWEEN_FETCHES_NORMAL;
 
+// postgres pool configuration
+const DB_CREDENTIALS = {
+    user: process.env.DB_USER,
+    password: process.env.DB_PASS,
+    host: process.env.DB_HOST,
+    // hardcoded in ../db/sql/rarity.sql
+    database: "rarity_rmrk",
+    port: process.env.DB_PORT
+};
+const DB_POOL = new Pool(DB_CREDENTIALS);
+
+
+// ipc configuration
 ipc.config.id = "client";
 ipc.config.retry = 1500 * 60;
 // stop retrying after 10 requests
@@ -35,9 +50,7 @@ ipc.connectTo(
         ipc.of.server.on(
             "ipfs_response",
             function(data) {
-                // TODO how to save the metadata to the db?
-                //  maybe have a separate db only for fetched metadata_json objects and calculated rarities
-                //  https://stackoverflow.com/a/26599273/14628119
+                // TODO save the metadata to the db
                 ipc.log("got the metadata from the server: ", JSON.parse(data).metadata);
             }
         );
@@ -117,15 +130,17 @@ function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-process.on ('SIGINT',() => {
+process.on ('SIGINT', async () => {
     console.log('Exiting');
+    await DB_POOL.end();
+    await ipc.disconnect("server");
     process.exit(1);
 });
 
 async function fetchAllNfts() {
     while (true) {
         console.log("Fetching rmrk nfts from the database...");
-        await fetchNfts().then(nfts => nfts.map(nft => console.log(nft.metadata)));
+        await fetchNfts().then(nfts => nfts.map(nft => /* TODO addNft() from rarity_db_connections.ts */ console.log(nft.metadata)));
         console.log("Fetching done\nWaiting before fetching the next batch...");
         await sleep(WAIT_BETWEEN_FETCHES);
         console.log(lastRetrievedBlock)
