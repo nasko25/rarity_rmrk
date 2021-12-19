@@ -14,7 +14,6 @@ export async function addNft(nft: Nft, DB_POOL) {
     return DB_POOL.query(query, values);
 }
 
-// TODO getMetadata(), getRarity(), getNftCollection()
 export async function addMetadata(nft_id: string, metadata: string, DB_POOL) {
     const query = `
         INSERT INTO metadatas (id, metadata_json)
@@ -35,6 +34,35 @@ export async function addRarity(nft_id: string, rarity: number, DB_POOL) {
         RETURNING id
     `;
     const values = [ nft_id, rarity ];
+
+    return DB_POOL.query(query, values);
+}
+
+export async function getMetadata(nft_id: string, DB_POOL) {
+    const query = `SELECT * FROM metadatas WHERE id = $1`;
+    const values = [ nft_id ];
+
+    return DB_POOL.query(query, values);
+}
+
+export async function getRarity(nft_id: string, DB_POOT) {
+    const query = `SELECT * FROM rarities WHERE id = $1`;
+    const values = [ nft_id ];
+
+    return DB_POOL.query(query, values);
+}
+
+export async function getNftCollection(nft_id: string, DB_POOL) {
+    const query = `SELECT * FROM nfts WHERE nft_id = $1`;
+    const values = [ nft_id ];
+
+    return DB_POOL.query(query, values);
+}
+
+// not sure if it wil ever be used
+export async function updateNftCollection(nft_id: string, collection: string, DB_POOL) {
+    const query = `UPDATE nfts SET collection_id = $2 WHERE nft_id = $1`;
+    const values = [ nft_id, collection ];
 
     return DB_POOL.query(query, values);
 }
