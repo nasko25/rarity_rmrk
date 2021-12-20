@@ -3,6 +3,7 @@ import fetch from 'node-fetch';
 import ipc from 'node-ipc';
 require('dotenv').config();
 const { Pool } = require("pg");
+import { addNft } from '../db/db_connections/rarity_db_connections';
 
 const WAIT_BETWEEN_FETCHES_NORMAL = 2 * 1000;                         // how long to wait between fetches of rmrks from the database to not overload the db with requests normally
 const WAIT_BETWEEN_FETCHES_WAITING_FOR_NEW_RMRKS = 1 * 60 * 1000;     // how long to wait between fetches of rmrks when the last fetched rmrk was not new (so no new rmrks were saved in the db between the last 2 requests)
@@ -114,7 +115,7 @@ export async function fetchAndSaveMetadata(url: string, nft_id: string) {
                 JSON.stringify({ nft_id: nft_id, ipfs_cid: cid })
             );
         } else {
-            // TODO fetch http url
+            // TODO save metadata from the fetched http url
             fetch(parsed_url)
                 .then(res => res.json())
                 .then(data => console.log(data));
@@ -137,10 +138,16 @@ process.on ('SIGINT', async () => {
     process.exit(1);
 });
 
-async function fetchAllNfts() {
+// fetch and save all nfts and their metadata
+async function fetchAndSaveAllNftsAndMetadatas() {
     while (true) {
         console.log("Fetching rmrk nfts from the database...");
-        await fetchNfts().then(nfts => nfts.map(nft => /* TODO addNft() from rarity_db_connections.ts */ console.log(nft.metadata)));
+        await fetchNfts().then(async (nfts) => nfts.map( async (nft) => {
+                await addNft(nft, DB_POOL);
+                fetchAndSaveMetadata(nft.metadata, nft.id);
+                console.log(nft.metadata);
+            })
+        );
         console.log("Fetching done\nWaiting before fetching the next batch...");
         await sleep(WAIT_BETWEEN_FETCHES);
         console.log(lastRetrievedBlock)

@@ -1,4 +1,4 @@
-import { Nft } from '../generated/model/index';
+import { Nft } from '../../generated/model/index';
 
 export async function addNft(nft: Nft, DB_POOL) {
     // "INSERT ... ON CONFLICT DO NOTHING/UPDATE"
@@ -45,7 +45,7 @@ export async function getMetadata(nft_id: string, DB_POOL) {
     return DB_POOL.query(query, values);
 }
 
-export async function getRarity(nft_id: string, DB_POOT) {
+export async function getRarity(nft_id: string, DB_POOL) {
     const query = `SELECT * FROM rarities WHERE id = $1`;
     const values = [ nft_id ];
 
