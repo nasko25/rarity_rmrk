@@ -3,7 +3,7 @@ import fetch from 'node-fetch';
 import ipc from 'node-ipc';
 require('dotenv').config();
 const { Pool } = require("pg");
-import { addNft } from '../db/db_connections/rarity_db_connections';
+import { addNft, addMetadata } from '../db/db_connections/rarity_db_connections';
 
 const WAIT_BETWEEN_FETCHES_NORMAL = 2 * 1000;                         // how long to wait between fetches of rmrks from the database to not overload the db with requests normally
 const WAIT_BETWEEN_FETCHES_WAITING_FOR_NEW_RMRKS = 1 * 60 * 1000;     // how long to wait between fetches of rmrks when the last fetched rmrk was not new (so no new rmrks were saved in the db between the last 2 requests)
@@ -51,8 +51,9 @@ ipc.connectTo(
         ipc.of.server.on(
             "ipfs_response",
             function(data) {
-                // TODO save the metadata to the db
-                ipc.log("got the metadata from the server: ", JSON.parse(data).metadata);
+                const parsed_data = JSON.parse(data);
+                ipc.log("got the metadata from the server: ", parsed_data.metadata);
+                addMetadata(parsed_data.nft_id, parsed_data.metadata, DB_POOL);
             }
         );
     }
@@ -118,7 +119,10 @@ export async function fetchAndSaveMetadata(url: string, nft_id: string) {
             // TODO save metadata from the fetched http url
             fetch(parsed_url)
                 .then(res => res.json())
-                .then(data => console.log(data));
+                .then(data => {
+                    console.log(data);
+                    addMetadata(data.nft_id, data.metadata, DB_POOL);
+                })
         }
     }
     // otherwise throw an exception that the protocol is not recognized
