@@ -53,7 +53,8 @@ ipc.connectTo(
             function(data) {
                 const parsed_data = JSON.parse(data);
                 ipc.log("got the metadata from the server: ", parsed_data.metadata);
-                addMetadata(parsed_data.nft_id, parsed_data.metadata, DB_POOL);
+                // TODO handle errors
+                addMetadata(parsed_data.nft_id, parsed_data.metadata, DB_POOL).catch(err => process.exit(-1));
             }
         );
     }
@@ -116,12 +117,12 @@ export async function fetchAndSaveMetadata(url: string, nft_id: string) {
                 JSON.stringify({ nft_id: nft_id, ipfs_cid: cid })
             );
         } else {
-            // TODO save metadata from the fetched http url
             fetch(parsed_url)
                 .then(res => res.json())
                 .then(data => {
                     console.log(data);
-                    addMetadata(data.nft_id, data.metadata, DB_POOL);
+                    // TODO handle errors
+                    addMetadata(data.nft_id, data.metadata, DB_POOL).catch(err => process.exit(-1));
                 })
         }
     }
@@ -162,7 +163,12 @@ async function fetchAndSaveAllNftsAndMetadatas() {
 
 // test
 // fetchAndSaveMetadata("https://asdf.com", "nft_id").then(() => console.log("done"));
-fetchAndSaveMetadata("ipfs://ipfs/bafkreiac5acoaxawo7srp3rdlkdvtpnki7lfnukn6gvgv6l3cpv7mlxnrq", "nft_id").then(() => console.log("done"));
+
+// first save nft with id nft_id as a test
+addNft(<Nft>{id: "nft_id", collection: "test collection"}, DB_POOL).then(() => {
+    // then save its metadata
+    fetchAndSaveMetadata("ipfs://ipfs/bafkreiac5acoaxawo7srp3rdlkdvtpnki7lfnukn6gvgv6l3cpv7mlxnrq", "nft_id").then(() => console.log("done"));
+});
 
 //const { nfts, collections } = await consolidator.consolidate(remarks);
 //
