@@ -12,6 +12,7 @@ async function startIPCServerAndIPFSNode() {
 
     ipc.config.id = "server";
     ipc.config.retry = 1500;
+    ipc.config.silent = true;
     // silent the logs
     // ipc.config.silent = true;
 

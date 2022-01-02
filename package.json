@@ -19,7 +19,7 @@
     "query-node:start": "ts-node --type-check ./generated/server/index.ts",
     "test": "node_modules/jest/bin/jest.js",
     "consolidate-remarks": "node using_rmrk_tools/consolidateRemarks.js",
-    "test-fetch-nfts": "using_rmrk_tools/node_modules/ts-node/dist/bin.js using_rmrk_tools/fetchNftsAndCollections.ts",
+    "fetch-and-save-nfts": "using_rmrk_tools/node_modules/ts-node/dist/bin.js using_rmrk_tools/fetchNftsAndCollections.ts",
     "start-ipfs": "using_rmrk_tools/node_modules/ts-node/dist/bin.js using_rmrk_tools/IPFSNode.ts"
   },
   "dependencies": {

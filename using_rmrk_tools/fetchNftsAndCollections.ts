@@ -9,6 +9,7 @@ const WAIT_BETWEEN_FETCHES_NORMAL = 2 * 1000;                         // how lon
 const WAIT_BETWEEN_FETCHES_WAITING_FOR_NEW_RMRKS = 1 * 60 * 1000;     // how long to wait between fetches of rmrks when the last fetched rmrk was not new (so no new rmrks were saved in the db between the last 2 requests)
 
 
+// TODO get last retrieved block from the db (if it is present)
 let lastRetrievedBlock = 0;
 let WAIT_BETWEEN_FETCHES = WAIT_BETWEEN_FETCHES_NORMAL;
 
@@ -27,6 +28,7 @@ const DB_POOL = new Pool(DB_CREDENTIALS);
 // ipc configuration
 ipc.config.id = "client";
 ipc.config.retry = 1500 * 60;
+ipc.config.silent = true;
 // stop retrying after 10 requests
 ipc.config.maxRetries = 10;
 // ipc.config.stopRetrying = true;
@@ -52,7 +54,6 @@ ipc.connectTo(
             "ipfs_response",
             function(data) {
                 const parsed_data = JSON.parse(data);
-                ipc.log("got the metadata from the server: ", parsed_data.metadata);
                 // TODO handle errors
                 addMetadata(parsed_data.nft_id, parsed_data.metadata, DB_POOL).catch(err => process.exit(-1));
             }
@@ -120,7 +121,6 @@ export async function fetchAndSaveMetadata(url: string, nft_id: string) {
             fetch(parsed_url)
                 .then(res => res.json())
                 .then(data => {
-                    console.log(data);
                     // TODO handle errors
                     addMetadata(data.nft_id, data.metadata, DB_POOL).catch(err => process.exit(-1));
                 })
@@ -137,6 +137,7 @@ function sleep(ms) {
 }
 
 process.on ('SIGINT', async () => {
+    // TODO save last retrieved block number to the db
     console.log('Exiting');
     await DB_POOL.end();
     await ipc.disconnect("server");
@@ -150,9 +151,8 @@ async function fetchAndSaveAllNftsAndMetadatas() {
         await fetchNfts().then(async (nfts) => nfts.map( async (nft) => {
                 await addNft(nft, DB_POOL);
                 fetchAndSaveMetadata(nft.metadata, nft.id);
-                console.log(nft.metadata);
             })
-        );
+        ).catch(err => { console.error(err); process.exit(-1); });
         console.log("Fetching done\nWaiting before fetching the next batch...");
         await sleep(WAIT_BETWEEN_FETCHES);
         console.log(lastRetrievedBlock)
@@ -165,11 +165,13 @@ async function fetchAndSaveAllNftsAndMetadatas() {
 // fetchAndSaveMetadata("https://asdf.com", "nft_id").then(() => console.log("done"));
 
 // first save nft with id nft_id as a test
-addNft(<Nft>{id: "nft_id", collection: "test collection"}, DB_POOL).then(() => {
-    // then save its metadata
-    fetchAndSaveMetadata("ipfs://ipfs/bafkreiac5acoaxawo7srp3rdlkdvtpnki7lfnukn6gvgv6l3cpv7mlxnrq", "nft_id").then(() => console.log("done"));
-});
+// addNft(<Nft>{id: "nft_id", collection: "test collection"}, DB_POOL).then(() => {
+//     // then save its metadata
+//     fetchAndSaveMetadata("ipfs://ipfs/bafkreiac5acoaxawo7srp3rdlkdvtpnki7lfnukn6gvgv6l3cpv7mlxnrq", "nft_id").then(() => console.log("done"));
+// });
 
 //const { nfts, collections } = await consolidator.consolidate(remarks);
 //
 //console.log(nfts, collections);
+
+fetchAndSaveAllNftsAndMetadatas().then();
