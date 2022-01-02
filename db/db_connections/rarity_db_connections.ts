@@ -60,6 +60,19 @@ export async function getNftCollection(nft_id: string, DB_POOL: Pool) {
     return DB_POOL.query(query, values);
 }
 
+export async function getLastRetrievedBlock(DB_POOL: Pool) {
+    const query = 'SELECT last_retrieved_block from metadata_information';
+
+    return DB_POOL.query(query);
+}
+
+export async function saveLastRetrievedBlock(last_retrieved_block: number, DB_POOL: Pool) {
+    const query = `UPDATE metadata_information SET last_retrieved_block = $1`;
+    const values = [ last_retrieved_block ];
+
+    return DB_POOL.query(query, values);
+}
+
 // not sure if it wil ever be used
 export async function updateNftCollection(nft_id: string, collection: string, DB_POOL: Pool) {
     const query = `UPDATE nfts SET collection_id = $2 WHERE nft_id = $1`;
