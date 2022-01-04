@@ -149,10 +149,11 @@ async function fetchAndSaveAllNftsAndMetadatas() {
     lastRetrievedBlock = <number>(await getLastRetrievedBlock(DB_POOL)).rows[0].last_retrieved_block;
     while (true) {
         console.log("Fetching rmrk nfts from the database...");
-        await fetchNfts().then(async (nfts) => nfts.map( async (nft) => {
+        // TODO is await Promise.all necessary? should the nfts.map be awaited?
+        await fetchNfts().then(async (nfts) => await Promise.all(nfts.map( async (nft) => {
                 await addNft(nft, DB_POOL);
                 fetchAndSaveMetadata(nft.metadata, nft.id);
-            })
+            }))
         ).catch(err => { console.error(err); process.exit(-1); });
         console.log("Fetching done\nWaiting before fetching the next batch...");
         await sleep(WAIT_BETWEEN_FETCHES);
