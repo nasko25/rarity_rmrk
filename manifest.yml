@@ -28,13 +28,11 @@ mappings:
   # This block mints the first collection in the db, but the first nft is minted at block 7370524
   range: '[6432195, )'
   mappingsModule: mappings
-  # eventHandlers:
-  #   - event: balances.Transfer
-  #     handler: balancesTransfer
   extrinsicHandlers:
     - extrinsic: system.remark
       handler: systemRemark
     - extrinsic: utility.batch
       handler: utilityBatch
+  eventHandlers:
   preBlockHooks:
   postBlockHooks:
