@@ -46,6 +46,13 @@ export async function getMetadata(nft_id: string, DB_POOL: Pool) {
     return DB_POOL.query(query, values);
 }
 
+export async function getMetadataJoinCollectionId(collection_id: string, DB_POOL: Pool) {
+    const query = `SELECT * FROM metadatas JOIN nfts ON metadatas.id = nfts.nft_id WHERE nfts.collection_id = $1`;
+    const values = [ collection_id ];
+
+    return DB_POOL.query(query, values);
+}
+
 export async function getRarity(nft_id: string, DB_POOL: Pool) {
     const query = `SELECT * FROM rarities WHERE id = $1`;
     const values = [ nft_id ];

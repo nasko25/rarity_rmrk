@@ -1,4 +1,8 @@
 import fetch from 'node-fetch';
+require('dotenv').config();
+const { Pool } = require("pg");
+import { Collection } from '../generated/model/index';
+import { getMetadataJoinCollectionId } from '../db/db_connections/rarity_db_connections';
 
 // TODO code duplication + extract the fetching of collections to fetchNftsAndCollections.ts
 
@@ -12,6 +16,19 @@ const WAIT_BETWEEN_FETCHES_WAITING_FOR_NEW_RMRKS = 1 * 60 * 1000;     // how lon
 
 // how long to wait between fetches of collections from the graphql db
 let WAIT_BETWEEN_FETCHES = WAIT_BETWEEN_FETCHES_NORMAL;
+
+
+// TODO export that as well
+// postgres pool configuration
+const DB_CREDENTIALS = {
+    user: process.env.DB_USER,
+    password: process.env.DB_PASS,
+    host: process.env.DB_HOST,
+    // hardcoded in ../db/sql/rarity.sql
+    database: "rarity_rmrk",
+    port: process.env.DB_PORT
+};
+const DB_POOL = new Pool(DB_CREDENTIALS);
 
 async function fetchCollections(condition?: string) {
     return await fetch('http://localhost:4000/graphql', {
@@ -52,9 +69,12 @@ export function sleep(ms: number) {
 
 async function fetchAllCollections() {
     while(true) {
-        await fetchCollections().then(collections => {
+        await fetchCollections().then(async (collections) => {
             console.log(collections);
             // TODO for each collection get the nfts and their metadatas from the db and calculate their rarities
+            await Promise.all(collections.map(async (collection: Collection) => {
+                console.log(await getMetadataJoinCollectionId(collection.id, DB_POOL));
+            }));
         }).catch(err => { console.error(err); process.exit(-1); });
         await sleep(WAIT_BETWEEN_FETCHES);
     }
