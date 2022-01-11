@@ -2,11 +2,10 @@ import fetch from 'node-fetch';
 require('dotenv').config();
 const { Pool } = require("pg");
 import { Collection } from '../generated/model/index';
-import { getMetadataJoinCollectionId } from '../db/db_connections/rarity_db_connections';
+import { getMetadataJoinCollectionId, getLastRetrievedBlockCollections, saveLastRetrievedBlockCollections } from '../db/db_connections/rarity_db_connections';
 
 // TODO code duplication + extract the fetching of collections to fetchNftsAndCollections.ts
 
-// TODO save lastRetrievedBlock to the db ( like in fetchNfts() )
 // keep track of the last retrieved collection block from the graphql db
 let lastRetrievedBlock = 0;
 
@@ -15,6 +14,7 @@ const WAIT_BETWEEN_FETCHES_NORMAL = 2 * 1000;                         // how lon
 const WAIT_BETWEEN_FETCHES_WAITING_FOR_NEW_RMRKS = 1 * 60 * 1000;     // how long to wait between fetches of rmrks when the last fetched rmrk was not new (so no new rmrks were saved in the db between the last 2 requests)
 
 // how long to wait between fetches of collections from the graphql db
+//  this initial value is overwritten with a value taken from the db in fetchAllCollections()
 let WAIT_BETWEEN_FETCHES = WAIT_BETWEEN_FETCHES_NORMAL;
 
 
@@ -67,7 +67,15 @@ export function sleep(ms: number) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
 
+process.on ('SIGINT', async () => {
+    console.log('Exiting');
+    await saveLastRetrievedBlockCollections(lastRetrievedBlock, DB_POOL);
+    await DB_POOL.end();
+    process.exit(1);
+});
+
 async function fetchAllCollections() {
+    lastRetrievedBlock = <number>(await getLastRetrievedBlockCollections(DB_POOL)).rows[0].last_retrieved_block_collections;
     while(true) {
         await fetchCollections().then(async (collections) => {
             console.log(collections);

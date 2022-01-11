@@ -146,7 +146,7 @@ process.on ('SIGINT', async () => {
 
 // fetch and save all nfts and their metadata
 async function fetchAndSaveAllNftsAndMetadatas() {
-    lastRetrievedBlock = <number>(await getLastRetrievedBlockNfts(DB_POOL)).rows[0].last_retrieved_block;
+    lastRetrievedBlock = <number>(await getLastRetrievedBlockNfts(DB_POOL)).rows[0].last_retrieved_block_nfts;
     while (true) {
         console.log("Fetching rmrk nfts from the database...");
         // TODO is await Promise.all necessary? should the nfts.map be awaited?
