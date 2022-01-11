@@ -67,15 +67,15 @@ export async function getNftCollection(nft_id: string, DB_POOL: Pool) {
     return DB_POOL.query(query, values);
 }
 
-export async function getLastRetrievedBlock(DB_POOL: Pool) {
-    const query = 'SELECT last_retrieved_block from metadata_information';
+export async function getLastRetrievedBlockNfts(DB_POOL: Pool) {
+    const query = 'SELECT last_retrieved_block_nfts from metadata_information';
 
     return DB_POOL.query(query);
 }
 
-export async function saveLastRetrievedBlock(last_retrieved_block: number, DB_POOL: Pool) {
-    const query = `UPDATE metadata_information SET last_retrieved_block = $1`;
-    const values = [ last_retrieved_block ];
+export async function saveLastRetrievedBlockNfts(last_retrieved_block_nfts: number, DB_POOL: Pool) {
+    const query = `UPDATE metadata_information SET last_retrieved_block_nfts = $1`;
+    const values = [ last_retrieved_block_nfts ];
 
     return DB_POOL.query(query, values);
 }

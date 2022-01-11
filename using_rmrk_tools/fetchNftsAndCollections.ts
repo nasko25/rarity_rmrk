@@ -3,7 +3,7 @@ import fetch from 'node-fetch';
 import ipc from 'node-ipc';
 require('dotenv').config();
 const { Pool } = require("pg");
-import { addNft, addMetadata, getLastRetrievedBlock, saveLastRetrievedBlock } from '../db/db_connections/rarity_db_connections';
+import { addNft, addMetadata, getLastRetrievedBlockNfts, saveLastRetrievedBlockNfts } from '../db/db_connections/rarity_db_connections';
 
 const WAIT_BETWEEN_FETCHES_NORMAL = 2 * 1000;                         // how long to wait between fetches of rmrks from the database to not overload the db with requests normally
 const WAIT_BETWEEN_FETCHES_WAITING_FOR_NEW_RMRKS = 1 * 60 * 1000;     // how long to wait between fetches of rmrks when the last fetched rmrk was not new (so no new rmrks were saved in the db between the last 2 requests)
@@ -138,7 +138,7 @@ function sleep(ms) {
 
 process.on ('SIGINT', async () => {
     console.log('Exiting');
-    await saveLastRetrievedBlock(lastRetrievedBlock, DB_POOL);
+    await saveLastRetrievedBlockNfts(lastRetrievedBlock, DB_POOL);
     await DB_POOL.end();
     await ipc.disconnect("server");
     process.exit(1);
@@ -146,7 +146,7 @@ process.on ('SIGINT', async () => {
 
 // fetch and save all nfts and their metadata
 async function fetchAndSaveAllNftsAndMetadatas() {
-    lastRetrievedBlock = <number>(await getLastRetrievedBlock(DB_POOL)).rows[0].last_retrieved_block;
+    lastRetrievedBlock = <number>(await getLastRetrievedBlockNfts(DB_POOL)).rows[0].last_retrieved_block;
     while (true) {
         console.log("Fetching rmrk nfts from the database...");
         // TODO is await Promise.all necessary? should the nfts.map be awaited?
