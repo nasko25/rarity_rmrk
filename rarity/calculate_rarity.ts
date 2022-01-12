@@ -17,6 +17,12 @@ const WAIT_BETWEEN_FETCHES_WAITING_FOR_NEW_RMRKS = 1 * 60 * 1000;     // how lon
 //  this initial value is overwritten with a value taken from the db in fetchAllCollections()
 let WAIT_BETWEEN_FETCHES = WAIT_BETWEEN_FETCHES_NORMAL;
 
+// keep track of how many times you have queried the db consecutively and it was still waiting for new collections
+let COUNTER_WAITING_FOR = 0;
+// how many maximum cycles to wait for while the db still has no new collections
+// after lastRetrievedBlock will be reset to 0 to recalculate the rarities of the existing collections
+//  (in case new nfts were added after the previous rarities were calculated)
+const MAX_COUNTER_WAITING_FOR = 6;
 
 // TODO export that as well
 // postgres pool configuration
@@ -49,9 +55,16 @@ async function fetchCollections(condition?: string) {
                 //  because there are no new collections added to the db
                 if (collections.length === 1 && collections[0].block === lastRetrievedBlock) {
                     WAIT_BETWEEN_FETCHES = WAIT_BETWEEN_FETCHES_WAITING_FOR_NEW_RMRKS;
-                    // TODO at some point lastRetrievedBlock should be reset back to 0 so that the rarities of newly added nfts from older collections will be recalculated
+                    // reset lastRetrievedBlock back to 0 so that the rarities of newly added nfts from older collections will be recalculated
+                    if (COUNTER_WAITING_FOR >= MAX_COUNTER_WAITING_FOR) {
+                        lastRetrievedBlock = 0;
+                        COUNTER_WAITING_FOR = 0;
+                    } else {
+                        COUNTER_WAITING_FOR++;
+                    }
                 } else {
                     WAIT_BETWEEN_FETCHES = WAIT_BETWEEN_FETCHES_NORMAL;
+                    COUNTER_WAITING_FOR = 0;
                 }
 
                 // get the biggest block you have retrieved
@@ -78,10 +91,12 @@ async function fetchAllCollections() {
     lastRetrievedBlock = <number>(await getLastRetrievedBlockCollections(DB_POOL)).rows[0].last_retrieved_block_collections;
     while(true) {
         await fetchCollections().then(async (collections) => {
-            console.log(collections);
+            // console.log(collections);
             // TODO for each collection get the nfts and their metadatas from the db and calculate their rarities
             await Promise.all(collections.map(async (collection: Collection) => {
                 console.log(await getMetadataJoinCollectionId(collection.id, DB_POOL));
+                console.log(lastRetrievedBlock);
+                console.log(COUNTER_WAITING_FOR);
             }));
         }).catch(err => { console.error(err); process.exit(-1); });
         await sleep(WAIT_BETWEEN_FETCHES);
