@@ -51,6 +51,11 @@ async function fetchCollections(condition?: string) {
             // if rmrk collections are not empty (so there are new collections saved to the graphql db)
             if (data && data.data && data.data.collections && data.data.collections.length > 0) {
                 const collections = data.data.collections;
+
+                // get the biggest block you have retrieved
+                //  (which is from the last collection in data, as they are ordered by ascending block number)
+                lastRetrievedBlock = collections[collections.length - 1].block;
+
                 // if there is only one fetched collections and it is from the lastRetrievedBlock, wait for a little bit longer
                 //  because there are no new collections added to the db
                 if (collections.length === 1 && collections[0].block === lastRetrievedBlock) {
@@ -66,10 +71,6 @@ async function fetchCollections(condition?: string) {
                     WAIT_BETWEEN_FETCHES = WAIT_BETWEEN_FETCHES_NORMAL;
                     COUNTER_WAITING_FOR = 0;
                 }
-
-                // get the biggest block you have retrieved
-                //  (which is from the last collection in data, as they are ordered by ascending block number)
-                lastRetrievedBlock = collections[collections.length - 1].block;
 
                 return collections;
             }
@@ -95,8 +96,6 @@ async function fetchAllCollections() {
             // TODO for each collection get the nfts and their metadatas from the db and calculate their rarities
             await Promise.all(collections.map(async (collection: Collection) => {
                 console.log(await getMetadataJoinCollectionId(collection.id, DB_POOL));
-                console.log(lastRetrievedBlock);
-                console.log(COUNTER_WAITING_FOR);
             }));
         }).catch(err => { console.error(err); process.exit(-1); });
         await sleep(WAIT_BETWEEN_FETCHES);
