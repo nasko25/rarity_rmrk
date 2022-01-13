@@ -95,7 +95,13 @@ async function fetchAllCollections() {
             // console.log(collections);
             // TODO for each collection get the nfts and their metadatas from the db and calculate their rarities
             await Promise.all(collections.map(async (collection: Collection) => {
-                console.log(await getMetadataJoinCollectionId(collection.id, DB_POOL));
+                const nft_metadata_rows = (await getMetadataJoinCollectionId(collection.id, DB_POOL)).rows;
+
+                if (nft_metadata_rows) {
+                    // TODO save attributes of each nft in a dictionary
+                    // also missing attribute should be labeled as None or null
+                    nft_metadata_rows.map(metadata => console.log(JSON.parse(metadata.metadata_json).attributes));
+                }
             }));
         }).catch(err => { console.error(err); process.exit(-1); });
         await sleep(WAIT_BETWEEN_FETCHES);

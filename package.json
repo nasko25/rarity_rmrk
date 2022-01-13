@@ -20,7 +20,8 @@
     "test": "node_modules/jest/bin/jest.js",
     "consolidate-remarks": "node using_rmrk_tools/consolidateRemarks.js",
     "fetch-and-save-nfts": "using_rmrk_tools/node_modules/ts-node/dist/bin.js using_rmrk_tools/fetchNftsAndCollections.ts",
-    "start-ipfs": "using_rmrk_tools/node_modules/ts-node/dist/bin.js using_rmrk_tools/IPFSNode.ts"
+    "start-ipfs": "using_rmrk_tools/node_modules/ts-node/dist/bin.js using_rmrk_tools/IPFSNode.ts",
+    "calculate-rarity": "using_rmrk_tools/node_modules/ts-node/dist/bin.js rarity/calculate_rarity.ts"
   },
   "dependencies": {
     "@subsquid/hydra-cli": "4.2.0-alpha.8",
