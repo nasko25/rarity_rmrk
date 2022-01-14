@@ -100,7 +100,12 @@ async function fetchAllCollections() {
                 if (nft_metadata_rows) {
                     // TODO save attributes of each nft in a dictionary
                     // also missing attribute should be labeled as None or null
-                    nft_metadata_rows.map(metadata => console.log(JSON.parse(metadata.metadata_json).attributes));
+                    let attribute_list: string[] = [];
+                    nft_metadata_rows.map(metadata => {
+                        const nft_attributes = JSON.parse(metadata.metadata_json).attributes;
+                        if (nft_attributes && nft_attributes.length > 0)
+                            console.log(nft_attributes);
+                    });
                 }
             }));
         }).catch(err => { console.error(err); process.exit(-1); });
