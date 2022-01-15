@@ -162,7 +162,12 @@ export async function utilityBatch({
     if (ext_val && Array.isArray(ext_val)) {
         ext_val.map( async (arg: any) => {
             if (arg?.args?.remark && (arg.args.remark.startsWith("0x726d726b") || arg.args.remark.startsWith("0x524d524b"))) {
-                await extractRmrks([<Call> { call: /* extrinsic.section + "." + extrinsic.method or arg.name */ "system.remark", value: arg.args.remark, caller: extrinsic.signer }], { block, store })
+                // TODO remove
+                console.error("utility.batch() also has remark");
+                process.exit(-1);
+                // await extractRmrks([<Call> { call: /* extrinsic.section + "." + extrinsic.method or arg.name */ "system.remark", value: arg.args.remark, caller: extrinsic.signer }], { block, store })
+            } else if (arg?.args?._remark && (arg.args._remark.startsWith("0x726d726b") || arg.args._remark.startsWith("0x524d524b"))) {
+                await extractRmrks([<Call> { call: /* extrinsic.section + "." + extrinsic.method or arg.name */ "system.remark", value: arg.args._remark, caller: extrinsic.signer }], { block, store })
             }
         });
     }

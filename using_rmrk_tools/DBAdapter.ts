@@ -84,6 +84,7 @@ export class DBAdapter implements IConsolidatorAdapter {
         });
     }
     async updateNFTMint(nft: NFT) {
+        console.log("minting...")
         const nftToAdd = new Nft();
         nftToAdd.id = nft.getId();
         nftToAdd.collection = nft.collection;
