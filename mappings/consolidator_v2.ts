@@ -731,22 +731,22 @@ export class Consolidator {
         //   `${this.nfts.length} NFTs across ${this.collections.length} collections.`
         // );
         // console.log(`${this.invalidCalls.length} invalid calls.`);
-        const result = {
-            nfts: this.dbAdapter.getAllNFTs
-                ? await this.dbAdapter.getAllNFTs()
-                : {},
-            collections: this.dbAdapter.getAllCollections
-                ? await this.dbAdapter.getAllCollections()
-                : {},
-            bases: this.dbAdapter.getAllBases
-                ? await this.dbAdapter.getAllBases()
-                : {},
-            invalid: this.invalidCalls,
-        } as { nfts: Record<string, NFTConsolidated> , collections: Record<string, CollectionConsolidated>, bases: Record<string, BaseConsolidated>, invalid: InvalidCall[], changes: InteractionChanges };
-        if (this.emitInteractionChanges) {
-            result.changes = this.interactionChanges;
-        }
-        return result;
+        // const result = {
+        //     nfts: this.dbAdapter.getAllNFTs
+        //         ? await this.dbAdapter.getAllNFTs()
+        //         : {},
+        //     collections: this.dbAdapter.getAllCollections
+        //         ? await this.dbAdapter.getAllCollections()
+        //         : {},
+        //     bases: this.dbAdapter.getAllBases
+        //         ? await this.dbAdapter.getAllBases()
+        //         : {},
+        //     invalid: this.invalidCalls,
+        // } as { nfts: Record<string, NFTConsolidated> , collections: Record<string, CollectionConsolidated>, bases: Record<string, BaseConsolidated>, invalid: InvalidCall[], changes: InteractionChanges };
+        // if (this.emitInteractionChanges) {
+        //     result.changes = this.interactionChanges;
+        // }
+        // return result;
     }
 }
 exports.Consolidator = Consolidator;
