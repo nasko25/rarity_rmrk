@@ -1,7 +1,8 @@
 run:
 	# npm run codegen
 	# while [ true ] ; do npm run processor:start ; sleep 2 ; done
-	npm run processor:start
+	# npm run processor:start
+	while [ true ] ; do npm run processor:start ; sleep 6m ; done
 
 run-rebuild:
 	npm run codegen
