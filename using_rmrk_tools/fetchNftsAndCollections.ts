@@ -70,6 +70,9 @@ async function fetchNfts() {
             'Accept': 'application/json',
         },
         // body: JSON.stringify({query: `{ rmrkEntities (where: {block_gte: "${lastRetrievedBlock}"}, orderBy: block_DESC) { id block rmrk { caller interactionType remark rmrkVersion extraEx { call caller value } } } }`})
+        // TODO will not work if there are more nfts in a block than what was returned by the db
+        // TODO sort them by block & serial number & collection as that combination should be unique
+        // TODO same thing applies for fetching collections in rarity/calculate_rarity.ts as well
         body: JSON.stringify({query: `{ nfts (where: {block_gte: "${lastRetrievedBlock}"}, orderBy: block_ASC) { block collection id metadata sn symbol transferable version } }`})
     })
         .then(res => res.json())

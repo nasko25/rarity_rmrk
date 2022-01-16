@@ -8,10 +8,6 @@ import { hexToString, stringToHex } from "@polkadot/util";
 import { DBAdapter } from '../using_rmrk_tools/DBAdapter';
 import { DBAdapterV1 } from '../using_rmrk_tools/DBAdapterV1';
 
-// how many utility.batch extrinsics will be parsed asynchronously at once in one batch
-// bigger number requires more memory, but will parse utility.batch extrinsics faster
-const ASYNC_UTILITY_BATCH_SIZE = 100;
-
 type Call = {
     call: string,
     value: string,
@@ -143,7 +139,8 @@ async function extractRmrks(calls: Call[], { block, store }: BlockContext & Stor
     //  so only the getRemarksFromBlocks() had to be overwritten
     const consolidator_v1 = new ConsolidatorV1(dbAdapterV1, undefined, false, false);
     const consolidator_v2 = new ConsolidatorV2(dbAdapterV2, undefined, false, false);
-    const { nfts, collections } = await consolidator_v1.consolidate(remarks.v1);
+
+    await consolidator_v1.consolidate(remarks.v1);
     await consolidator_v2.consolidate(remarks.v2);
     // console.log('Consolidated nfts:', nfts);
     // console.log('Consolidated collections:', collections);
@@ -168,18 +165,12 @@ export async function utilityBatch({
     }
 }
 
-// parse utility.batch() extrinsics in async batches each of ASYNC_UTILITY_BATCH_SIZE
-// the other alternative is to execute them all synchronously, but that will be slower; or if all rmrks are parsed asynchronously, usually that results in a heap memory overflow
+// parse utility.batch() extrinsics synchronously
+// before they were parsed in batches asynchronously, but it turned out after testing that collections are usually created just before nfts
+//  so consolidating nfts before their collection was added to the db, resulted in incorrectly omitting these nfts
 async function parseUtilityBatch(ext_val: Array<any>, { block, store } : BlockContext & StoreContext, extrinsic: SubstrateExtrinsic) {
     let promises: Promise<any>[] = [];
     for (var arg of ext_val) {
-        // for every ASYNC_UTILITY_BATCH_SIZE wait until all promises are completed
-        if (promises.length == ASYNC_UTILITY_BATCH_SIZE) {
-            console.log(`${ ASYNC_UTILITY_BATCH_SIZE } extrinsics from utility.batch() were just parsed.`)
-            await Promise.all(promises);
-            promises = [];
-        }
-        // whenever they are done add at most ASYNC_UTILITY_BATCH_SIZE more
         if (arg?.args?.remark && (arg.args.remark.startsWith("0x726d726b") || arg.args.remark.startsWith("0x524d524b"))) {
             // TODO remove
             console.error("utility.batch() also has remark");
@@ -187,7 +178,7 @@ async function parseUtilityBatch(ext_val: Array<any>, { block, store } : BlockCo
             // await extractRmrks([<Call> { call: /* extrinsic.section + "." + extrinsic.method or arg.name */ "system.remark", value: arg.args.remark, caller: extrinsic.signer }], { block, store })
         } else if (arg?.args?._remark && (arg.args._remark.startsWith("0x726d726b") || arg.args._remark.startsWith("0x524d524b"))) {
             // console.log("utility batch")
-            promises.push(extractRmrks([<Call> { call: /* extrinsic.section + "." + extrinsic.method or arg.name */ "system.remark", value: arg.args._remark, caller: extrinsic.signer }], { block, store }));
+            await extractRmrks([<Call> { call: /* extrinsic.section + "." + extrinsic.method or arg.name */ "system.remark", value: arg.args._remark, caller: extrinsic.signer }], { block, store });
         }
     }
     // wait for all promises left to finish before returning
