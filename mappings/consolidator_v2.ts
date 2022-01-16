@@ -94,7 +94,7 @@ export class Consolidator {
         }
         this.emitEmoteChanges = emitEmoteChanges || false;
         this.emitInteractionChanges = emitInteractionChanges || false;
-        this.dbAdapter = dbAdapter || new InMemoryAdapter();
+        this.dbAdapter = dbAdapter /*|| new InMemoryAdapter() */;
         this.invalidCalls = [];
         this.collections = [];
         this.nfts = [];
@@ -181,7 +181,7 @@ export class Consolidator {
      * https://github.com/rmrk-team/rmrk-spec/blob/master/standards/rmrk2.0.0/interactions/mint.md
      */
     async mint(remark: Remark) {
-        console.log("minting a v2 nft...")
+        // console.log("minting a v2 nft...")
         const invalidate = this.updateInvalidCalls(OP_TYPES.MINT, remark).bind(this);
         const nft = NFT.fromRemark(remark.remark, remark.block);
         if (typeof nft === "string") {

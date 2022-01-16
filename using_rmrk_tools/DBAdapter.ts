@@ -76,6 +76,7 @@ export class DBAdapter implements IConsolidatorAdapter {
         // this.nfts[consolidatedNFT.id] = Object.assign(Object.assign({}, this.nfts[consolidatedNFT.id]), { changes: nft === null || nft === void 0 ? void 0 : nft.changes, owner: nft === null || nft === void 0 ? void 0 : nft.owner, rootowner: nft === null || nft === void 0 ? void 0 : nft.rootowner, forsale: BigInt(0), pending: nft === null || nft === void 0 ? void 0 : nft.pending });
     }
     async updateNFTBurn(nft: NFT | NFTConsolidated, consolidatedNFT: NFTConsolidated) {
+        console.log("burning...");
         await this.store.get(Nft, {where: {id: consolidatedNFT.id}}).then(async nft => {
             if (nft)
                 await this.store.remove(nft);
@@ -84,7 +85,7 @@ export class DBAdapter implements IConsolidatorAdapter {
         });
     }
     async updateNFTMint(nft: NFT) {
-        console.log("minting...")
+        // console.log("minting...")
         const nftToAdd = new Nft();
         nftToAdd.id = nft.getId();
         nftToAdd.collection = nft.collection;
