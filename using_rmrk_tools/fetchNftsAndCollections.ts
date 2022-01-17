@@ -9,8 +9,9 @@ const WAIT_BETWEEN_FETCHES_NORMAL = 2 * 1000;                         // how lon
 const WAIT_BETWEEN_FETCHES_WAITING_FOR_NEW_RMRKS = 1 * 60 * 1000;     // how long to wait between fetches of rmrks when the last fetched rmrk was not new (so no new rmrks were saved in the db between the last 2 requests)
 
 
-// this initial value is overwritten with a value taken from the db in fetchAndSaveAllNftsAndMetadatas()
-let lastRetrievedBlock = 0;
+// TODO maybe make it an object
+// this initial values are overwritten with values taken from the db in fetchAndSaveAllNftsAndMetadatas()
+let lastRetrievedBlock = 0, lastRetrievedSN = 0, lastRetrievedCollection = "";
 let WAIT_BETWEEN_FETCHES = WAIT_BETWEEN_FETCHES_NORMAL;
 
 // postgres pool configuration
@@ -73,7 +74,8 @@ async function fetchNfts() {
         // TODO will not work if there are more nfts in a block than what was returned by the db
         // TODO sort them by block & serial number & collection as that combination should be unique
         // TODO same thing applies for fetching collections in rarity/calculate_rarity.ts as well
-        body: JSON.stringify({query: `{ nfts (where: {block_gte: "${lastRetrievedBlock}"}, orderBy: block_ASC) { block collection id metadata sn symbol transferable version } }`})
+        // TODO OR add a unique id field to the nft graphql entity that is auto-incremented and get all >= to the last saved id
+        body: JSON.stringify({query: `{ nfts (where: {block_gte: "${ lastRetrievedBlock }"}, orderBy: block_ASC) { block collection id metadata sn symbol transferable version } }`})
     })
         .then(res => res.json())
         .then(async data => {
@@ -149,7 +151,8 @@ process.on ('SIGINT', async () => {
 
 // fetch and save all nfts and their metadata
 async function fetchAndSaveAllNftsAndMetadatas() {
-    lastRetrievedBlock = <number>(await getLastRetrievedBlockNfts(DB_POOL)).rows[0].last_retrieved_block_nfts;
+    lastRetrievedNft = <number>(await getLastRetrievedBlockNfts(DB_POOL)).rows[0].last_retrieved_block_nfts;
+    lastRetrievedBlock = lastRetrievedNft.last_retrieved_block_nfts;
     while (true) {
         console.log("Fetching rmrk nfts from the database...");
         // TODO is await Promise.all necessary? should the nfts.map be awaited?
