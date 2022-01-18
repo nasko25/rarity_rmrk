@@ -1,6 +1,6 @@
 import BN from 'bn.js'
 import { DatabaseManager, EventContext, StoreContext, BlockContext, AnyJsonField, SubstrateExtrinsic } from '@subsquid/hydra-common'
-import { Account, HistoricalBalance } from '../generated/model'
+import { Account, HistoricalBalance, Nft, Collection } from '../generated/model'
 import { Balances } from '../chain'
 import { Consolidator as ConsolidatorV1 } from './consolidator_v1';
 import { Consolidator as ConsolidatorV2 } from './consolidator_v2';
@@ -144,8 +144,15 @@ async function extractRmrks(calls: Call[], { block, store }: BlockContext & Stor
     const consolidator_v1 = new ConsolidatorV1(dbAdapterV1, undefined, false, false);
     const consolidator_v2 = new ConsolidatorV2(dbAdapterV2, undefined, false, false);
 
-    await consolidator_v1.consolidate(remarks.v1);
-    await consolidator_v2.consolidate(remarks.v2);
+    // if id_indexing has yet to be initialized
+    if (!id_indexing.id_indexing_nft) {
+        console.log("Initializing id_indexing.id_indexing_nft");
+        console.log(store.getMany(Nft, { order: { idIndexing: "DESC" } }));
+    }
+    if (!id_indexing.id_indexing_collection) {
+    }
+    await consolidator_v1.consolidate(remarks.v1, id_indexing);
+    await consolidator_v2.consolidate(remarks.v2 /*, id_indexing*/);
     // console.log('Consolidated nfts:', nfts);
     // console.log('Consolidated collections:', collections);
 }

@@ -93,8 +93,13 @@ export class DBAdapterV1 implements IConsolidatorAdapter {
         });
     }
     async updateNFTMint(nft: NFT) {
+        if (!nft.id_indexing || !nft.id_indexing.id_indexing_nft) {
+            throw new Error("Invalid new id_indexing for collections");
+            process.exit(-1);
+        }
         const nftToAdd = new Nft();
         nftToAdd.id = nft.getId();
+        nftToAdd.id_indexing = nft.id_indexing.id_indexing_nft++;
         nftToAdd.collection = nft.collection;
         // nftToAdd.symbol = nft.symbol;
         nftToAdd.transferable = new BN(nft.transferable);
@@ -104,10 +109,14 @@ export class DBAdapterV1 implements IConsolidatorAdapter {
         await this.store.save<Nft>(nftToAdd);
     }
     async updateCollectionMint(collection: CollectionConsolidated) {
-        // TODO this is how this.store methods should be called
+        if (!collection.id_indexing || !collection.id_indexing.id_indexing_collection) {
+            throw new Error("Invalid new id_indexing for collections");
+            process.exit(-1);
+        }
         let collectionToAdd = new Collection();
         collectionToAdd.block = new BN(collection.block);
         collectionToAdd.id = collection.id;
+        collectionToAdd.id_indexing = collection.id_indexing.id_indexing_collection++;
         collectionToAdd.issuer = collection.issuer;
         collectionToAdd.metadata = collection.metadata;
         collectionToAdd.symbol = collection.symbol;

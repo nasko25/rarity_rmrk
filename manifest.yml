@@ -26,12 +26,12 @@ mappings:
   # range: '[8941520, )'
   # range: '[9468348, )'
   # This block mints the first collection in the db, but the first nft is minted at block 7370524
-  # range: '[6432195, )'
+  range: '[6432195, )'
   # 8949162 is the first block containing a Kanaria rmrk nft
   # https://polkascan.io/kusama/transaction/0x12f3bbf6b88dd491cc93900aac794e497185e15964c50e1f19f4e59fbbc0514f
   # (it is inside a utility.batch() event)
   # this is just for testing; 6432195 is a better block to start from
-  range: '[8849162, )'
+  # range: '[8849162, )'
   mappingsModule: mappings
   extrinsicHandlers:
     - extrinsic: system.remark

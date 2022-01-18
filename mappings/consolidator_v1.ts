@@ -74,7 +74,8 @@ export class Consolidator {
      * The MINT interaction creates an NFT collection.
      * https://github.com/rmrk-team/rmrk-spec/blob/master/standards/rmrk1.0.0/interactions/mint.md
      */
-    async mint(remark: Remark) {
+                                            // TODO make that an object and export it
+    async mint(remark: Remark, id_indexing: { id_indexing_nft: Number, id_indexing_collection: Number }) {
         // console.log("minting a collection...")
         const invalidate = this.updateInvalidCalls(OP_TYPES.MINT, remark).bind(this);
         let collection;
@@ -92,6 +93,7 @@ export class Consolidator {
         }
         try {
             validateMintIds(collection, remark);
+            collection.id_indexing = id_indexing;
             await this.dbAdapter.updateCollectionMint(collection);
             this.collections.push(collection);
             if (this.emitInteractionChanges) {
@@ -108,7 +110,7 @@ export class Consolidator {
      * The MINT interaction creates an NFT inside of a Collection.
      * https://github.com/rmrk-team/rmrk-spec/blob/master/standards/rmrk1.0.0/interactions/mintnft.md
      */
-    async mintNFT(remark: Remark) {
+    async mintNFT(remark: Remark, id_indexing: { id_indexing_nft: Number, id_indexing_collection: Number }) {
         const invalidate = this.updateInvalidCalls(OP_TYPES.MINTNFT, remark).bind(this);
         const nft = NFT.fromRemark(remark.remark, remark.block);
         if (typeof nft === "string") {
@@ -126,6 +128,7 @@ export class Consolidator {
             : undefined;
         try {
             validateMintNFT(remark, nft, collection);
+            nft.id_indexing = id_indexing;
             await this.dbAdapter.updateNFTMint(nft, remark.block);
             this.nfts.push(nft);
             if (this.emitInteractionChanges) {
@@ -326,7 +329,7 @@ export class Consolidator {
         }
         return false;
     }
-    async consolidate(rmrks: Remark[]) {
+    async consolidate(rmrks: Remark[], id_indexing: { id_indexing_nft: Number?, id_indexing_collection: Number? }) {
         // console.log("consolidating v1: ", rmrks);
         const remarks = rmrks || [];
         // console.log(remarks);
@@ -335,12 +338,12 @@ export class Consolidator {
             // console.log('Remark is: ' + remark.remark);
             switch (remark.interaction_type) {
                 case OP_TYPES.MINT:
-                    if (await this.mint(remark)) {
+                    if (await this.mint(remark, id_indexing)) {
                         continue;
                     }
                     break;
                 case OP_TYPES.MINTNFT:
-                    if (await this.mintNFT(remark)) {
+                    if (await this.mintNFT(remark, id_indexing)) {
                         continue;
                     }
                     break;
