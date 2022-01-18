@@ -124,6 +124,10 @@ const getRemarksFromBlocks = (blocks: RemarkBlock[], prefixes: string[]) => {
     return remarks;
 };
 
+// keep track of the last collection and nft id that was added to the graphql db, so that
+// they can be incremented for subsequent collections/nfts
+const id_indexing = { id_indexing_nft: null, id_indexing_collection: null };
+
 async function extractRmrks(calls: Call[], { block, store }: BlockContext & StoreContext) {
     // TODO for some reason some v2.0.0 rmrks are not extracted from the blocks,
     //  such as MINT and CREATE

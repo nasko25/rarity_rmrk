@@ -68,6 +68,8 @@ export type CollectionOrderByInput =   'createdAt_ASC' |
   'updatedAt_DESC' |
   'deletedAt_ASC' |
   'deletedAt_DESC' |
+  'idIndexing_ASC' |
+  'idIndexing_DESC' |
   'name_ASC' |
   'name_DESC' |
   'max_ASC' |
@@ -102,6 +104,8 @@ export type NftOrderByInput =   'createdAt_ASC' |
   'updatedAt_DESC' |
   'deletedAt_ASC' |
   'deletedAt_DESC' |
+  'idIndexing_ASC' |
+  'idIndexing_DESC' |
   'collection_ASC' |
   'collection_DESC' |
   'symbol_ASC' |
@@ -199,6 +203,7 @@ export interface BaseWhereInput {
 }
 
 export interface CollectionCreateInput {
+  idIndexing: String
   name?: String | null
   max: String
   issuer?: String | null
@@ -209,6 +214,7 @@ export interface CollectionCreateInput {
 }
 
 export interface CollectionUpdateInput {
+  idIndexing?: String | null
   name?: String | null
   max?: String | null
   issuer?: String | null
@@ -243,6 +249,12 @@ export interface CollectionWhereInput {
   deletedAt_gte?: DateTime | null
   deletedById_eq?: ID_Input | null
   deletedById_in?: ID_Output[] | ID_Output | null
+  idIndexing_eq?: BigInt | null
+  idIndexing_gt?: BigInt | null
+  idIndexing_gte?: BigInt | null
+  idIndexing_lt?: BigInt | null
+  idIndexing_lte?: BigInt | null
+  idIndexing_in?: BigInt[] | BigInt | null
   name_eq?: String | null
   name_contains?: String | null
   name_startsWith?: String | null
@@ -285,7 +297,8 @@ export interface CollectionWhereInput {
 }
 
 export interface CollectionWhereUniqueInput {
-  id: ID_Output
+  id?: ID_Input | null
+  idIndexing?: BigInt | null
 }
 
 export interface HistoricalBalanceCreateInput {
@@ -347,6 +360,7 @@ export interface HistoricalBalanceWhereUniqueInput {
 }
 
 export interface NftCreateInput {
+  idIndexing: String
   collection: String
   symbol?: String | null
   transferable: String
@@ -357,6 +371,7 @@ export interface NftCreateInput {
 }
 
 export interface NftUpdateInput {
+  idIndexing?: String | null
   collection?: String | null
   symbol?: String | null
   transferable?: String | null
@@ -391,6 +406,12 @@ export interface NftWhereInput {
   deletedAt_gte?: DateTime | null
   deletedById_eq?: ID_Input | null
   deletedById_in?: ID_Output[] | ID_Output | null
+  idIndexing_eq?: BigInt | null
+  idIndexing_gt?: BigInt | null
+  idIndexing_gte?: BigInt | null
+  idIndexing_lt?: BigInt | null
+  idIndexing_lte?: BigInt | null
+  idIndexing_in?: BigInt[] | BigInt | null
   collection_eq?: String | null
   collection_contains?: String | null
   collection_startsWith?: String | null
@@ -433,7 +454,8 @@ export interface NftWhereInput {
 }
 
 export interface NftWhereUniqueInput {
-  id: ID_Output
+  id?: ID_Input | null
+  idIndexing?: BigInt | null
 }
 
 export interface BaseGraphQLObject {
@@ -507,6 +529,7 @@ export interface Collection extends BaseGraphQLObject {
   deletedAt?: DateTime | null
   deletedById?: String | null
   version: Int
+  idIndexing: BigInt
   name?: String | null
   max: BigInt
   issuer?: String | null
@@ -566,6 +589,7 @@ export interface Nft extends BaseGraphQLObject {
   deletedAt?: DateTime | null
   deletedById?: String | null
   version: Int
+  idIndexing: BigInt
   collection: String
   symbol?: String | null
   transferable: BigInt

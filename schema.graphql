@@ -18,6 +18,8 @@ type HistoricalBalance @entity {
 
 type Collection @entity {
     id: String!
+    # id used for indexing of collections; it has nothing to the with the actual collection
+    id_indexing: BigInt! @unique
     name: String
     max: BigInt!
     issuer: String
@@ -60,6 +62,8 @@ type Collection @entity {
 type Nft @entity {
     # TODO recompile
     id: String! @unique
+    # id used for indexing of nfts; it has nothing to the with the actual nft
+    id_indexing: BigInt! @unique
     collection: String!
     symbol: String
     transferable: BigInt!

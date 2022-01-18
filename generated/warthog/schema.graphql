@@ -162,6 +162,7 @@ type Collection implements BaseGraphQLObject {
   deletedAt: DateTime
   deletedById: String
   version: Int!
+  idIndexing: BigInt!
   name: String
   max: BigInt!
   issuer: String
@@ -178,6 +179,7 @@ type CollectionConnection {
 }
 
 input CollectionCreateInput {
+  idIndexing: String!
   name: String
   max: String!
   issuer: String
@@ -199,6 +201,8 @@ enum CollectionOrderByInput {
   updatedAt_DESC
   deletedAt_ASC
   deletedAt_DESC
+  idIndexing_ASC
+  idIndexing_DESC
   name_ASC
   name_DESC
   max_ASC
@@ -216,6 +220,7 @@ enum CollectionOrderByInput {
 }
 
 input CollectionUpdateInput {
+  idIndexing: String
   name: String
   max: String
   issuer: String
@@ -250,6 +255,12 @@ input CollectionWhereInput {
   deletedAt_gte: DateTime
   deletedById_eq: ID
   deletedById_in: [ID!]
+  idIndexing_eq: BigInt
+  idIndexing_gt: BigInt
+  idIndexing_gte: BigInt
+  idIndexing_lt: BigInt
+  idIndexing_lte: BigInt
+  idIndexing_in: [BigInt!]
   name_eq: String
   name_contains: String
   name_startsWith: String
@@ -292,7 +303,8 @@ input CollectionWhereInput {
 }
 
 input CollectionWhereUniqueInput {
-  id: ID!
+  id: ID
+  idIndexing: BigInt
 }
 
 """
@@ -416,6 +428,7 @@ type Nft implements BaseGraphQLObject {
   deletedAt: DateTime
   deletedById: String
   version: Int!
+  idIndexing: BigInt!
   collection: String!
   symbol: String
   transferable: BigInt!
@@ -432,6 +445,7 @@ type NftConnection {
 }
 
 input NftCreateInput {
+  idIndexing: String!
   collection: String!
   symbol: String
   transferable: String!
@@ -453,6 +467,8 @@ enum NftOrderByInput {
   updatedAt_DESC
   deletedAt_ASC
   deletedAt_DESC
+  idIndexing_ASC
+  idIndexing_DESC
   collection_ASC
   collection_DESC
   symbol_ASC
@@ -470,6 +486,7 @@ enum NftOrderByInput {
 }
 
 input NftUpdateInput {
+  idIndexing: String
   collection: String
   symbol: String
   transferable: String
@@ -504,6 +521,12 @@ input NftWhereInput {
   deletedAt_gte: DateTime
   deletedById_eq: ID
   deletedById_in: [ID!]
+  idIndexing_eq: BigInt
+  idIndexing_gt: BigInt
+  idIndexing_gte: BigInt
+  idIndexing_lt: BigInt
+  idIndexing_lte: BigInt
+  idIndexing_in: [BigInt!]
   collection_eq: String
   collection_contains: String
   collection_startsWith: String
@@ -546,7 +569,8 @@ input NftWhereInput {
 }
 
 input NftWhereUniqueInput {
-  id: ID!
+  id: ID
+  idIndexing: BigInt
 }
 
 type PageInfo {

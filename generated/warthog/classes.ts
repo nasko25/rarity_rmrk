@@ -426,6 +426,9 @@ export enum CollectionOrderByEnum {
   deletedAt_ASC = "deletedAt_ASC",
   deletedAt_DESC = "deletedAt_DESC",
 
+  idIndexing_ASC = "idIndexing_ASC",
+  idIndexing_DESC = "idIndexing_DESC",
+
   name_ASC = "name_ASC",
   name_DESC = "name_DESC",
 
@@ -525,6 +528,24 @@ export class CollectionWhereInput {
 
   @TypeGraphQLField(() => [ID], { nullable: true })
   deletedById_in?: string[];
+
+  @TypeGraphQLField(() => BigInt, { nullable: true })
+  idIndexing_eq?: string;
+
+  @TypeGraphQLField(() => BigInt, { nullable: true })
+  idIndexing_gt?: string;
+
+  @TypeGraphQLField(() => BigInt, { nullable: true })
+  idIndexing_gte?: string;
+
+  @TypeGraphQLField(() => BigInt, { nullable: true })
+  idIndexing_lt?: string;
+
+  @TypeGraphQLField(() => BigInt, { nullable: true })
+  idIndexing_lte?: string;
+
+  @TypeGraphQLField(() => [BigInt], { nullable: true })
+  idIndexing_in?: string[];
 
   @TypeGraphQLField({ nullable: true })
   name_eq?: string;
@@ -646,12 +667,18 @@ export class CollectionWhereInput {
 
 @TypeGraphQLInputType()
 export class CollectionWhereUniqueInput {
-  @TypeGraphQLField(() => ID)
+  @TypeGraphQLField(() => ID, { nullable: true })
   id?: string;
+
+  @TypeGraphQLField(() => BigInt, { nullable: true })
+  idIndexing?: string;
 }
 
 @TypeGraphQLInputType()
 export class CollectionCreateInput {
+  @TypeGraphQLField()
+  idIndexing!: string;
+
   @TypeGraphQLField({ nullable: true })
   name?: string;
 
@@ -676,6 +703,9 @@ export class CollectionCreateInput {
 
 @TypeGraphQLInputType()
 export class CollectionUpdateInput {
+  @TypeGraphQLField({ nullable: true })
+  idIndexing?: string;
+
   @TypeGraphQLField({ nullable: true })
   name?: string;
 
@@ -728,6 +758,9 @@ export enum NftOrderByEnum {
 
   deletedAt_ASC = "deletedAt_ASC",
   deletedAt_DESC = "deletedAt_DESC",
+
+  idIndexing_ASC = "idIndexing_ASC",
+  idIndexing_DESC = "idIndexing_DESC",
 
   collection_ASC = "collection_ASC",
   collection_DESC = "collection_DESC",
@@ -828,6 +861,24 @@ export class NftWhereInput {
 
   @TypeGraphQLField(() => [ID], { nullable: true })
   deletedById_in?: string[];
+
+  @TypeGraphQLField(() => BigInt, { nullable: true })
+  idIndexing_eq?: string;
+
+  @TypeGraphQLField(() => BigInt, { nullable: true })
+  idIndexing_gt?: string;
+
+  @TypeGraphQLField(() => BigInt, { nullable: true })
+  idIndexing_gte?: string;
+
+  @TypeGraphQLField(() => BigInt, { nullable: true })
+  idIndexing_lt?: string;
+
+  @TypeGraphQLField(() => BigInt, { nullable: true })
+  idIndexing_lte?: string;
+
+  @TypeGraphQLField(() => [BigInt], { nullable: true })
+  idIndexing_in?: string[];
 
   @TypeGraphQLField({ nullable: true })
   collection_eq?: string;
@@ -949,12 +1000,18 @@ export class NftWhereInput {
 
 @TypeGraphQLInputType()
 export class NftWhereUniqueInput {
-  @TypeGraphQLField(() => ID)
+  @TypeGraphQLField(() => ID, { nullable: true })
   id?: string;
+
+  @TypeGraphQLField(() => BigInt, { nullable: true })
+  idIndexing?: string;
 }
 
 @TypeGraphQLInputType()
 export class NftCreateInput {
+  @TypeGraphQLField()
+  idIndexing!: string;
+
   @TypeGraphQLField()
   collection!: string;
 
@@ -979,6 +1036,9 @@ export class NftCreateInput {
 
 @TypeGraphQLInputType()
 export class NftUpdateInput {
+  @TypeGraphQLField({ nullable: true })
+  idIndexing?: string;
+
   @TypeGraphQLField({ nullable: true })
   collection?: string;
 
