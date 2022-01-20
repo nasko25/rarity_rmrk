@@ -7,6 +7,7 @@ import { Consolidator as ConsolidatorV2 } from './consolidator_v2';
 import { hexToString, stringToHex } from "@polkadot/util";
 import { DBAdapter } from '../using_rmrk_tools/DBAdapter';
 import { DBAdapterV1 } from '../using_rmrk_tools/DBAdapterV1';
+import { IdIndexing } from "../using_rmrk_tools/types/types";
 
 type Call = {
     call: string,
@@ -126,7 +127,7 @@ const getRemarksFromBlocks = (blocks: RemarkBlock[], prefixes: string[]) => {
 
 // keep track of the last collection and nft id that was added to the graphql db, so that
 // they can be incremented for subsequent collections/nfts
-const id_indexing = { id_indexing_nft: null, id_indexing_collection: null };
+const id_indexing: IdIndexing = { id_indexing_nft: -1, id_indexing_collection: -1 };
 
 async function extractRmrks(calls: Call[], { block, store }: BlockContext & StoreContext) {
     // TODO for some reason some v2.0.0 rmrks are not extracted from the blocks,
@@ -145,11 +146,13 @@ async function extractRmrks(calls: Call[], { block, store }: BlockContext & Stor
     const consolidator_v2 = new ConsolidatorV2(dbAdapterV2, undefined, false, false);
 
     // if id_indexing has yet to be initialized
-    if (!id_indexing.id_indexing_nft) {
+    if (id_indexing.id_indexing_nft < 0) {
         console.log("Initializing id_indexing.id_indexing_nft");
         console.log(store.getMany(Nft, { order: { idIndexing: "DESC" } }));
+        id_indexing.id_indexing_nft = 1;
     }
-    if (!id_indexing.id_indexing_collection) {
+    if (id_indexing.id_indexing_collection < 0) {
+        id_indexing.id_indexing_collection = 1;
     }
     await consolidator_v1.consolidate(remarks.v1, id_indexing);
     await consolidator_v2.consolidate(remarks.v2 /*, id_indexing*/);

@@ -6,7 +6,7 @@ import { consolidatedCollectionToInstance, consolidatedNFTtoInstance, validateMi
     getChangeIssuerEntity, changeIssuerInteraction,
     getCollectionFromRemark, Collection } from "../node_modules/rmrk-tools/dist-cli/src/rmrk1.0.0";
 import { Remark } from "../node_modules/rmrk-tools/dist-cli/src/rmrk1.0.0/tools/consolidator/remark";
-import { CollectionConsolidated, NFTConsolidated } from "../node_modules/rmrk-tools/dist-cli/src/rmrk1.0.0/tools/consolidator/consolidator";
+import { CollectionConsolidated, NFTConsolidated } from "../using_rmrk_tools/types/types_v1";
 
 // code taken from node_modules/rmrk-tools in order to debug it
 type InvalidCall = {
@@ -93,8 +93,7 @@ export class Consolidator {
         }
         try {
             validateMintIds(collection, remark);
-            collection.id_indexing = id_indexing;
-            await this.dbAdapter.updateCollectionMint(collection);
+            await this.dbAdapter.updateCollectionMint(collection).then(collection => console.log(collection));
             this.collections.push(collection);
             if (this.emitInteractionChanges) {
                 this.interactionChanges.push({ [OP_TYPES.MINT]: collection.id });
@@ -128,7 +127,6 @@ export class Consolidator {
             : undefined;
         try {
             validateMintNFT(remark, nft, collection);
-            nft.id_indexing = id_indexing;
             await this.dbAdapter.updateNFTMint(nft, remark.block);
             this.nfts.push(nft);
             if (this.emitInteractionChanges) {
@@ -329,7 +327,7 @@ export class Consolidator {
         }
         return false;
     }
-    async consolidate(rmrks: Remark[], id_indexing: { id_indexing_nft: Number?, id_indexing_collection: Number? }) {
+    async consolidate(rmrks: Remark[], id_indexing: { id_indexing_nft: Number, id_indexing_collection: Number }) {
         // console.log("consolidating v1: ", rmrks);
         const remarks = rmrks || [];
         // console.log(remarks);

@@ -92,6 +92,9 @@ export class DBAdapterV1 implements IConsolidatorAdapter {
                 console.error(`Nft with id ${consolidatedNFT.id} is undefined and cannot be burned.`);
         });
     }
+    async updateNFTConsolidatedMint(consolidatedNFT: NFTConsolidated) {
+    
+    }
     async updateNFTMint(nft: NFT) {
         if (!nft.id_indexing || !nft.id_indexing.id_indexing_nft) {
             throw new Error("Invalid new id_indexing for collections");
