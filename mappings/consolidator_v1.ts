@@ -7,6 +7,7 @@ import { consolidatedCollectionToInstance, consolidatedNFTtoInstance, validateMi
     getCollectionFromRemark, Collection } from "../node_modules/rmrk-tools/dist-cli/src/rmrk1.0.0";
 import { Remark } from "../node_modules/rmrk-tools/dist-cli/src/rmrk1.0.0/tools/consolidator/remark";
 import { CollectionConsolidated, NFTConsolidated } from "../using_rmrk_tools/types/types_v1";
+import { IDBAdapterConsolidated, IdIndexing } from "../using_rmrk_tools/types/types";
 
 // code taken from node_modules/rmrk-tools in order to debug it
 type InvalidCall = {
@@ -34,7 +35,7 @@ export class Consolidator {
     readonly invalidCalls: InvalidCall[];
     readonly collections: Collection[];
     readonly nfts: NFT[];
-    readonly dbAdapter: IConsolidatorAdapter;
+    readonly dbAdapter: IDBAdapterConsolidated;
     readonly ss58Format?: number;
     readonly emitEmoteChanges?: boolean;
     readonly emitInteractionChanges?: boolean;
@@ -45,7 +46,7 @@ export class Consolidator {
      * @param emitEmoteChanges log EMOTE events in nft 'changes' prop
      * @param emitInteractionChanges return interactions changes ( OP_TYPE: id )
      */
-    constructor(dbAdapter: IConsolidatorAdapter, ss58Format?: number, emitEmoteChanges?: boolean, emitInteractionChanges?: boolean) {
+    constructor(dbAdapter: IDBAdapterConsolidated, ss58Format?: number, emitEmoteChanges?: boolean, emitInteractionChanges?: boolean) {
         this.interactionChanges = [];
         if (ss58Format) {
             this.ss58Format = ss58Format;
@@ -75,7 +76,7 @@ export class Consolidator {
      * https://github.com/rmrk-team/rmrk-spec/blob/master/standards/rmrk1.0.0/interactions/mint.md
      */
                                             // TODO make that an object and export it
-    async mint(remark: Remark, id_indexing: { id_indexing_nft: Number, id_indexing_collection: Number }) {
+    async mint(remark: Remark, id_indexing: IdIndexing) {
         // console.log("minting a collection...")
         const invalidate = this.updateInvalidCalls(OP_TYPES.MINT, remark).bind(this);
         let collection;
@@ -93,7 +94,7 @@ export class Consolidator {
         }
         try {
             validateMintIds(collection, remark);
-            await this.dbAdapter.updateCollectionMint(collection).then(collection => console.log(collection));
+            // await this.dbAdapter.updateCollectionMint(collection).then(collection => console.log(collection));
             this.collections.push(collection);
             if (this.emitInteractionChanges) {
                 this.interactionChanges.push({ [OP_TYPES.MINT]: collection.id });
@@ -109,7 +110,7 @@ export class Consolidator {
      * The MINT interaction creates an NFT inside of a Collection.
      * https://github.com/rmrk-team/rmrk-spec/blob/master/standards/rmrk1.0.0/interactions/mintnft.md
      */
-    async mintNFT(remark: Remark, id_indexing: { id_indexing_nft: Number, id_indexing_collection: Number }) {
+    async mintNFT(remark: Remark, id_indexing: IdIndexing) {
         const invalidate = this.updateInvalidCalls(OP_TYPES.MINTNFT, remark).bind(this);
         const nft = NFT.fromRemark(remark.remark, remark.block);
         if (typeof nft === "string") {
@@ -127,7 +128,8 @@ export class Consolidator {
             : undefined;
         try {
             validateMintNFT(remark, nft, collection);
-            await this.dbAdapter.updateNFTMint(nft, remark.block);
+            console.log("updating nft consolidated mint");
+            await this.dbAdapter.updateNFTConsolidatedMint(nft, id_indexing /* remark.block */);
             this.nfts.push(nft);
             if (this.emitInteractionChanges) {
                 this.interactionChanges.push({ [OP_TYPES.MINTNFT]: nft.getId() });
@@ -327,7 +329,7 @@ export class Consolidator {
         }
         return false;
     }
-    async consolidate(rmrks: Remark[], id_indexing: { id_indexing_nft: Number, id_indexing_collection: Number }) {
+    async consolidate(rmrks: Remark[], id_indexing: IdIndexing) {
         // console.log("consolidating v1: ", rmrks);
         const remarks = rmrks || [];
         // console.log(remarks);

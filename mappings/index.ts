@@ -154,6 +154,7 @@ async function extractRmrks(calls: Call[], { block, store }: BlockContext & Stor
     if (id_indexing.id_indexing_collection < 0) {
         id_indexing.id_indexing_collection = 1;
     }
+    console.log("extract");
     await consolidator_v1.consolidate(remarks.v1, id_indexing);
     await consolidator_v2.consolidate(remarks.v2 /*, id_indexing*/);
     // console.log('Consolidated nfts:', nfts);
