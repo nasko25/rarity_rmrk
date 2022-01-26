@@ -94,7 +94,7 @@ export class Consolidator {
         }
         try {
             validateMintIds(collection, remark);
-            // await this.dbAdapter.updateCollectionMint(collection).then(collection => console.log(collection));
+            await this.dbAdapter.updateCollectionConsolidatedMint(collection, id_indexing).then(collection => console.log(collection));
             this.collections.push(collection);
             if (this.emitInteractionChanges) {
                 this.interactionChanges.push({ [OP_TYPES.MINT]: collection.id });
@@ -128,7 +128,6 @@ export class Consolidator {
             : undefined;
         try {
             validateMintNFT(remark, nft, collection);
-            console.log("updating nft consolidated mint");
             await this.dbAdapter.updateNFTConsolidatedMint(nft, id_indexing /* remark.block */);
             this.nfts.push(nft);
             if (this.emitInteractionChanges) {

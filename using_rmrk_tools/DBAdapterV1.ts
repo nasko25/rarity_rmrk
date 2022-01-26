@@ -94,12 +94,11 @@ export class DBAdapterV1 implements IDBAdapterConsolidated {
     }
     async updateNFTConsolidatedMint(nft: NFT, id_indexing: IdIndexing) {
         if (!id_indexing || !id_indexing.id_indexing_nft) {
-            throw new Error("Invalid new id_indexing for collections");
+            throw new Error("Invalid new id_indexing for nfts");
             process.exit(-1);
         }
         const nftToAdd = new Nft();
         nftToAdd.id = nft.getId();
-        // TODO or idIndexing ?
         nftToAdd.idIndexing = new BN(id_indexing.id_indexing_nft++);
         nftToAdd.collection = nft.collection;
         // nftToAdd.symbol = nft.symbol;
@@ -107,8 +106,7 @@ export class DBAdapterV1 implements IDBAdapterConsolidated {
         nftToAdd.sn = nft.sn;
         nftToAdd.metadata = nft.metadata;
         nftToAdd.block = new BN(nft.block);
-        process.exit(-1);
-        // await this.store.save<Nft>(nftToAdd);
+        await this.store.save<Nft>(nftToAdd);
     }
     async updateNFTMint(nft: NFT) {
         const nftToAdd = new Nft();
@@ -122,7 +120,20 @@ export class DBAdapterV1 implements IDBAdapterConsolidated {
         nftToAdd.block = new BN(nft.block);
         await this.store.save<Nft>(nftToAdd);
     }
-    // TODO updateNFTConsolidatedMint
+    async updateCollectionConsolidatedMint(collection: CollectionConsolidated, id_indexing: IdIndexing) {
+        if (!id_indexing || !id_indexing.id_indexing_collection) {
+            throw new Error("Invalid new id_indexing for collections.");
+        }
+        const collectionToAdd = new Collection();
+        collectionToAdd.block = new BN(collection.block);
+        collectionToAdd.id = collection.id;
+        collectionToAdd.idIndexing = new BN(id_indexing.id_indexing_collection++);
+        collectionToAdd.issuer = collection.issuer;
+        collectionToAdd.metadata = collection.metadata;
+        collectionToAdd.symbol = collection.symbol;
+        collectionToAdd.max = new BN(collection.max);
+        await this.store.save<Collection>(collectionToAdd);
+    }
     async updateCollectionMint(collection: CollectionConsolidated) {
         // if (!collection.id_indexing || !collection.id_indexing.id_indexing_collection) {
         //     throw new Error("Invalid new id_indexing for collections");

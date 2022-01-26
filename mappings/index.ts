@@ -148,13 +148,19 @@ async function extractRmrks(calls: Call[], { block, store }: BlockContext & Stor
     // if id_indexing has yet to be initialized
     if (id_indexing.id_indexing_nft < 0) {
         console.log("Initializing id_indexing.id_indexing_nft");
-        console.log(store.getMany(Nft, { order: { idIndexing: "DESC" } }));
-        id_indexing.id_indexing_nft = 1;
+        const last_nft_id = (await store.getMany(Nft, { order: { idIndexing: "DESC" } }))[0]?.idIndexing.toNumber();
+        if (last_nft_id)
+            id_indexing.id_indexing_nft = last_nft_id + 1;
+        else
+            id_indexing.id_indexing_nft = 1;
     }
     if (id_indexing.id_indexing_collection < 0) {
-        id_indexing.id_indexing_collection = 1;
+        const last_collection_id = (await store.getMany(Collection, { order: { idIndexing: "DESC" } }))[0]?.idIndexing.toNumber();
+        if (last_collection_id)
+            id_indexing.id_indexing_collection = last_collection_id + 1;
+        else
+            id_indexing.id_indexing_collection = 1;
     }
-    console.log("extract");
     await consolidator_v1.consolidate(remarks.v1, id_indexing);
     await consolidator_v2.consolidate(remarks.v2 /*, id_indexing*/);
     // console.log('Consolidated nfts:', nfts);
