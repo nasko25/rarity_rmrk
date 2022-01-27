@@ -13,6 +13,7 @@ import { getBaseFromRemark } from "../node_modules/rmrk-tools/dist-cli/src/rmrk2
 import { InMemoryAdapter } from "../node_modules/rmrk-tools/dist-cli/src/rmrk2.0.0/tools/consolidator/adapters/in-memory-adapter";
 import { Remark } from "../node_modules/rmrk-tools/dist-cli/src/rmrk2.0.0/tools/consolidator/remark";
 import { CollectionConsolidated, NFTConsolidated, BaseConsolidated } from "../node_modules/rmrk-tools/dist-cli/src/rmrk2.0.0/tools/consolidator/consolidator";
+import { IDBAdapterConsolidatedV2, IdIndexing } from "../using_rmrk_tools/types/types";
 
 // code taken from node_modules/rmrk-tools in order to debug it
 type InvalidCall = {
@@ -76,7 +77,7 @@ export class Consolidator {
     readonly collections: Collection[];
     readonly bases: Base[];
     readonly nfts: NFT[];
-    readonly dbAdapter: IConsolidatorAdapter;
+    readonly dbAdapter: IDBAdapterConsolidatedV2;
     readonly ss58Format?: number;
     readonly emitEmoteChanges?: boolean;
     readonly emitInteractionChanges?: boolean;
@@ -87,7 +88,7 @@ export class Consolidator {
      * @param emitEmoteChanges log EMOTE events in nft 'changes' prop
      * @param emitInteractionChanges return interactions changes ( OP_TYPE: id )
      */
-    constructor(dbAdapter: IConsolidatorAdapter, ss58Format?: number, emitEmoteChanges?: boolean, emitInteractionChanges?: boolean) {
+    constructor(dbAdapter: IDBAdapterConsolidatedV2, ss58Format?: number, emitEmoteChanges?: boolean, emitInteractionChanges?: boolean) {
         this.interactionChanges = [];
         if (ss58Format) {
             this.ss58Format = ss58Format;
@@ -147,7 +148,7 @@ export class Consolidator {
      * The CREATE interaction creates a NFT class.
      * https://github.com/rmrk-team/rmrk-spec/blob/master/standards/rmrk2.0.0/interactions/create.md
      */
-    async create(remark: Remark) {
+    async create(remark: Remark, id_indexing: IdIndexing) {
         const invalidate = this.updateInvalidCalls(OP_TYPES.CREATE, remark).bind(this);
         let collection;
         try {
@@ -164,7 +165,7 @@ export class Consolidator {
         }
         try {
             validateCreateIds(collection, remark);
-            await this.dbAdapter.updateCollectionMint(collection);
+            await this.dbAdapter.updateCollectionConsolidatedMint(collection, id_indexing);
             this.collections.push(collection);
             if (this.emitInteractionChanges) {
                 this.interactionChanges.push({ [OP_TYPES.CREATE]: collection.id });
@@ -180,7 +181,7 @@ export class Consolidator {
      * The MINT interaction creates an NFT inside of a Collection.
      * https://github.com/rmrk-team/rmrk-spec/blob/master/standards/rmrk2.0.0/interactions/mint.md
      */
-    async mint(remark: Remark) {
+    async mint(remark: Remark, id_indexing: IdIndexing) {
         // console.log("minting a v2 nft...")
         const invalidate = this.updateInvalidCalls(OP_TYPES.MINT, remark).bind(this);
         const nft = NFT.fromRemark(remark.remark, remark.block);
@@ -202,7 +203,7 @@ export class Consolidator {
                 await invalidateIfRecursion(nft.getId(), nft.owner, this.dbAdapter);
             }
             await validateMintNFT(remark, nft, this.dbAdapter, collection);
-            await this.dbAdapter.updateNFTMint(nft);
+            await this.dbAdapter.updateNFTConsolidatedMint(nft, id_indexing);
             this.nfts.push(nft);
             if (this.emitInteractionChanges) {
                 this.interactionChanges.push({ [OP_TYPES.MINT]: nft.getId() });
@@ -628,7 +629,7 @@ export class Consolidator {
         }
         return false;
     }
-    async consolidate(rmrks: Remark[]) {
+    async consolidate(rmrks: Remark[], id_indexing: IdIndexing) {
         // console.log("consolidating v2: ", rmrks);
         const remarks = rmrks || [];
         // console.log(remarks);

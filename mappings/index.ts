@@ -162,7 +162,7 @@ async function extractRmrks(calls: Call[], { block, store }: BlockContext & Stor
             id_indexing.id_indexing_collection = 1;
     }
     await consolidator_v1.consolidate(remarks.v1, id_indexing);
-    await consolidator_v2.consolidate(remarks.v2 /*, id_indexing*/);
+    await consolidator_v2.consolidate(remarks.v2, id_indexing);
     // console.log('Consolidated nfts:', nfts);
     // console.log('Consolidated collections:', collections);
 }
