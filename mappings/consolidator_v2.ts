@@ -638,12 +638,12 @@ export class Consolidator {
             // console.log('Remark is: ' + remark.remark);
             switch (remark.interaction_type) {
                 case OP_TYPES.CREATE:
-                    if (await this.create(remark)) {
+                    if (await this.create(remark, id_indexing)) {
                         continue;
                     }
                     break;
                 case OP_TYPES.MINT:
-                    if (await this.mint(remark)) {
+                    if (await this.mint(remark, id_indexing)) {
                         continue;
                     }
                     break;
