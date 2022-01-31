@@ -4,12 +4,12 @@ import { DatabaseManager } from '@subsquid/hydra-common';
 import { BaseConsolidated } from "rmrk-tools/dist/tools/consolidator/consolidator";
 import { Nft, Collection } from '../generated/model';
 import { NFTConsolidated, CollectionConsolidated } from "../node_modules/rmrk-tools/dist-cli/src/rmrk1.0.0/tools/consolidator/consolidator";
-import { IConsolidatorAdapter } from '../node_modules/rmrk-tools/dist-cli/src/rmrk1.0.0/tools/consolidator/adapters/types';
 import { AcceptEntityType } from 'rmrk-tools/dist/classes/accept';
 import { Collection as CollectionDist } from "../node_modules/rmrk-tools/dist-cli/src/rmrk1.0.0/classes/collection";
 import BN from 'bn.js';
+import { IdIndexing, IDBAdapterConsolidated } from './types/types';
 
-export class DBAdapterV1 implements IConsolidatorAdapter {
+export class DBAdapterV1 implements IDBAdapterConsolidated {
     store: DatabaseManager;
     constructor(store: DatabaseManager) {
         this.store = store;
@@ -92,14 +92,14 @@ export class DBAdapterV1 implements IConsolidatorAdapter {
                 console.error(`Nft with id ${consolidatedNFT.id} is undefined and cannot be burned.`);
         });
     }
-    async updateNFTMint(nft: NFT) {
-        if (!nft.id_indexing || !nft.id_indexing.id_indexing_nft) {
-            throw new Error("Invalid new id_indexing for collections");
+    async updateNFTConsolidatedMint(nft: NFT, id_indexing: IdIndexing) {
+        if (!id_indexing || !id_indexing.id_indexing_nft) {
+            throw new Error("Invalid new id_indexing for nfts");
             process.exit(-1);
         }
         const nftToAdd = new Nft();
         nftToAdd.id = nft.getId();
-        nftToAdd.id_indexing = nft.id_indexing.id_indexing_nft++;
+        nftToAdd.idIndexing = new BN(id_indexing.id_indexing_nft++);
         nftToAdd.collection = nft.collection;
         // nftToAdd.symbol = nft.symbol;
         nftToAdd.transferable = new BN(nft.transferable);
@@ -108,15 +108,41 @@ export class DBAdapterV1 implements IConsolidatorAdapter {
         nftToAdd.block = new BN(nft.block);
         await this.store.save<Nft>(nftToAdd);
     }
-    async updateCollectionMint(collection: CollectionConsolidated) {
-        if (!collection.id_indexing || !collection.id_indexing.id_indexing_collection) {
-            throw new Error("Invalid new id_indexing for collections");
-            process.exit(-1);
+    async updateNFTMint(nft: NFT) {
+        const nftToAdd = new Nft();
+        nftToAdd.id = nft.getId();
+        // nftToAdd.id_indexing = nft.id_indexing.id_indexing_nft++;
+        nftToAdd.collection = nft.collection;
+        // nftToAdd.symbol = nft.symbol;
+        nftToAdd.transferable = new BN(nft.transferable);
+        nftToAdd.sn = nft.sn;
+        nftToAdd.metadata = nft.metadata;
+        nftToAdd.block = new BN(nft.block);
+        await this.store.save<Nft>(nftToAdd);
+    }
+    async updateCollectionConsolidatedMint(collection: CollectionConsolidated, id_indexing: IdIndexing) {
+        if (!id_indexing || !id_indexing.id_indexing_collection) {
+            throw new Error("Invalid new id_indexing for collections.");
         }
+        const collectionToAdd = new Collection();
+        collectionToAdd.block = new BN(collection.block);
+        collectionToAdd.id = collection.id;
+        collectionToAdd.idIndexing = new BN(id_indexing.id_indexing_collection++);
+        collectionToAdd.issuer = collection.issuer;
+        collectionToAdd.metadata = collection.metadata;
+        collectionToAdd.symbol = collection.symbol;
+        collectionToAdd.max = new BN(collection.max);
+        await this.store.save<Collection>(collectionToAdd);
+    }
+    async updateCollectionMint(collection: CollectionConsolidated) {
+        // if (!collection.id_indexing || !collection.id_indexing.id_indexing_collection) {
+        //     throw new Error("Invalid new id_indexing for collections");
+        //     process.exit(-1);
+        // }
         let collectionToAdd = new Collection();
         collectionToAdd.block = new BN(collection.block);
         collectionToAdd.id = collection.id;
-        collectionToAdd.id_indexing = collection.id_indexing.id_indexing_collection++;
+        // collectionToAdd.id_indexing = collection.id_indexing.id_indexing_collection++;
         collectionToAdd.issuer = collection.issuer;
         collectionToAdd.metadata = collection.metadata;
         collectionToAdd.symbol = collection.symbol;

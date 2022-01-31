@@ -1,14 +1,14 @@
 import { DatabaseManager } from '@subsquid/hydra-common'
 import { Nft, Collection } from '../generated/model'
-import { IConsolidatorAdapter } from "rmrk-tools/dist/tools/consolidator/adapters/types";
 import { NFTConsolidated, CollectionConsolidated, BaseConsolidated } from "rmrk-tools/dist/tools/consolidator/consolidator";
 import { NFT } from "rmrk-tools/dist/classes/nft";
 import { Collection as CollectionDist } from "rmrk-tools/dist/classes/collection";
 import { Base } from 'rmrk-tools';
 import { AcceptEntityType } from 'rmrk-tools/dist/classes/accept';
 import BN from 'bn.js'
+import { IDBAdapterConsolidatedV2, IdIndexing } from './types/types';
 
-export class DBAdapter implements IConsolidatorAdapter {
+export class DBAdapter implements IDBAdapterConsolidatedV2 {
     store: DatabaseManager;
     constructor(store: DatabaseManager) {
         this.store = store;
@@ -84,6 +84,22 @@ export class DBAdapter implements IConsolidatorAdapter {
                 console.error(`Nft with id ${consolidatedNFT.id} is undefined and cannot be burned.`);
         });
     }
+    async updateNFTConsolidatedMint(nft: NFT, id_indexing: IdIndexing) {
+        if (!id_indexing || !id_indexing.id_indexing_nft) {
+            throw new Error("Invalid new id_indexing for nfts");
+            process.exit(-1);
+        }
+        const nftToAdd = new Nft();
+        nftToAdd.id = nft.getId();
+        nftToAdd.idIndexing = new BN(id_indexing.id_indexing_nft++);
+        nftToAdd.collection = nft.collection;
+        // nftToAdd.symbol = nft.symbol;
+        nftToAdd.transferable = new BN(nft.transferable);
+        nftToAdd.sn = nft.sn;
+        nftToAdd.metadata = nft.metadata;
+        nftToAdd.block = new BN(nft.block);
+        await this.store.save<Nft>(nftToAdd);
+    }
     async updateNFTMint(nft: NFT) {
         // console.log("minting...")
         const nftToAdd = new Nft();
@@ -95,6 +111,20 @@ export class DBAdapter implements IConsolidatorAdapter {
         nftToAdd.metadata = nft.metadata;
         nftToAdd.block = new BN(nft.block);
         await this.store.save<Nft>(nftToAdd);
+    }
+    async updateCollectionConsolidatedMint(collection: CollectionConsolidated, id_indexing: IdIndexing) {
+        if (!id_indexing || !id_indexing.id_indexing_collection) {
+            throw new Error("Invalid new id_indexing for collections.");
+        }
+        const collectionToAdd = new Collection();
+        collectionToAdd.block = new BN(collection.block);
+        collectionToAdd.id = collection.id;
+        collectionToAdd.idIndexing = new BN(id_indexing.id_indexing_collection++);
+        collectionToAdd.issuer = collection.issuer;
+        collectionToAdd.metadata = collection.metadata;
+        collectionToAdd.symbol = collection.symbol;
+        collectionToAdd.max = new BN(collection.max);
+        await this.store.save<Collection>(collectionToAdd);
     }
     async updateCollectionMint(collection: CollectionConsolidated) {
         // TODO this is how this.store methods should be called
