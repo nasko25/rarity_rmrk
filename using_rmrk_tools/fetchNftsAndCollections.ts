@@ -3,15 +3,14 @@ import fetch from 'node-fetch';
 import ipc from 'node-ipc';
 require('dotenv').config();
 const { Pool } = require("pg");
-import { addNft, addMetadata, getLastRetrievedBlockNfts, saveLastRetrievedBlockNfts } from '../db/db_connections/rarity_db_connections';
+import { addNft, addMetadata, getLastRetrievedNft, saveLastRetrievedNft } from '../db/db_connections/rarity_db_connections';
 
 const WAIT_BETWEEN_FETCHES_NORMAL = 2 * 1000;                         // how long to wait between fetches of rmrks from the database to not overload the db with requests normally
 const WAIT_BETWEEN_FETCHES_WAITING_FOR_NEW_RMRKS = 1 * 60 * 1000;     // how long to wait between fetches of rmrks when the last fetched rmrk was not new (so no new rmrks were saved in the db between the last 2 requests)
 
 
-// TODO maybe make it an object
-// this initial values are overwritten with values taken from the db in fetchAndSaveAllNftsAndMetadatas()
-let lastRetrievedBlock = 0, lastRetrievedSN = 0, lastRetrievedCollection = "";
+// this initial value is overwritten with the value taken from the db in fetchAndSaveAllNftsAndMetadatas()
+let lastRetrievedNft = 0;
 let WAIT_BETWEEN_FETCHES = WAIT_BETWEEN_FETCHES_NORMAL;
 
 // postgres pool configuration
@@ -71,11 +70,9 @@ async function fetchNfts() {
             'Accept': 'application/json',
         },
         // body: JSON.stringify({query: `{ rmrkEntities (where: {block_gte: "${lastRetrievedBlock}"}, orderBy: block_DESC) { id block rmrk { caller interactionType remark rmrkVersion extraEx { call caller value } } } }`})
-        // TODO will not work if there are more nfts in a block than what was returned by the db
-        // TODO sort them by block & serial number & collection as that combination should be unique
-        // TODO same thing applies for fetching collections in rarity/calculate_rarity.ts as well
-        // TODO OR add a unique id field to the nft graphql entity that is auto-incremented and get all >= to the last saved id
-        body: JSON.stringify({query: `{ nfts (where: {block_gte: "${ lastRetrievedBlock }"}, orderBy: block_ASC) { block collection id metadata sn symbol transferable version } }`})
+        // will now work if there are more nfts in a block than what was returned by the db
+        // TODO do the same for fetching collections in rarity/calculate_rarity.ts as well
+        body: JSON.stringify({query: `{ nfts (where: {idIndexing_gte: "${ lastRetrievedNft }"}, orderBy: idIndexing_ASC) { block collection id idIndexing metadata sn symbol transferable version } }`})
     })
         .then(res => res.json())
         .then(async data => {
@@ -84,14 +81,14 @@ async function fetchNfts() {
                 const nfts = data.data.nfts;
                 // if there is only one fetched nft and it is the lastRetrievedBlock, wait for a little bit longer
                 //  because that means there are no new nfts added to the db
-                if (nfts.length === 1 && nfts[0].block === lastRetrievedBlock) {
+                if (nfts.length === 1 && nfts[0].idIndexing === lastRetrievedNft) {
                     WAIT_BETWEEN_FETCHES = WAIT_BETWEEN_FETCHES_WAITING_FOR_NEW_RMRKS;
                 } else {
                     WAIT_BETWEEN_FETCHES = WAIT_BETWEEN_FETCHES_NORMAL;
                 }
-                // get the biggest block you have retrieved
-                // (which is the last nft in data, as they are ordered by ascending block number)
-                lastRetrievedBlock = nfts[nfts.length - 1].block;
+                // get the biggest indexing id you have retrieved
+                // (which is the last nft in data, as they are ordered by ascending idIndexing number)
+                lastRetrievedNft = nfts[nfts.length - 1].idIndexing;
 
                 return nfts;
             }
@@ -127,6 +124,7 @@ export async function fetchAndSaveMetadata(url: string, nft_id: string) {
                 .then(res => res.json())
                 .then(data => {
                     // TODO handle errors
+                    //  what if data.metadata is null?
                     addMetadata(data.nft_id, data.metadata, DB_POOL).catch(err => process.exit(-1));
                 })
         }
@@ -143,7 +141,7 @@ function sleep(ms) {
 
 process.on ('SIGINT', async () => {
     console.log('Exiting');
-    await saveLastRetrievedBlockNfts(lastRetrievedBlock, DB_POOL);
+    await saveLastRetrievedNft(lastRetrievedNft, DB_POOL);
     await DB_POOL.end();
     await ipc.disconnect("server");
     process.exit(1);
@@ -151,8 +149,7 @@ process.on ('SIGINT', async () => {
 
 // fetch and save all nfts and their metadata
 async function fetchAndSaveAllNftsAndMetadatas() {
-    lastRetrievedNft = <number>(await getLastRetrievedBlockNfts(DB_POOL)).rows[0].last_retrieved_block_nfts;
-    lastRetrievedBlock = lastRetrievedNft.last_retrieved_block_nfts;
+    lastRetrievedNft = <number>(await getLastRetrievedNft(DB_POOL)).rows[0].last_retrieved_nft;
     while (true) {
         console.log("Fetching rmrk nfts from the database...");
         // TODO is await Promise.all necessary? should the nfts.map be awaited?
@@ -163,7 +160,7 @@ async function fetchAndSaveAllNftsAndMetadatas() {
         ).catch(err => { console.error(err); process.exit(-1); });
         console.log("Fetching done\nWaiting before fetching the next batch...");
         await sleep(WAIT_BETWEEN_FETCHES);
-        console.log(lastRetrievedBlock)
+        console.log(lastRetrievedNft)
     }
 }
 

@@ -4,6 +4,6 @@ GRANT ALL PRIVILEGES ON DATABASE rarity_rmrk TO postgres;
 CREATE TABLE nfts ( nft_id VARCHAR (800) PRIMARY KEY, collection_id VARCHAR (200) );
 CREATE TABLE rarities ( id VARCHAR (800) PRIMARY KEY, rarity REAL, CONSTRAINT nft FOREIGN KEY (id) REFERENCES nfts(nft_id) ON DELETE CASCADE ON UPDATE CASCADE );
 CREATE TABLE metadatas ( id VARCHAR (800) PRIMARY KEY, metadata_json TEXT /* later may have other fields, like images from the metadata */, CONSTRAINT nft FOREIGN KEY (id) REFERENCES nfts(nft_id) ON DELETE CASCADE ON UPDATE CASCADE );
-CREATE TABLE metadata_information ( last_retrieved_block_nfts BIGINT, last_retrieved_block_collections BIGINT );
+CREATE TABLE metadata_information ( last_retrieved_nft BIGINT, last_retrieved_collection BIGINT );
 /* initially set the last_retrieved_block to 0 */
-INSERT INTO metadata_information ( last_retrieved_block_nfts, last_retrieved_block_collections ) VALUES ( 0, 0 );
+INSERT INTO metadata_information ( last_retrieved_nft, last_retrieved_collection ) VALUES ( 0, 0 );
