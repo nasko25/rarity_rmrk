@@ -2,12 +2,13 @@ import fetch from 'node-fetch';
 require('dotenv').config();
 const { Pool } = require("pg");
 import { Collection } from '../generated/model/index';
-import { getMetadataJoinCollectionId, getLastRetrievedBlockCollections, saveLastRetrievedBlockCollections } from '../db/db_connections/rarity_db_connections';
+import { getMetadataJoinCollectionId, getLastRetrievedCollection, saveLastRetrievedCollection } from '../db/db_connections/rarity_db_connections';
 
 // TODO code duplication + extract the fetching of collections to fetchNftsAndCollections.ts
 
-// keep track of the last retrieved collection block from the graphql db
-let lastRetrievedBlock = 0;
+// keep track of the last retrieved collection id from the graphql db
+//  this default value will be overwritten in fetchAllCollections() with a value from the db
+let lastRetrievedCollection = 0;
 
 
 const WAIT_BETWEEN_FETCHES_NORMAL = 2 * 1000;                         // how long to wait between fetches of rmrks from the database to not overload the db with requests normally
@@ -43,7 +44,7 @@ async function fetchCollections(condition?: string) {
             'Content-Type': 'application/json',
             'Accept': 'application/json',
         },
-        body: JSON.stringify({query: `{ collections (where: {block_gte: "${lastRetrievedBlock}"}, orderBy: block_ASC) { id block max } }`})
+        body: JSON.stringify({query: `{ collections (where: {idIndexing_gte: "${lastRetrievedCollection}"}, orderBy: idIndexing_ASC) { id idIndexing block max } }`})
     })
         .then(res => res.json())
         //.then(data => console.log(data));
@@ -52,17 +53,17 @@ async function fetchCollections(condition?: string) {
             if (data && data.data && data.data.collections && data.data.collections.length > 0) {
                 const collections = data.data.collections;
 
-                // get the biggest block you have retrieved
-                //  (which is from the last collection in data, as they are ordered by ascending block number)
-                lastRetrievedBlock = collections[collections.length - 1].block;
+                // get the biggest id_indexing you have retrieved
+                //  (which is from the last collection in data, as they are ordered by ascending idIndexing number)
+                lastRetrievedCollection = collections[collections.length - 1].idIndexing;
 
-                // if there is only one fetched collections and it is from the lastRetrievedBlock, wait for a little bit longer
+                // if there is only one fetched collections and it is from the lastRetrievedCollection, wait for a little bit longer
                 //  because there are no new collections added to the db
-                if (collections.length === 1 && collections[0].block === lastRetrievedBlock) {
+                if (collections.length === 1 && collections[0].idIndexing === lastRetrievedCollection) {
                     WAIT_BETWEEN_FETCHES = WAIT_BETWEEN_FETCHES_WAITING_FOR_NEW_RMRKS;
-                    // reset lastRetrievedBlock back to 0 so that the rarities of newly added nfts from older collections will be recalculated
+                    // reset lastRetrievedCollection back to 0 so that the rarities of newly added nfts from older collections will be recalculated
                     if (COUNTER_WAITING_FOR >= MAX_COUNTER_WAITING_FOR) {
-                        lastRetrievedBlock = 0;
+                        lastRetrievedCollection = 0;
                         COUNTER_WAITING_FOR = 0;
                     } else {
                         COUNTER_WAITING_FOR++;
@@ -72,6 +73,7 @@ async function fetchCollections(condition?: string) {
                     COUNTER_WAITING_FOR = 0;
                 }
 
+                console.log(collections);
                 return collections;
             }
         });
@@ -83,13 +85,13 @@ export function sleep(ms: number) {
 
 process.on ('SIGINT', async () => {
     console.log('Exiting');
-    await saveLastRetrievedBlockCollections(lastRetrievedBlock, DB_POOL);
+    await saveLastRetrievedCollection(lastRetrievedCollection, DB_POOL);
     await DB_POOL.end();
     process.exit(1);
 });
 
 async function fetchAllCollections() {
-    lastRetrievedBlock = <number>(await getLastRetrievedBlockCollections(DB_POOL)).rows[0].last_retrieved_block_collections;
+    lastRetrievedCollection = <number>(await getLastRetrievedCollection(DB_POOL)).rows[0].last_retrieved_collection;
     while(true) {
         await fetchCollections().then(async (collections) => {
             // console.log(collections);

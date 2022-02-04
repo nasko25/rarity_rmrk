@@ -86,7 +86,7 @@ export async function getLastRetrievedCollection(DB_POOL: Pool) {
     return DB_POOL.query(query);
 }
 
-export async function saveLastRetrievedBlockCollections(last_retrieved_collection: number, DB_POOL: Pool) {
+export async function saveLastRetrievedCollection(last_retrieved_collection: number, DB_POOL: Pool) {
     const query = `UPDATE metadata_information SET last_retrieved_collection = $1`;
     const values = [ last_retrieved_collection ];
 
