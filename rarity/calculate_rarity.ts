@@ -105,6 +105,10 @@ async function fetchAllCollections() {
                     nft_metadata_rows.map(metadata => {
                         const nft_attributes = JSON.parse(metadata.metadata_json).attributes;
                         if (nft_attributes && nft_attributes.length > 0)
+                            // TODO save lastRetrievedCollection only AFTER calculating the rarity to the db
+                            //  maybe instead of lastRetrievedCollection = nfts[nfts.length - 1].idIndexing;
+                            //  save it in a temporary variable and update lastRetrievedCollection here
+                            //  after saving the calculated rarity to the database
                             console.log(nft_attributes);
                     });
                 }

@@ -11,6 +11,12 @@ const WAIT_BETWEEN_FETCHES_WAITING_FOR_NEW_RMRKS = 1 * 60 * 1000;     // how lon
 
 // this initial value is overwritten with the value taken from the db in fetchAndSaveAllNftsAndMetadatas()
 let lastRetrievedNft = 0;
+
+// this is used a temporary variable before the last retrieved nft is saved in lastRetrievedNft
+//  since exiting in the middle of fetching nft metadata will result in saving lastRetrievedNft in the database
+//  before the metadata is saved to the database
+let last_id_indexing = 0;
+
 let WAIT_BETWEEN_FETCHES = WAIT_BETWEEN_FETCHES_NORMAL;
 
 // postgres pool configuration
@@ -72,7 +78,7 @@ async function fetchNfts() {
         // body: JSON.stringify({query: `{ rmrkEntities (where: {block_gte: "${lastRetrievedBlock}"}, orderBy: block_DESC) { id block rmrk { caller interactionType remark rmrkVersion extraEx { call caller value } } } }`})
         // will now work if there are more nfts in a block than what was returned by the db
         // TODO do the same for fetching collections in rarity/calculate_rarity.ts as well
-        body: JSON.stringify({query: `{ nfts (where: {idIndexing_gte: "${ lastRetrievedNft }"}, orderBy: idIndexing_ASC) { block collection id idIndexing metadata sn symbol transferable version } }`})
+        body: JSON.stringify({query: `{ nfts (where: {idIndexing_gte: "${ last_id_indexing }"}, orderBy: idIndexing_ASC) { block collection id idIndexing metadata sn symbol transferable version } }`})
     })
         .then(res => res.json())
         .then(async data => {
@@ -81,14 +87,14 @@ async function fetchNfts() {
                 const nfts = data.data.nfts;
                 // if there is only one fetched nft and it is the lastRetrievedBlock, wait for a little bit longer
                 //  because that means there are no new nfts added to the db
-                if (nfts.length === 1 && nfts[0].idIndexing === lastRetrievedNft) {
+                if (nfts.length === 1 && nfts[0].idIndexing === last_id_indexing) {
                     WAIT_BETWEEN_FETCHES = WAIT_BETWEEN_FETCHES_WAITING_FOR_NEW_RMRKS;
                 } else {
                     WAIT_BETWEEN_FETCHES = WAIT_BETWEEN_FETCHES_NORMAL;
                 }
                 // get the biggest indexing id you have retrieved
                 // (which is the last nft in data, as they are ordered by ascending idIndexing number)
-                lastRetrievedNft = nfts[nfts.length - 1].idIndexing;
+                last_id_indexing = nfts[nfts.length - 1].idIndexing;
 
                 return nfts;
             }
@@ -149,18 +155,12 @@ process.on ('SIGINT', async () => {
 
 // fetch and save all nfts and their metadata
 async function fetchAndSaveAllNftsAndMetadatas() {
-    lastRetrievedNft = <number>(await getLastRetrievedNft(DB_POOL)).rows[0].last_retrieved_nft;
+    last_id_indexing = <number>(await getLastRetrievedNft(DB_POOL)).rows[0].last_retrieved_nft;
     while (true) {
         console.log("Fetching rmrk nfts from the database...");
         // TODO is await Promise.all necessary? should the nfts.map be awaited?
         await fetchNfts().then(async (nfts) => await Promise.all(nfts.map( async (nft) => {
-                // TODO .then() fetchAndSaveMetadata instead of await?
-                await addNft(nft, DB_POOL);
-                fetchAndSaveMetadata(nft.metadata, nft.id);
-                // TODO save lastRetrievedNft (and Collection) only AFTER saving the metadata to the db
-                //  maybe instead of lastRetrievedNft = nfts[nfts.length - 1].idIndexing;
-                //  save it in a temporary variable and update lastRetrievedNft here
-                // lastRetrievedNft = last_id_indexing;
+                addNft(nft, DB_POOL).then(() => fetchAndSaveMetadata(nft.metadata, nft.id).then(() => lastRetrievedNft = last_id_indexing));
             }))
         ).catch(err => { console.error(err); process.exit(-1); });
         console.log("Fetching done\nWaiting before fetching the next batch...");
