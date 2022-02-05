@@ -24,11 +24,17 @@ async function startIPCServerAndIPFSNode() {
                 async function(data, socket){
                     const parsed_data = JSON.parse(data);
                     ipc.log('got a request for ipfs cid: ', parsed_data.ipfs_cid, "; for an nft with id: ", parsed_data.nft_id);
-                    const metadata = uint8ArrayConcat(await all(node.cat(parsed_data.ipfs_cid)));
+                    let metadata;
+                    try {
+                        metadata = uint8ArrayConcat(await all(node.cat(parsed_data.ipfs_cid)));
+                    } catch (err) {
+                        console.error(err, metadata);
+                        console.log(metadata);
+                    }
                     ipc.server.emit(
                         socket,
                         "ipfs_response",
-                        JSON.stringify({ nft_id: parsed_data.nft_id, metadata: uint8ArrayToString(metadata) })
+                        JSON.stringify({ nft_id: parsed_data.nft_id, metadata: metadata ? uint8ArrayToString(metadata) : { } })
                     );
                 }
             );

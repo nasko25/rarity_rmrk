@@ -73,7 +73,6 @@ async function fetchCollections(condition?: string) {
                     COUNTER_WAITING_FOR = 0;
                 }
 
-                console.log(collections);
                 return collections;
             }
         });
@@ -112,6 +111,7 @@ async function fetchAllCollections() {
             }));
         }).catch(err => { console.error(err); process.exit(-1); });
         await sleep(WAIT_BETWEEN_FETCHES);
+        console.log(lastRetrievedCollection);
     }
 }
 
