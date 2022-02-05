@@ -2,7 +2,7 @@ import fetch from 'node-fetch';
 require('dotenv').config();
 const { Pool } = require("pg");
 import { Collection } from '../generated/model/index';
-import { getMetadataJoinCollectionId, getLastRetrievedCollection, saveLastRetrievedCollection } from '../db/db_connections/rarity_db_connections';
+import { getMetadataJoinCollectionId, getLastRetrievedCollection, saveLastRetrievedCollection, addRarity } from '../db/db_connections/rarity_db_connections';
 
 // TODO code duplication + extract the fetching of collections to fetchNftsAndCollections.ts
 
@@ -103,13 +103,15 @@ async function fetchAllCollections() {
                     // also missing attribute should be labeled as None or null
                     let attribute_list: string[] = [];
                     nft_metadata_rows.map(metadata => {
+                        const nft_properties = JSON.parse(metadata.metadata_json).properties;
                         const nft_attributes = JSON.parse(metadata.metadata_json).attributes;
-                        if (nft_attributes && nft_attributes.length > 0)
+                        if ((nft_properties && Object.keys(nft_properties).length !== 0) || (nft_attributes && Object.keys(nft_attributes).length !== 0)) {
                             // TODO save lastRetrievedCollection only AFTER calculating the rarity to the db
                             //  maybe instead of lastRetrievedCollection = nfts[nfts.length - 1].idIndexing;
                             //  save it in a temporary variable and update lastRetrievedCollection here
                             //  after saving the calculated rarity to the database
-                            console.log(nft_attributes);
+                            console.log(nft_properties, nft_attributes);
+                        }
                     });
                 }
             }));
